@@ -179,6 +179,25 @@ machine_at_neat_init(const machine_t *model)
     return ret;
 }
 
+int
+machine_at_kenitec286_init(const machine_t* model)
+{
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/kenitec286/kenitec.bin",
+        0x000f0000, 65536, 0);
+
+    if (bios_only || !ret)
+        return ret;
+
+    machine_at_init(model);
+
+    device_add(&neat_device);
+    device_add(&fdc_at_device);
+
+    return ret;
+}
+
 
 int
 machine_at_neat_ami_init(const machine_t *model)
