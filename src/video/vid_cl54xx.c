@@ -36,6 +36,8 @@
 #include "vid_svga.h"
 #include "vid_svga_render.h"
 
+
+#define BIOS_GD5401_PATH		L"roms/video/cirruslogic/avga1.rom"
 #define BIOS_GD5402_PATH		L"roms/video/cirruslogic/avga2.rom"
 #define BIOS_GD5402_ONBOARD_PATH	L"roms/video/machines/cbm_sl386sx25/Commodore386SX-25_AVGA2.bin"
 #define BIOS_GD5420_PATH		L"roms/video/cirruslogic/5420.vbi"
@@ -45,22 +47,23 @@
 #endif
 
 #define BIOS_GD5426_PATH		L"roms/video/cirruslogic/Diamond SpeedStar PRO VLB v3.04.bin"
-#define BIOS_GD5428_ISA_PATH		L"roms/video/cirruslogic/5428.bin"
+#define BIOS_GD5428_ISA_PATH	L"roms/video/cirruslogic/5428.bin"
 #define BIOS_GD5428_PATH		L"roms/video/cirruslogic/vlbusjapan.BIN"
 #define BIOS_GD5429_PATH		L"roms/video/cirruslogic/5429.vbi"
-#define BIOS_GD5430_VLB_PATH		L"roms/video/cirruslogic/diamondvlbus.bin"
-#define BIOS_GD5430_PCI_PATH		L"roms/video/cirruslogic/pci.bin"
+#define BIOS_GD5430_VLB_PATH	L"roms/video/cirruslogic/diamondvlbus.bin"
+#define BIOS_GD5430_PCI_PATH	L"roms/video/cirruslogic/pci.bin"
 #define BIOS_GD5434_PATH		L"roms/video/cirruslogic/gd5434.bin"
 #define BIOS_GD5436_PATH		L"roms/video/cirruslogic/5436.vbi"
 #define BIOS_GD5440_PATH		L"roms/video/cirruslogic/BIOS.BIN"
 #define BIOS_GD5446_PATH		L"roms/video/cirruslogic/5446BV.VBI"
-#define BIOS_GD5446_STB_PATH		L"roms/video/cirruslogic/stb nitro64v.BIN"
+#define BIOS_GD5446_STB_PATH	L"roms/video/cirruslogic/stb nitro64v.BIN"
 #define BIOS_GD5480_PATH		L"roms/video/cirruslogic/clgd5480.rom"
 
+#define CIRRUS_ID_CLGD5401	  	0x88    /* guessed ??? */
 #define CIRRUS_ID_CLGD5402	  	0x89
 #define CIRRUS_ID_CLGD5420	  	0x8a
-#define CIRRUS_ID_CLGD5422  		0x8c
-#define CIRRUS_ID_CLGD5424  		0x94
+#define CIRRUS_ID_CLGD5422  	0x8c
+#define CIRRUS_ID_CLGD5424  	0x94
 #define CIRRUS_ID_CLGD5426		0x90
 #define CIRRUS_ID_CLGD5428		0x98
 #define CIRRUS_ID_CLGD5429		0x9c
@@ -2960,6 +2963,9 @@ static void
     gd54xx->has_bios = 1;
 
     switch (id) {
+	case CIRRUS_ID_CLGD5401:
+		romfn = BIOS_GD5401_PATH;
+		break;
 	case CIRRUS_ID_CLGD5402:
 		if (info->local & 0x200)
 			romfn = BIOS_GD5402_ONBOARD_PATH;
@@ -3133,6 +3139,11 @@ static void
     return gd54xx;
 }
 
+static int
+gd5401_available(void)
+{
+	return rom_present(BIOS_GD5401_PATH);
+}
 static int
 gd5402_available(void)
 {
@@ -3353,6 +3364,19 @@ static const device_config_t gd5434_config[] =
         {
                 .type = -1
         }
+};
+
+const device_t gd5401_isa_device =
+{
+	"Cirrus Logic GD-5401 (ACUMOS AVGA1)",
+	DEVICE_AT | DEVICE_ISA,
+	CIRRUS_ID_CLGD5401,
+	gd54xx_init, gd54xx_close,
+	NULL,
+	gd5401_available,
+	gd54xx_speed_changed,
+	gd54xx_force_redraw,
+	NULL,
 };
 
 const device_t gd5402_isa_device =
