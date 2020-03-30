@@ -14,23 +14,18 @@
  *
  *		Copyright 2019 Miran Grca.
  */
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 #define HAVE_STDARG_H
-#include "86box.h"
+#include <86box/86box.h>
 #include "cpu.h"
-#include "device.h"
-#include "86box_io.h"
-
-
-typedef struct
-{
-    uint8_t cmd,
-	    stat;
-} apm_t;
+#include <86box/device.h>
+#include <86box/io.h>
+#include <86box/apm.h>
 
 
 #ifdef ENABLE_APM_LOG
@@ -53,6 +48,13 @@ apm_log(const char *fmt, ...)
 #endif
 
 
+void
+apm_set_do_smi(apm_t *apm, uint8_t do_smi)
+{
+    apm->do_smi = do_smi;
+}
+
+
 static void
 apm_out(uint16_t port, uint8_t val, void *p)
 {
@@ -64,34 +66,8 @@ apm_out(uint16_t port, uint8_t val, void *p)
 
     if (port == 0x0000) {
 	apm->cmd = val;
-
-	switch (apm->cmd) {
-		case 0x07:			/* Set Power State */
-			if (CH == 0x00)  switch (CX) {
-				case 0x0000:
-#ifdef ENABLE_APM_LOG
-					apm_log("APM Set Power State: APM Enabled\n");
-#endif
-					break;
-				case 0x0001:
-#ifdef ENABLE_APM_LOG
-					apm_log("APM Set Power State: Standby\n");
-#endif
-					break;
-				case 0x0002:
-#ifdef ENABLE_APM_LOG
-					apm_log("APM Set Power State: Suspend\n");
-#endif
-					break;
-				case 0x0003:	/* Off */
-#ifdef ENABLE_APM_LOG
-					apm_log("APM Set Power State: Off\n");
-#endif
-					exit(-1);
-					break;
-			}
-			break;
-	}
+	if (apm->do_smi)
+    		smi_line = 1;
     } else
 	apm->stat = val;
 }

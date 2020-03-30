@@ -25,24 +25,24 @@
 #include <stdarg.h>
 #define HAVE_STDARG_H
 #include <wchar.h>
-#include "86box.h"
+#include <86box/86box.h>
 #include "cpu.h"
-#include "timer.h"
-#include "86box_io.h"
-#include "pic.h"
-#include "pit.h"
-#include "ppi.h"
-#include "mem.h"
-#include "device.h"
-#include "machine.h"
-#include "m_xt_xi8088.h"
-#include "m_at_t3100e.h"
-#include "fdd.h"
-#include "fdc.h"
-#include "sound.h"
-#include "snd_speaker.h"
-#include "video.h"
-#include "keyboard.h"
+#include <86box/timer.h>
+#include <86box/io.h>
+#include <86box/pic.h>
+#include <86box/pit.h>
+#include <86box/ppi.h>
+#include <86box/mem.h>
+#include <86box/device.h>
+#include <86box/machine.h>
+#include <86box/m_xt_xi8088.h>
+#include <86box/m_at_t3100e.h>
+#include <86box/fdd.h>
+#include <86box/fdc.h>
+#include <86box/sound.h>
+#include <86box/snd_speaker.h>
+#include <86box/video.h>
+#include <86box/keyboard.h>
 
 
 #define STAT_PARITY		0x80
@@ -633,17 +633,20 @@ kbd_poll(void *priv)
     if ((dev->out_new != -1) && !dev->last_irq) {
 	dev->wantirq = 0;
 	if (dev->out_new & 0x100) {
+		if (mouse_scan) {
 #ifdef ENABLE_KEYBOARD_AT_LOG
-		kbd_log("ATkbd: want mouse data\n");
+			kbd_log("ATkbd: want mouse data\n");
 #endif
-		if (dev->mem[0] & 0x02)
-			picint(0x1000);
-		dev->out = dev->out_new & 0xff;
-		dev->out_new = -1;
-		dev->status |=  STAT_OFULL;
-		dev->status &= ~STAT_IFULL;
-		dev->status |=  STAT_MFULL;
-		dev->last_irq = 0x1000;
+			if (dev->mem[0] & 0x02)
+				picint(0x1000);
+			dev->out = dev->out_new & 0xff;
+			dev->out_new = -1;
+			dev->status |=  STAT_OFULL;
+			dev->status &= ~STAT_IFULL;
+			dev->status |=  STAT_MFULL;
+			dev->last_irq = 0x1000;
+		} else
+			dev->out_new = -1;
 	} else {
 #ifdef ENABLE_KEYBOARD_AT_LOG
 		kbd_log("ATkbd: want keyboard data\n");
