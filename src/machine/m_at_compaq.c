@@ -45,7 +45,8 @@ enum
 {
     COMPAQ_PORTABLEII = 0,
     COMPAQ_PORTABLEIII,
-    COMPAQ_PORTABLEIII386
+    COMPAQ_PORTABLEIII386,
+	COMPAQ_DESKPRO_386
 };
 
 #define CGA_RGB 0
@@ -733,7 +734,7 @@ static const device_t compaq_plasma_device =
         compaq_plasma_init,
         compaq_plasma_close,
         NULL,
-	NULL,
+		NULL,
         compaq_plasma_speed_changed,
         NULL,
         compaq_plasma_config
@@ -819,6 +820,11 @@ machine_at_compaq_init(const machine_t *model, int type)
                     0xa0000+ram, MEM_MAPPING_INTERNAL, NULL);
 
     switch(type) {
+	    
+	case COMPAQ_DESKPRO_386:
+		if (hdc_current == 1)
+			device_add(&ide_isa_device);
+		break;
 	case COMPAQ_PORTABLEII:
 		break;
 
@@ -888,4 +894,22 @@ machine_at_portableiii386_init(const machine_t *model)
     machine_at_compaq_init(model, COMPAQ_PORTABLEIII386);
 
     return ret;
+}
+
+
+int
+machine_at_deskpro386_init(const machine_t* model)
+{
+	int ret;
+
+	ret = bios_load_interleavedr(L"roms/machines/deskpro386/109592-005.U11.bin",
+		L"roms/machines/deskpro386/109591-005.U13.bin",
+		0x000f8000, 65536, 0);
+
+	if (bios_only || !ret)
+		return ret;
+
+	machine_at_compaq_init(model, COMPAQ_DESKPRO_386);
+
+	return ret;
 }
