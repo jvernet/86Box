@@ -809,16 +809,18 @@ static void
 machine_at_compaq_init(const machine_t *model, int type)
 {
     machine_at_init(model);
+		
+	if(type!=COMPAQ_DESKPRO_386)
+	  mem_remap_top(384);
 
-    mem_remap_top(384);
-	
-    device_add(&fdc_at_device);
+  
 
     mem_mapping_add(&ram_mapping, 0xfa0000, 0x60000,
                     read_ram, read_ramw, read_raml,
                     write_ram, write_ramw, write_raml,
                     0xa0000+ram, MEM_MAPPING_INTERNAL, NULL);
-
+	
+	  device_add(&fdc_at_device);
     switch(type) {
 	    
 	case COMPAQ_DESKPRO_386:
