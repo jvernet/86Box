@@ -68,6 +68,10 @@ extern const device_t	keyboard_tandy_device;
 #if defined(DEV_BRANCH) && defined(USE_LASERXT)
 extern const device_t	keyboard_xt_lxt3_device;
 #endif
+#if defined(DEV_BRANCH)   //ATARIPC3
+extern const device_t keyboard_xt_ataripc3_device;
+#endif
+
 extern const device_t	keyboard_at_device;
 extern const device_t	keyboard_at_ami_device;
 extern const device_t	keyboard_at_toshiba_device;

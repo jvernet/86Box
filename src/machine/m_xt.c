@@ -284,3 +284,24 @@ machine_thomson_to16pc(const machine_t* model)
 
     return 1;
 }
+
+int
+machine_xt_ataripc3(const machine_t* model)
+{
+    // TODO: need adaptr in keyboard_read ??
+
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/ataripc3/AWARD_ATARI_PC_BIOS_3.08.BIN",
+        0x000f8000, 32768, 0);
+
+    if (bios_only || !ret)
+        return ret;
+
+    device_add(&keyboard_xt_ataripc3_device);
+
+    machine_xt_common_init(model);
+
+    
+    return 1;
+}

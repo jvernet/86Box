@@ -535,7 +535,10 @@ kbd_read(uint16_t port, void *priv)
 			ret = (kbd->pd & ~0x02) | (hasfpu ? 0x02 : 0x00);
 		else if (((kbd->type == 2) || (kbd->type == 3)) && (kbd->pb & 0x80))
 			ret = 0xff;	/* According to Ruud on the PCem forum, this is supposed to return 0xFF on the XT. */
-		else
+		else if ((kbd->type == 8 && (kbd->pb & 0x80)))
+            ret=0x7f; // for ATARI PC3
+
+        else
 			ret = kbd->pa;
 		break;
 
@@ -574,6 +577,13 @@ kbd_read(uint16_t port, void *priv)
 
 		if (kbd->type == 5)
 			ret |= (tandy1k_eeprom_read() ? 0x10 : 0);
+        if (kbd->type == 8) //ATARIPC3
+        {
+            if (kbd->pb & 0x04)
+                ret = 0xf;
+            else
+                ret = 4;
+        }
 		break;
 
 	case 0x63:
@@ -806,6 +816,18 @@ const device_t keyboard_xt_lxt3_device = {
     "VTech Laser XT3 Keyboard",
     0,
     7,
+    kbd_init,
+    kbd_close,
+    kbd_reset,
+    NULL, NULL, NULL
+};
+#endif
+
+#if defined(DEV_BRANCH)
+const device_t keyboard_xt_ataripc3_device = {
+    "VTech Laser XT3 Keyboard",
+    0,
+    8,
     kbd_init,
     kbd_close,
     kbd_reset,

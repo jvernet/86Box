@@ -64,7 +64,8 @@
 
 const machine_t machines[] = {
     { "[8088] AMI XT clone",			"amixt",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											 64,  640,  64,   0,		machine_xt_amixt_init, NULL			},
-    { "[8088] Compaq Portable",			"portable",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_VIDEO,									128,  640, 128,   0,	       machine_xt_compaq_init, NULL			},
+    { "[8088] ATARI PC3",			    "ataripc3",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											 64,  640,  64,   0,		machine_xt_ataripc3,   NULL			},
+    { "[8088] Compaq Portable",			"portable",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_VIDEO,							128,  640, 128,   0,	       machine_xt_compaq_init, NULL			},
     { "[8088] DTK XT clone",			"dtk",			{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											 64,  640,  64,   0,		  machine_xt_dtk_init, NULL			},
     { "[8088] IBM PC (1981)",			"ibmpc",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											 16,   64,  16,   0,		      machine_pc_init, NULL			},
     { "[8088] IBM PC (1982)",			"ibmpc82",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											256,  256, 256,   0,		    machine_pc82_init, NULL			},
@@ -78,7 +79,7 @@ const machine_t machines[] = {
     { "[8088] Schneider EuroPC",		"europc",		{{"Siemens",	cpus_europc}, {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_HDC | MACHINE_MOUSE,				512,  640, 128,  15,		  machine_europc_init, NULL			},
     { "[8088] Tandy 1000",			    "tandy",		{{"Intel",      cpus_europc}, {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_VIDEO | MACHINE_VIDEO_FIXED,		128,  640, 128,   0,		   machine_tandy_init, tandy1k_get_device	},
     { "[8088] Tandy 1000 HX",			"tandy1000hx",	{{"Intel",      cpus_europc}, {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_VIDEO | MACHINE_VIDEO_FIXED,		256,  640, 128,   0,	     machine_tandy1000hx_init, tandy1k_hx_get_device	},
-    { "[8088] Thomson TO16PC",			"to16_pc",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,							512,  640, 128,   0,	     machine_thomson_to16pc, NULL	},
+    { "[8088] Thomson TO16PC",			"to16_pc",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,							                512,  640, 128,   0,	     machine_thomson_to16pc, NULL	},
     { "[8088] Toshiba T1000",			"t1000",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA | MACHINE_VIDEO,									512, 1280, 768,  63,		machine_xt_t1000_init, t1000_get_device		},
 
 #if defined(DEV_BRANCH) && defined(USE_LASERXT)
