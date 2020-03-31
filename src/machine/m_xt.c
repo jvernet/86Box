@@ -267,3 +267,20 @@ machine_xt_pxxt_init(const machine_t *model)
 
     return 1;
 }
+
+
+int
+machine_thomson_to16pc(const machine_t* model)
+{
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/to16pc/TO16_103.bin",
+        0x000f8000, 32768, 0);
+
+    if (bios_only || !ret)
+        return ret;
+
+    machine_xt_clone_init(model);
+
+    return 1;
+}

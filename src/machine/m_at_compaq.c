@@ -820,7 +820,7 @@ machine_at_compaq_init(const machine_t *model, int type)
                     write_ram, write_ramw, write_raml,
                     0xa0000+ram, MEM_MAPPING_INTERNAL, NULL);
 	
-	  device_add(&fdc_at_device);
+	device_add(&fdc_at_device);
     switch(type) {
 	    
 	case COMPAQ_DESKPRO_386:
