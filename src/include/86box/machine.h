@@ -266,6 +266,7 @@ extern int	machine_at_endeavor_init(const machine_t *);
 extern int	machine_at_zappa_init(const machine_t *);
 extern int	machine_at_mb500n_init(const machine_t *);
 extern int	machine_at_president_init(const machine_t *);
+extern int	machine_at_apollo_init(const machine_t *);
 #if defined(DEV_BRANCH) && defined(USE_VECTRA54)
 extern int	machine_at_vectra54_init(const machine_t *);
 #endif
@@ -316,11 +317,18 @@ extern int	machine_at_i440fx_init(const machine_t *);
 extern int	machine_at_s1668_init(const machine_t *);
 #endif
 
+/* m_at_slot1.c */
 extern int	machine_at_6bxc_init(const machine_t *);
 extern int  machine_at_p2bls_init(const machine_t *);
 extern int	machine_at_borapro_init(const machine_t *);
+
+/* m_at_socket370.c */
 extern int	machine_at_63a_init(const machine_t *);
 extern int	machine_at_apas3_init(const machine_t *);
+
+#if defined(DEV_BRANCH) && defined(USE_I686) && defined(USE_596B)
+extern int	machine_at_bx98_init(const machine_t *);
+#endif
 
 /* m_at_t3100e.c */
 extern int	machine_at_t3100e_init(const machine_t *);
@@ -393,6 +401,8 @@ extern int	machine_xt_open_xt_init(const machine_t *);
 extern int	machine_xt_pxxt_init(const machine_t *);
 extern int  machine_thomson_to16pc(const machine_t*);
 extern int  machine_xt_ataripc3(const machine_t*);
+extern int  machine_xt_hed919_init(const machine_t *);
+
 /* m_xt_compaq.c */
 extern int	machine_xt_compaq_init(const machine_t *);
 

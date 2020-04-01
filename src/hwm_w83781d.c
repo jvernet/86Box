@@ -13,10 +13,12 @@
  * Author:	RichardG, <richardg867@gmail.com>
  *		Copyright 2020 RichardG.
  */
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#define HAVE_STDARG_H
 #include <wchar.h>
 #include <86box/86box.h>
 #include <86box/device.h>
@@ -65,6 +67,26 @@ static void	w83781d_smbus_write_byte_cmd(uint8_t addr, uint8_t cmd, uint8_t val,
 static void	w83781d_smbus_write_word_cmd(uint8_t addr, uint8_t cmd, uint16_t val, void *priv);
 static uint8_t	w83781d_write(w83781d_t *dev, uint8_t reg, uint8_t val, uint8_t bank);
 static void	w83781d_reset(w83781d_t *dev, uint8_t initialization);
+
+
+#ifdef ENABLE_W83781D_LOG
+int w83781d_do_log = ENABLE_W83781D_LOG;
+
+
+static void
+w83781d_log(const char *fmt, ...)
+{
+    va_list ap;
+
+    if (w83781d_do_log) {
+	va_start(ap, fmt);
+	pclog_ex(fmt, ap);
+	va_end(ap);
+    }
+}
+#else
+#define w83781d_log(fmt, ...)
+#endif
 
 
 static void
@@ -200,7 +222,7 @@ w83781d_read(w83781d_t *dev, uint8_t reg, uint8_t bank)
     		ret = dev->regs[reg];
     }
 
-    pclog("w83781d_read(%02x, %d) = %02x\n", reg, bank, ret);
+    w83781d_log("w83781d_read(%02x, %d) = %02x\n", reg, bank, ret);
 
     return ret;
 }
@@ -427,7 +449,7 @@ w83781d_reset(w83781d_t *dev, uint8_t initialization)
      * AS99127F Rev. 2 on a P4B motherboard, and they seem to work well enough.
      */
     if (dev->local & W83781D_AS99127F) {
-    	dev->regs[0x00] = 0xB8; /* might be connected to IN2 Low Limit in some way */
+    	/* 0x00 appears to mirror IN2 Low Limit */
     	dev->regs[0x01] = dev->regs[0x23]; /* appears to mirror IN3 */
     	dev->regs[0x02] = dev->regs[0x20]; /* appears to mirror IN0 */
     	dev->regs[0x03] = 0x60;
@@ -512,7 +534,7 @@ const device_t w83781d_device = {
 
 
 /*
- * ASUS AS99127F is a customized W83781D with no ISA interface (SMBus only),
+ * The ASUS AS99127F is a customized W83781D with no ISA interface (SMBus only),
  * added proprietary registers and different chip/vendor IDs.
  */
 const device_t as99127f_device = {
@@ -526,7 +548,7 @@ const device_t as99127f_device = {
 
 
 /*
- * Rev. 2 changes the vendor ID back to Winbond's.
+ * Rev. 2 changes the vendor ID back to Winbond's and brings some other changes.
  */
 const device_t as99127f_rev2_device = {
     "ASUS AS99127F Rev. 2 Hardware Monitor",
