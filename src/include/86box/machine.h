@@ -189,6 +189,8 @@ extern int	machine_at_quadt286_init(const machine_t *);
 extern int	machine_at_neat_init(const machine_t *);
 extern int	machine_at_neat_ami_init(const machine_t *);
 extern int  machine_at_kenitec286_init(const machine_t*);
+extern int  machine_at_micral_45_286_init(const machine_t*);
+extern int machine_at_dells200_init(const machine_t*);
 
 extern int	machine_at_goldstar386_init(const machine_t *);
 extern int	machine_at_micronics386_init(const machine_t *);
