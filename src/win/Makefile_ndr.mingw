@@ -96,7 +96,7 @@ ifeq ($(DEV_BUILD), y)
   VGAWONDER	:= y
  endif
  ifndef VNC
-  VNC		:= y
+  VNC		:= n
  endif
  ifndef XL24
   XL24		:= y
@@ -567,7 +567,7 @@ CXXFLAGS	:= $(CFLAGS)
 MAINOBJ		:= pc.o config.o random.o timer.o io.o apm.o dma.o nmi.o \
 		   pic.o pit.o port_92.o ppi.o pci.o mca.o mcr.o mem.o \
 		   rom.o device.o nvr.o nvr_at.o nvr_ps2.o sst_flash.o via_vt82c586b.o \
-		   via_vt82c596b.o$(VNCOBJ) $(RDPOBJ)
+		   via_vt82c596b.o $(VNCOBJ) $(RDPOBJ)
 
 INTELOBJ	:= intel_flash.o \
 		    intel_sio.o intel_piix.o
@@ -637,6 +637,8 @@ CDROMOBJ	:= cdrom.o \
 		    cdrom_image_backend.o cdrom_image.o
 
 ZIPOBJ		:= zip.o
+
+MOOBJ		:= mo.o
 
 ifeq ($(USB), y)
 USBOBJ		:= usb.o
@@ -734,7 +736,7 @@ else
 endif
 
 OBJ		:= $(MAINOBJ) $(INTELOBJ) $(CPUOBJ) $(CHIPSETOBJ) $(MCHOBJ) \
-		   $(DEVOBJ) $(FDDOBJ) $(CDROMOBJ) $(ZIPOBJ) $(HDDOBJ) \
+		   $(DEVOBJ) $(FDDOBJ) $(CDROMOBJ) $(ZIPOBJ) $(MOOBJ) $(HDDOBJ) \
 		   $(USBOBJ) $(NETOBJ) $(PRINTOBJ) $(SCSIOBJ) $(SNDOBJ) $(VIDOBJ) \
 		   $(PLATOBJ) $(UIOBJ) $(D2DOBJ) $(FSYNTHOBJ) $(MUNTOBJ) \
 		   $(DEVBROBJ) $(DISCORDOBJ)
