@@ -253,7 +253,7 @@ machine_at_neat_ami_init(const machine_t *model)
 
     machine_at_common_init(model);
 
-    //device_add(&neat_device);
+    device_add(&neat_device);
     device_add(&fdc_at_device);
 
     device_add(&keyboard_at_ami_device);
