@@ -167,14 +167,6 @@ static int ILLEGAL(uint32_t fetchdat)
         return 0;
 }
 
-#if defined(USE_NEW_DYNAREC) || (defined(DEV_BRANCH) && (defined(USE_AMD_K) || defined(USE_I686)))
-static int internal_illegal(char *s)
-{
-	cpu_state.pc = cpu_state.oldpc;
-	x86gpf(s, 0);
-	return cpu_state.abrt;
-}
-#endif
 
 #ifdef ENABLE_386_DYNAREC_LOG
 extern void	x386_dynarec_log(const char *fmt, ...);
@@ -198,9 +190,7 @@ extern void	x386_dynarec_log(const char *fmt, ...);
 #include "x86_ops_jump.h"
 #include "x86_ops_misc.h"
 #include "x87_ops.h"
-#if defined(DEV_BRANCH) && defined(USE_I686)
-# include "x86_ops_i686.h"
-#endif
+#include "x86_ops_i686.h"
 #include "x86_ops_mmx.h"
 #include "x86_ops_mmx_arith.h"
 #include "x86_ops_mmx_cmp.h"
@@ -224,9 +214,7 @@ extern void	x386_dynarec_log(const char *fmt, ...);
 #include "x86_ops_xchg.h"
 #include "x86_ops_call.h"
 #include "x86_ops_shift.h"
-#ifdef USE_NEW_DYNAREC
 #include "x86_ops_amd.h"
-#endif
 #include "x86_ops_3dnow.h"
 
 
@@ -909,7 +897,6 @@ const OpFn OP_TABLE(pentiummmx_0f)[1024] =
 /*f0*/  ILLEGAL,        opPSLLW_a32,    opPSLLD_a32,    opPSLLQ_a32,    ILLEGAL,        opPMADDWD_a32,  ILLEGAL,        ILLEGAL,        opPSUBB_a32,    opPSUBW_a32,    opPSUBD_a32,    ILLEGAL,        opPADDB_a32,    opPADDW_a32,    opPADDD_a32,    ILLEGAL,
 };
 
-#ifdef USE_NEW_DYNAREC
 const OpFn OP_TABLE(k6_0f)[1024] = 
 {
         /*16-bit data, 16-bit addr*/
@@ -1091,9 +1078,8 @@ const OpFn OP_TABLE(k62_0f)[1024] =
 /*e0*/  ILLEGAL,        opPSRAW_a32,    opPSRAD_a32,    ILLEGAL,        ILLEGAL,        opPMULHW_a32,   ILLEGAL,        ILLEGAL,        opPSUBSB_a32,   opPSUBSW_a32,   NULL,           opPOR_a32,      opPADDSB_a32,   opPADDSW_a32,   NULL,           opPXOR_a32,
 /*f0*/  ILLEGAL,        opPSLLW_a32,    opPSLLD_a32,    opPSLLQ_a32,    ILLEGAL,        opPMADDWD_a32,  ILLEGAL,        ILLEGAL,        opPSUBB_a32,    opPSUBW_a32,    opPSUBD_a32,    ILLEGAL,        opPADDB_a32,    opPADDW_a32,    opPADDD_a32,    ILLEGAL,
 };
-#endif
 
-#if (defined(USE_NEW_DYNAREC) || (defined(DEV_BRANCH) && defined(USE_CYRIX_6X86)))
+#if defined(DEV_BRANCH) && defined(USE_CYRIX_6X86)
 const OpFn OP_TABLE(c6x86mx_0f)[1024] = 
 {
         /*16-bit data, 16-bit addr*/
@@ -1186,8 +1172,6 @@ const OpFn OP_TABLE(c6x86mx_0f)[1024] =
 };
 #endif
 
-#ifdef DEV_BRANCH
-#ifdef USE_I686
 const OpFn OP_TABLE(pentiumpro_0f)[1024] = 
 {
         /*16-bit data, 16-bit addr*/
@@ -1460,8 +1444,6 @@ const OpFn OP_TABLE(pentium2d_0f)[1024] =
 /*e0*/  ILLEGAL,        opPSRAW_a32,    opPSRAD_a32,    ILLEGAL,        ILLEGAL,        opPMULHW_a32,   ILLEGAL,        ILLEGAL,        opPSUBSB_a32,   opPSUBSW_a32,   NULL,           opPOR_a32,      opPADDSB_a32,   opPADDSW_a32,   NULL,           opPXOR_a32,
 /*f0*/  ILLEGAL,        opPSLLW_a32,    opPSLLD_a32,    opPSLLQ_a32,    ILLEGAL,        opPMADDWD_a32,  ILLEGAL,        ILLEGAL,        opPSUBB_a32,    opPSUBW_a32,    opPSUBD_a32,    ILLEGAL,        opPADDB_a32,    opPADDW_a32,    opPADDD_a32,    ILLEGAL,
 };
-#endif
-#endif
 
 const OpFn OP_TABLE(286)[1024] = 
 {

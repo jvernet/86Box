@@ -4182,7 +4182,7 @@ static inline void FP_FCHS()
         addbyte(0x64);
         addbyte(0x05);
         addbyte((uint8_t)cpu_state_offset(tag[0]));
-        addbyte(~TAG_UINT64);
+        addbyte(TAG_NOT_UINT64);
         addbyte(0xf2); /*MOVSD ST[EAX*8], XMM0*/
         addbyte(0x0f);
         addbyte(0x11);
@@ -4435,7 +4435,7 @@ static inline void FP_OP_REG(int op, int dst, int src)
         addbyte(0x64);
         addbyte(0x05);
         addbyte((uint8_t)cpu_state_offset(tag));
-        addbyte(~TAG_UINT64);
+        addbyte(TAG_NOT_UINT64);
         if (op == FPU_DIVR || op == FPU_SUBR)
         {
                 addbyte(0xf3); /*MOVQ XMM0, ST[RBX*8]*/
@@ -4528,7 +4528,7 @@ static inline void FP_OP_MEM(int op)
         addbyte(0x64);
         addbyte(0x05);
         addbyte((uint8_t)cpu_state_offset(tag));
-        addbyte(~TAG_UINT64);
+        addbyte(TAG_NOT_UINT64);
 
         switch (op)
         {
@@ -5359,7 +5359,7 @@ static inline void MEM_CHECK_WRITE(x86seg *seg)
         load_param_1_reg_32(REG_EDI);
         load_param_2_32(&codeblock[block_current], 1);
 
-        call(&codeblock[block_current], (uintptr_t)mmutranslatereal);
+        call(&codeblock[block_current], (uintptr_t)mmutranslatereal32);
         addbyte(0x80); /*CMP abrt, 0*/
         addbyte(0x7d);
         addbyte((uint8_t)cpu_state_offset(abrt));
@@ -5498,7 +5498,7 @@ static inline void MEM_CHECK_WRITE_W(x86seg *seg)
         jump_pos = block_pos;
         load_param_1_reg_32(REG_EBX);
         load_param_2_32(&codeblock[block_current], 1);
-        call(&codeblock[block_current], (uintptr_t)mmutranslatereal);
+        call(&codeblock[block_current], (uintptr_t)mmutranslatereal32);
         addbyte(0x83); /*ADD EBX, 1*/
         addbyte(0xc3);
         addbyte(1);
@@ -5647,7 +5647,7 @@ static inline void MEM_CHECK_WRITE_L(x86seg *seg)
         jump_pos = block_pos;
         load_param_1_reg_32(REG_EBX);
         load_param_2_32(&codeblock[block_current], 1);
-        call(&codeblock[block_current], (uintptr_t)mmutranslatereal);
+        call(&codeblock[block_current], (uintptr_t)mmutranslatereal32);
         addbyte(0x83); /*ADD EBX, 3*/
         addbyte(0xc3);
         addbyte(3);

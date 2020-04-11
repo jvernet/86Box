@@ -246,9 +246,9 @@ exec386(int cycs)
 			x86_opcodes[(opcode | cpu_state.op32) & 0x3ff](fetchdat);
 			if (x86_was_reset)
 				break;
-		} else
+		}
 #ifdef ENABLE_386_LOG
-		if (in_smm)
+		else if (in_smm)
 			x386_log("[%04X:%08X] ABRT\n", CS, cpu_state.pc);
 #endif
 
@@ -280,33 +280,14 @@ exec386(int cycs)
 			}
 		}
 
-		if ((in_smm == 0) && smi_line) {
-#ifdef ENABLE_386_LOG
-			x386_log("SMI while not in SMM\n");
-#endif
-			enter_smm();
-			smi_line = 0;
-		} else if ((in_smm == 1) && smi_line) {
-			/* Mark this so that we don't latch more than one SMI. */
-#ifdef ENABLE_386_LOG
-			x386_log("SMI while in unlatched SMM\n");
-#endif
-			smi_latched = 1;
-			smi_line = 0;
-		} else if ((in_smm == 2) && smi_line) {
-			/* Mark this so that we don't latch more than one SMI. */
-#ifdef ENABLE_386_LOG
-			x386_log("SMI while in latched SMM\n");
-#endif
-			smi_line = 0;
-		}
-
 		ins_cycles -= cycles;
 		tsc += ins_cycles;
 
 		cycdiff = oldcyc - cycles;
 
-		if (trap) {
+		if (smi_line)
+			enter_smm_check(0);
+		else if (trap) {
 			flags_rebuild();
 			if (msw&1)
 				pmodeint(1,0);

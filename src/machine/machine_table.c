@@ -33,34 +33,32 @@
 #include <86box/machine.h>
 
 
-
-#ifdef USE_NEW_DYNAREC
+#if defined(DEV_BRANCH) && defined(USE_AMD_K5)
+#if defined(DEV_BRANCH) && defined(USE_CYRIX_6X86)
 #define MACHINE_CPUS_PENTIUM_S5        {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip},     {"AMD",   cpus_K5},      {"",      NULL},         {"",      NULL}}
 #define MACHINE_CPUS_PENTIUM_S73V      {{ "Intel", cpus_Pentium3V},  {"IDT", cpus_WinChip},     {"AMD",   cpus_K5},      {"Cyrix", cpus_6x863V},  {"",      NULL}}
 #define MACHINE_CPUS_PENTIUM_S7        {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip},     {"AMD",   cpus_K56},     {"Cyrix", cpus_6x86},    {"",      NULL}}
 #define MACHINE_CPUS_PENTIUM_SS7       {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip_SS7}, {"AMD",   cpus_K56_SS7}, {"Cyrix", cpus_6x86SS7}, {"",      NULL}}
 #else
-#if defined(DEV_BRANCH) && defined(USE_AMD_K)
-#define MACHINE_CPUS_PENTIUM_S5   {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip}, {"AMD",   cpus_K5},     {"",      NULL},     {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S5        {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip},     {"AMD",   cpus_K5},      {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S73V      {{ "Intel", cpus_Pentium3V},  {"IDT", cpus_WinChip},     {"AMD",   cpus_K5},      {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S7        {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip},     {"AMD",   cpus_K56},     {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_SS7       {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip_SS7}, {"AMD",   cpus_K56_SS7}, {"",      NULL},         {"",      NULL}}
+#endif
+#else
 #if defined(DEV_BRANCH) && defined(USE_CYRIX_6X86)
-#define MACHINE_CPUS_PENTIUM_S73V {{"Intel", cpus_Pentium3V},   {"IDT", cpus_WinChip}, {"AMD",   cpus_K5},   {"Cyrix", cpus_6x863V},{"",      NULL}}
-#define MACHINE_CPUS_PENTIUM_S7   {{"Intel", cpus_Pentium},     {"IDT", cpus_WinChip}, {"AMD",   cpus_K56},  {"Cyrix", cpus_6x86},  {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S5        {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip},     {"",      NULL},         {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S73V      {{ "Intel", cpus_Pentium3V},  {"IDT", cpus_WinChip},     {"Cyrix", cpus_6x863V},  {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S7        {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip},     {"AMD",   cpus_K56},     {"Cyrix", cpus_6x86},    {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_SS7       {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip_SS7}, {"AMD",   cpus_K56_SS7}, {"Cyrix", cpus_6x86SS7}, {"",      NULL}}
 #else
-#define MACHINE_CPUS_PENTIUM_S73V {{ "Intel", cpus_Pentium3V},  {"IDT", cpus_WinChip}, {"AMD",   cpus_K5},     {"",      NULL},     {"",      NULL}}	
-#define MACHINE_CPUS_PENTIUM_S7   {{"Intel", cpus_Pentium},     {"IDT", cpus_WinChip}, {"AMD",   cpus_K56},    {"",      NULL},     {"",      NULL}}
-#endif
-#else
-#define MACHINE_CPUS_PENTIUM_S5   {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip}, {"",      NULL},        {"",      NULL},     {"",      NULL}}
-#if defined(DEV_BRANCH) && defined(USE_CYRIX_6X86)
-#define MACHINE_CPUS_PENTIUM_S73V {{"Intel", cpus_Pentium3V},   {"IDT", cpus_WinChip}, {"Cyrix", cpus_6x863V}, {"",      NULL},     {"",      NULL}}
-#define MACHINE_CPUS_PENTIUM_S7   {{"Intel", cpus_Pentium},     {"IDT", cpus_WinChip}, {"Cyrix", cpus_6x86},   {"",      NULL},     {"",      NULL}}
-#else
-#define MACHINE_CPUS_PENTIUM_S73V {{"Intel", cpus_Pentium3V},   {"IDT", cpus_WinChip}, {"",      NULL},        {"",      NULL},     {"",      NULL}}
-#define MACHINE_CPUS_PENTIUM_S7   {{"Intel", cpus_Pentium},     {"IDT", cpus_WinChip}, {"",      NULL},        {"",      NULL},     {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S5        {{ "Intel", cpus_PentiumS5},  {"IDT", cpus_WinChip},     {"",      NULL},         {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S73V      {{ "Intel", cpus_Pentium3V},  {"IDT", cpus_WinChip},     {"",      NULL},         {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_S7        {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip},     {"AMD",   cpus_K56},     {"",      NULL},         {"",      NULL}}
+#define MACHINE_CPUS_PENTIUM_SS7       {{ "Intel", cpus_Pentium},    {"IDT", cpus_WinChip_SS7}, {"AMD",   cpus_K56_SS7}, {"",      NULL},         {"",      NULL}}
 #endif
 #endif
-#define MACHINE_CPUS_PENTIUM_SS7   MACHINE_CPUS_PENTIUM_S7
-#endif
+
 
 const machine_t machines[] = {
     { "[8088] AMI XT clone",			"amixt",		{{"Intel",      cpus_8088},   {"",      NULL},       {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_ISA,											 64,  640,  64,   0,		machine_xt_amixt_init, NULL			},
@@ -208,7 +206,7 @@ const machine_t machines[] = {
 
     { "[Socket 5 FX] AMI Apollo",		"apollo",		MACHINE_CPUS_PENTIUM_S5,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_HDC,						  8,  128,   8, 127,	       machine_at_apollo_init, NULL			},
 #if defined(DEV_BRANCH) && defined(USE_VECTRA54)
-    { "[Socket 5 FX] HP Vectra VL 5 Series 4",  "vectra54",		MACHINE_CPUS_PENTIUM_S5,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_HDC,						  8,  128,   8, 767,	     machine_at_vectra54_init, NULL			},
+    { "[Socket 5 FX] HP Vectra VL 5 Series 4",  "vectra54",		MACHINE_CPUS_PENTIUM_S5,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_HDC,						  8,  128,   8, 511,	     machine_at_vectra54_init, NULL			},
 #endif
     { "[Socket 5 FX] Intel Advanced/ZP",	"zappa",		MACHINE_CPUS_PENTIUM_S5,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8,  128,   8, 127,		machine_at_zappa_init, NULL			},
     { "[Socket 5 FX] PC Partner MB500N",	"mb500n",		MACHINE_CPUS_PENTIUM_S5,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_HDC,						  8,  128,   8, 127,	       machine_at_mb500n_init, NULL			},
@@ -247,33 +245,20 @@ const machine_t machines[] = {
     
     { "[Super 7 MVP3] FIC VA-503+",		"ficva503p",		MACHINE_CPUS_PENTIUM_SS7,											    MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8,  512,   8, 255,	         machine_at_mvp3_init, NULL			},
 
-#if defined(DEV_BRANCH) && defined(USE_I686)
     { "[Socket 8 FX] Tyan Titan-Pro AT",	"440fx",		{{"Intel", cpus_PentiumPro},  {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8, 1024,   8, 127,	       machine_at_i440fx_init, NULL			},
     { "[Socket 8 FX] Tyan Titan-Pro ATX",	"tpatx",		{{"Intel", cpus_PentiumPro},  {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8, 1024,   8, 127,		machine_at_s1668_init, NULL			},
 
     { "[Slot 1 BX] Gigabyte GA-6BXC",		"6bxc",			{{"Intel", cpus_PentiumII},   {"Intel/PGA370", cpus_Celeron},{"VIA", cpus_Cyrix3},{"",      NULL},{"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			  		  8,  768,   8, 255,		 machine_at_6bxc_init, NULL			},
     { "[Slot 1 BX] ASUS P2B-LS",		"p2bls",		{{"Intel", cpus_PentiumII},   {"Intel/PGA370", cpus_Celeron},{"VIA", cpus_Cyrix3},{"",      NULL},{"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			 		  8, 1024,   8, 255,		machine_at_p2bls_init, NULL			},
     { "[Slot 1 BX] ABit BF6",			"bf6",			{{"Intel", cpus_PentiumII},   {"Intel/PGA370", cpus_Celeron},{"VIA", cpus_Cyrix3},{"",      NULL},{"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			  		  8,  768,   8, 255,		  machine_at_bf6_init, NULL			},
-#else
-    { "[Slot 1 BX] Gigabyte GA-6BXC",		"6bxc",			{{"VIA", cpus_Cyrix3},        {"",    NULL},	     {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8,  768,   8, 255,		 machine_at_6bxc_init, NULL			},
-    { "[Slot 1 BX] ASUS P2B-LS",		"p2bls",		{{"VIA", cpus_Cyrix3},        {"",    NULL},	     {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8, 1024,   8, 255,		machine_at_p2bls_init, NULL			},
-    { "[Slot 1 BX] ABit BF6",			"bf6",			{{"VIA", cpus_Cyrix3},        {"",    NULL},	     {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			  		  8,  768,   8, 255,		  machine_at_bf6_init, NULL			},
-#endif
-#if defined(DEV_BRANCH) && defined(USE_I686)
+
     { "[Slot 1 ZX] Packard Bell Bora Pro",	"borapro",		{{"Intel", cpus_PentiumII},   {"Intel/PGA370", cpus_Celeron},{"VIA", cpus_Cyrix3},{"",      NULL},{"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			 		  8,  512,   8, 255,	      machine_at_borapro_init, NULL			},
 
     { "[Socket 370 BX] A-Trend ATC7020BXII",	"atc7020bxii",		{{"Intel", cpus_Celeron},     {"VIA", cpus_Cyrix3},  {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			 		  8, 1024,   8, 255,	  machine_at_atc7020bxii_init, NULL			},
     { "[Socket 370 ZX] Soltek SL-63A1",		"63a",			{{"Intel", cpus_Celeron},     {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8,  512,   8, 255,		  machine_at_63a_init, NULL			},
     { "[Socket 370 APRO] PC Partner APAS3",	"apas3",		{{"Intel", cpus_Celeron},     {"VIA", cpus_Cyrix3},  {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,	  				  8, 1024,   8, 255,            machine_at_apas3_init, NULL			},
-#else
-    { "[Slot 1 ZX] Packard Bell Bora Pro",	"borapro",		{{"VIA", cpus_Cyrix3},        {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			 		  8,  512,   8, 255,	      machine_at_borapro_init, NULL			},
 
-    { "[Socket 370 BX] A-Trend ATC7020BXII",	"atc7020bxii",		{{"VIA", cpus_Cyrix3},        {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,			 		  8, 1024,   8, 255,	  machine_at_atc7020bxii_init, NULL			},
-    { "[Socket 370 ZX] Soltek SL-63A1",		"63a",			{{"VIA", cpus_Cyrix3},        {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,					  8,  512,   8, 255,		  machine_at_63a_init, NULL			},
-    { "[Socket 370 APRO] PC Partner APAS3",	"apas3",		{{"VIA", cpus_Cyrix3},        {"",    NULL},         {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,				 	  8, 1024,   8, 255,            machine_at_apas3_init, NULL			},
-#endif
-
-#if defined(DEV_BRANCH) && defined(USE_I686) && defined(USE_596B)
+#if defined(DEV_BRANCH) && defined(USE_596B)
     { "[Socket 370 APRO] Zida Tomato BX98",	"bx98",			{{"Intel", cpus_Celeron},     {"VIA", cpus_Cyrix3},  {"",      NULL},        {"",      NULL},     {"",      NULL}}, MACHINE_PCI | MACHINE_ISA | MACHINE_AT | MACHINE_PS2 | MACHINE_HDC,	  				  8,  1024,   8, 255,           machine_at_bx98_init, NULL			},
 #endif
 
