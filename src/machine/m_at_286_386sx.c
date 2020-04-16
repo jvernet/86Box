@@ -190,10 +190,12 @@ machine_at_kenitec286_init(const machine_t* model)
     if (bios_only || !ret)
         return ret;
 
-    machine_at_init(model);
+    machine_at_common_init(model);
 
     device_add(&neat_device);
     device_add(&fdc_at_device);
+
+    device_add(&keyboard_at_device);
 
     return ret;
 }
