@@ -230,7 +230,9 @@ extern int	machine_at_opti495_mr_init(const machine_t *);
 extern int	machine_at_ami471_init(const machine_t *);
 extern int	machine_at_dtk486_init(const machine_t *);
 extern int	machine_at_px471_init(const machine_t *);
+#if defined(DEV_BRANCH) && defined(USE_WIN471)
 extern int	machine_at_win471_init(const machine_t *);
+#endif
 
 extern int	machine_at_r418_init(const machine_t *);
 extern int	machine_at_ls486e_init(const machine_t *);
@@ -290,10 +292,9 @@ extern int	machine_at_acerv35n_init(const machine_t *);
 extern int	machine_at_ap53_init(const machine_t *);
 extern int	machine_at_p55t2p4_init(const machine_t *);
 extern int	machine_at_p55t2s_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(USE_TC430HX)
 extern int	machine_at_tc430hx_init(const machine_t *);
-extern int	machine_at_equium5200_init(const machine_t *); //Toshiba branded CU430HX. Presents same issues as the TC430HX.
-#endif                                                     //Other than that, works as intended(No need to set an MPU too).
+extern int	machine_at_equium5200_init(const machine_t *);	/* Toshiba branded CU430HX.
+								   Works as intended (No need to set an MPU too). */
 
 extern int	machine_at_p55tvp4_init(const machine_t *);
 extern int	machine_at_i430vx_init(const machine_t *);
@@ -306,26 +307,36 @@ extern int	machine_at_tx97_init(const machine_t *);
 extern int	machine_at_ym430tx_init(const machine_t *);
 extern int	machine_at_586t2_init(const machine_t *);
 extern int	machine_at_807ds_init(const machine_t *);
+extern int	machine_at_p5mms98_init(const machine_t *);
 
-extern int	machine_at_mvp3_init(const machine_t *);
-
+extern int	machine_at_tx100_init(const machine_t *);
+extern int	machine_at_advanceii_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_pb640_get_device(void);
 #endif
 
+/* m_at_super7_ss7.c */
+extern int	machine_at_ax59pro_init(const machine_t *);
+extern int	machine_at_mvp3_init(const machine_t *);
+
 /* m_at_socket8.c */
-extern int	machine_at_i440fx_init(const machine_t *);
-extern int	machine_at_s1668_init(const machine_t *);
+extern int	machine_at_686nx_init(const machine_t *);
+extern int	machine_at_mb600n_init(const machine_t *);
+extern int	machine_at_8500ttc_init(const machine_t *);
 extern int	machine_at_m6mi_init(const machine_t *);
 
 /* m_at_slot1.c */
+extern int	machine_at_p6kfx_init(const machine_t *);
+
 extern int	machine_at_6bxc_init(const machine_t *);
-extern int  machine_at_p2bls_init(const machine_t *);
+extern int	machine_at_p2bls_init(const machine_t *);
+extern int	machine_at_p3bf_init(const machine_t *);
 extern int	machine_at_bf6_init(const machine_t *);
 extern int	machine_at_borapro_init(const machine_t *);
 
 /* m_at_socket370.c */
+extern int	machine_at_cubx_init(const machine_t *);
 extern int	machine_at_atc7020bxii_init(const machine_t *);
 extern int	machine_at_63a_init(const machine_t *);
 extern int	machine_at_apas3_init(const machine_t *);

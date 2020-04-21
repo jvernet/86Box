@@ -232,14 +232,14 @@ CPU cpus_i486S1[] = {
     {"i486SX/20",            CPU_i486SX,   20000000, 1,  0x420,        0, 0, CPU_SUPPORTS_DYNAREC,  4, 4,3,3,  3},
     {"i486SX/25",            CPU_i486SX,   25000000, 1,  0x422,        0, 0, CPU_SUPPORTS_DYNAREC,  4, 4,3,3,  3},
     {"i486SX/33",            CPU_i486SX,   33333333, 1,  0x42a,        0, 0, CPU_SUPPORTS_DYNAREC,  6, 6,3,3,  4},
-    {"i486SX2/50",           CPU_i486SX,   50000000, 2,  0x45b,        0, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  6},
-    {"i486SX2/66 (Q0569)",   CPU_i486SX,   66666666, 2,  0x45b,        0, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  8},
+    {"i486SX2/50",           CPU_i486SX2,  50000000, 2,  0x45b,        0, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  6},
+    {"i486SX2/66 (Q0569)",   CPU_i486SX2,  66666666, 2,  0x45b,        0, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  8},
     {"i486DX/25",            CPU_i486DX,   25000000, 1,  0x404,        0, 0, CPU_SUPPORTS_DYNAREC,  4, 4,3,3,  3},
     {"i486DX/33",            CPU_i486DX,   33333333, 1,  0x414,        0, 0, CPU_SUPPORTS_DYNAREC,  6, 6,3,3,  4},
     {"i486DX/50",            CPU_i486DX,   50000000, 1,  0x411,        0, 0, CPU_SUPPORTS_DYNAREC,  8, 8,4,4,  6},
-    {"i486DX2/40",           CPU_i486DX,   40000000, 2,  0x430,    0x430, 0, CPU_SUPPORTS_DYNAREC,  7, 7,6,6,  5},
-    {"i486DX2/50",           CPU_i486DX,   50000000, 2,  0x433,    0x433, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  6},
-    {"i486DX2/66",           CPU_i486DX,   66666666, 2,  0x435,    0x435, 0, CPU_SUPPORTS_DYNAREC, 12,12,6,6,  8},
+    {"i486DX2/40",           CPU_i486DX2,  40000000, 2,  0x430,    0x430, 0, CPU_SUPPORTS_DYNAREC,  7, 7,6,6,  5},
+    {"i486DX2/50",           CPU_i486DX2,  50000000, 2,  0x433,    0x433, 0, CPU_SUPPORTS_DYNAREC,  8, 8,6,6,  6},
+    {"i486DX2/66",           CPU_i486DX2,  66666666, 2,  0x435,    0x435, 0, CPU_SUPPORTS_DYNAREC, 12,12,6,6,  8},
     {"iDX4 OverDrive 75",    CPU_iDX4,     75000000, 3,  0x1480,  0x1480, 0, CPU_SUPPORTS_DYNAREC, 12,12,9,9,  9}, /*Only added the DX4 OverDrive as the others would be redundant*/
     {"iDX4 OverDrive 100",   CPU_iDX4,    100000000, 3,  0x1480,  0x1480, 0, CPU_SUPPORTS_DYNAREC, 18,18,9,9, 12}, 
     {"",                     -1,                  0, 0,       0,       0, 0,                    0,  0, 0,0,0,  0}
@@ -276,14 +276,14 @@ CPU cpus_i486[] = {
     {"i486SX/20",            CPU_i486SX,   20000000, 1.0,  0x420,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  4, 4, 3, 3,  3},
     {"i486SX/25",            CPU_i486SX,   25000000, 1.0,  0x422,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  4, 4, 3, 3,  3},
     {"i486SX/33",            CPU_i486SX,   33333333, 1.0,  0x42a,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  6, 6, 3, 3,  4},
-    {"i486SX2/50",           CPU_i486SX,   50000000, 2.0,  0x45b,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  6},
-    {"i486SX2/66 (Q0569)",   CPU_i486SX,   66666666, 2.0,  0x45b,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  8},
+    {"i486SX2/50",           CPU_i486SX2,  50000000, 2.0,  0x45b,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  6},
+    {"i486SX2/66 (Q0569)",   CPU_i486SX2,  66666666, 2.0,  0x45b,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  8},
     {"i486DX/25",            CPU_i486DX,   25000000, 1.0,  0x404,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  4, 4, 3, 3,  3},
     {"i486DX/33",            CPU_i486DX,   33333333, 1.0,  0x414,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  6, 6, 3, 3,  4},
     {"i486DX/50",            CPU_i486DX,   50000000, 1.0,  0x411,      0, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 4, 4,  6},
-    {"i486DX2/40",           CPU_i486DX,   40000000, 2.0,  0x430,  0x430, 0x0000, CPU_SUPPORTS_DYNAREC,  7, 7, 6, 6,  5},
-    {"i486DX2/50",           CPU_i486DX,   50000000, 2.0,  0x433,  0x433, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  6},
-    {"i486DX2/66",           CPU_i486DX,   66666666, 2.0,  0x435,  0x435, 0x0000, CPU_SUPPORTS_DYNAREC, 12,12, 6, 6,  8},
+    {"i486DX2/40",           CPU_i486DX2,  40000000, 2.0,  0x430,  0x430, 0x0000, CPU_SUPPORTS_DYNAREC,  7, 7, 6, 6,  5},
+    {"i486DX2/50",           CPU_i486DX2,  50000000, 2.0,  0x433,  0x433, 0x0000, CPU_SUPPORTS_DYNAREC,  8, 8, 6, 6,  6},
+    {"i486DX2/66",           CPU_i486DX2,  66666666, 2.0,  0x435,  0x435, 0x0000, CPU_SUPPORTS_DYNAREC, 12,12, 6, 6,  8},
     {"iDX4/75",              CPU_iDX4,     75000000, 3.0,  0x480,  0x480, 0x0000, CPU_SUPPORTS_DYNAREC, 12,12, 9, 9,  9}, /*CPUID available on DX4, >= 75 MHz*/
     {"iDX4/100",             CPU_iDX4,    100000000, 3.0,  0x483,  0x483, 0x0000, CPU_SUPPORTS_DYNAREC, 18,18, 9, 9, 12}, /*Is on some real Intel DX2s, limit here is pretty arbitary*/
     {"iDX4 OverDrive 75",    CPU_iDX4,     75000000, 3.0, 0x1480, 0x1480, 0x0000, CPU_SUPPORTS_DYNAREC, 12,12, 9, 9,  9},
@@ -686,6 +686,18 @@ CPU cpus_PentiumPro[] = {
     {"Pentium II Overdrive 333",    CPU_PENTIUM2D,  333333333, 5.0, 0x1632, 0x1632, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 27,27,13,13, 40},
     {"",                                       -1,          0, 0,   0,      0,      0, 0,  0, 0, 0, 0,  0}
 };
+CPU cpus_PentiumII_28v[] = {
+    /*Intel Pentium II Klamath*/
+    {"Pentium II Klamath 50",        CPU_PENTIUM2,   50000000, 1.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  4, 4, 3, 3, 6},
+    {"Pentium II Klamath 60",        CPU_PENTIUM2,   60000000, 1.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 7},
+    {"Pentium II Klamath 66",        CPU_PENTIUM2,   66666666, 1.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 8},
+    {"Pentium II Klamath 75",        CPU_PENTIUM2,   75000000, 1.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  7, 7, 4, 4, 9},
+    {"Pentium II Klamath 233",       CPU_PENTIUM2,  233333333, 3.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 21,21,10,10, 28},
+    {"Pentium II Klamath 266",       CPU_PENTIUM2,  266666666, 4.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 24,24,12,12, 32},
+    {"Pentium II Klamath 300/66",    CPU_PENTIUM2,  300000000, 4.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 25,25,12,12, 36},
+    {"",                                       -1,          0, 0,        0,      0, 0, 0,  0, 0, 0, 0,  0}
+
+};
 
 CPU cpus_PentiumII[] = {
     /*Intel Pentium II Klamath*/
@@ -694,7 +706,7 @@ CPU cpus_PentiumII[] = {
     {"Pentium II Klamath 66",        CPU_PENTIUM2,   66666666, 1.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 8},
     {"Pentium II Klamath 75",        CPU_PENTIUM2,   75000000, 1.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  7, 7, 4, 4, 9},
     {"Pentium II Klamath 233",       CPU_PENTIUM2,  233333333, 3.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 21,21,10,10, 28},
-    {"Pentium II Klamath 266",       CPU_PENTIUM2,  266666666, 4.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 24,24,12,12, 29},
+    {"Pentium II Klamath 266",       CPU_PENTIUM2,  266666666, 4.0,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 24,24,12,12, 32},
     {"Pentium II Klamath 300/66",    CPU_PENTIUM2,  300000000, 4.5,  0x634,  0x634, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 25,25,12,12, 36},
 
     /*Intel Pentium II Deschutes*/
@@ -702,7 +714,7 @@ CPU cpus_PentiumII[] = {
     {"Pentium II Deschutes 60",     CPU_PENTIUM2D,   60000000, 1.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 7},
     {"Pentium II Deschutes 66",     CPU_PENTIUM2D,   66666666, 1.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 8},
     {"Pentium II Deschutes 75",     CPU_PENTIUM2D,   75000000, 1.5,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  7, 7, 4, 4, 9},
-    {"Pentium II Deschutes 266",    CPU_PENTIUM2D,  266666666, 4.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 24,24,12,12, 29},
+    {"Pentium II Deschutes 266",    CPU_PENTIUM2D,  266666666, 4.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 24,24,12,12, 32},
     {"Pentium II Deschutes 300/66", CPU_PENTIUM2D,  300000000, 4.5,  0x651,  0x651, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 25,25,12,12, 36},
     {"Pentium II Deschutes 333",    CPU_PENTIUM2D,  333333333, 5.0,  0x651,  0x651, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 27,27,13,13, 40},
     {"Pentium II Deschutes 350",    CPU_PENTIUM2D,  350000000, 3.5,  0x651,  0x651, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 32,32,11,11, 42},

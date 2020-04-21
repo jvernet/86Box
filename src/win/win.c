@@ -45,8 +45,7 @@
 #ifdef USE_VNC
 # include <86box/vnc.h>
 #endif
-# include <86box/win_d2d.h>
-# include <86box/win_sdl.h>
+#include <86box/win_sdl.h>
 #include <86box/win.h>
 
 
@@ -90,9 +89,6 @@ static const struct {
   {
     {	"SDL_Software", 1, (int(*)(void*))sdl_inits, sdl_close, NULL, sdl_pause, sdl_enable		},
     {	"SDL_Hardware", 1, (int(*)(void*))sdl_inith, sdl_close, NULL, sdl_pause, sdl_enable		}
-#ifdef USE_D2D
-    ,{	"D2D", 1, (int(*)(void*))d2d_init, d2d_close, NULL, d2d_pause, d2d_enable			}
-#endif
 #ifdef USE_VNC
     ,{	"VNC", 0, vnc_init, vnc_close, vnc_resize, vnc_pause, NULL					}
 #endif
@@ -100,9 +96,6 @@ static const struct {
   {
     {	"SDL_Software", 1, (int(*)(void*))sdl_inits_fs, sdl_close, sdl_resize, sdl_pause, sdl_enable	},
     {	"SDL_Hardware", 1, (int(*)(void*))sdl_inith_fs, sdl_close, sdl_resize, sdl_pause, sdl_enable	}
-#ifdef USE_D2D
-    ,{	"D2D", 1, (int(*)(void*))d2d_init_fs, d2d_close, NULL, d2d_pause, d2d_enable			}
-#endif
 #ifdef USE_VNC
     ,{	"VNC", 0, vnc_init, vnc_close, vnc_resize, vnc_pause, NULL					}
 #endif
@@ -361,10 +354,9 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpszArg, int nCmdShow)
     /* Set the application version ID string. */
     sprintf(emu_version, "%s v%s", EMU_NAME, EMU_VERSION);
 
-#ifdef USE_CRASHDUMP
     /* Enable crash dump services. */
-    InitCrashDump();
-#endif
+    if (enable_crashdump)
+	InitCrashDump();
 
     /* First, set our (default) language. */
     set_language(0x0409);
@@ -700,18 +692,8 @@ plat_vidapi_name(int api)
 	case 1:
 		break;
 
-#ifdef USE_D2D
-	case 2:
-		name = "d2d";
-		break;
-#endif
-
 #ifdef USE_VNC
-#ifdef USE_D2D
-	case 3:
-#else
 	case 2:
-#endif
 		name = "vnc";
 		break;
 #endif

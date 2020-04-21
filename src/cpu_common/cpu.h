@@ -145,6 +145,7 @@ extern CPU	cpus_6x86SS7[];
 #endif
 extern CPU	cpus_Cyrix3[];
 extern CPU	cpus_PentiumPro[];
+extern CPU	cpus_PentiumII_28v[];
 extern CPU	cpus_PentiumII[];
 extern CPU	cpus_Celeron[];
 
@@ -376,7 +377,7 @@ extern int	cpu_cyrix_alignment;	/*Cyrix 5x86/6x86 only has data misalignment
 					  penalties when crossing 8-byte boundaries*/
 
 extern int	is8086,	is286, is386, is486, is486sx, is486dx, is486sx2, is486dx2, isdx4;
-extern int	is_pentium, is_k5, is_k6, is_p6;
+extern int	is_am486, is_pentium, is_k5, is_k6, is_p6;
 extern int      hascache;
 extern int      isibm486;
 extern int	is_rapidcad;
@@ -478,6 +479,9 @@ extern int	timing_jmp_rm, timing_jmp_pm, timing_jmp_pm_gate;
 extern int	timing_misaligned;
 
 extern int	in_sys;
+
+extern uint16_t	cpu_fast_off_count, cpu_fast_off_val;
+extern uint32_t	cpu_fast_off_flags;
 
 extern CPU	cpus_pcjr[];		// FIXME: should be in machine file!
 extern CPU	cpus_europc[];		// FIXME: should be in machine file!

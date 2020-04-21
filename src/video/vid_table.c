@@ -100,9 +100,6 @@ video_cards[] = {
     { "[ISA] Professional Graphics Controller",		"pgc",			&pgc_device				},
     { "[ISA] Sigma Color 400",				"sigma400",		&sigma_device				},
     { "[ISA] SPEA V7 Mirage (S3 86c801)",		"px_s3_v7_801_isa",	&s3_v7mirage_86c801_isa_device		},
-#if defined(DEV_BRANCH) && defined(USE_TI)
-    { "[ISA] TI CF62011 SVGA",				"ti_cf62011",		&ti_cf62011_device			},
-#endif
     { "[ISA] Trident TVGA8900B",			"tvga8900b",		&tvga8900b_device			},
     { "[ISA] Trident TVGA8900D",			"tvga8900d",		&tvga8900d_device			},
     { "[ISA] Trigem Korean VGA (ET4000AX)",		"tgkorvga",		&et4000k_isa_device			},
@@ -126,8 +123,10 @@ video_cards[] = {
     { "[PCI] Diamond Stealth 3D 3000 (S3 ViRGE/VX)",	"stealth3d_3000_pci",	&s3_virge_988_pci_device		},
     { "[PCI] Diamond Stealth 64 DRAM (S3 Trio64)",	"stealth64d_pci",	&s3_diamond_stealth64_pci_device	},
     { "[PCI] Diamond Stealth 64 VRAM (S3 Vision964)",	"stealth64v_pci",	&s3_diamond_stealth64_964_pci_device	},
+#if defined(DEV_BRANCH) && defined(USE_MGA)
     { "[PCI] Matrox Mystique",				"mystique",		&mystique_device			},
     { "[PCI] Matrox Mystique 220",			"mystique_220",		&mystique_220_device			},
+#endif
     { "[PCI] Number Nine 9FX (S3 Trio64)",		"n9_9fx_pci",		&s3_9fx_pci_device			},
     { "[PCI] Paradise Bahamas 64 (S3 Vision864)",	"bahamas64_pci",	&s3_bahamas64_pci_device		},
     { "[PCI] Phoenix S3 Vision864",			"px_vision864_pci",	&s3_phoenix_vision864_pci_device	},

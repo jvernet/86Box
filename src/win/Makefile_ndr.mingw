@@ -44,14 +44,11 @@ ifeq ($(DEV_BUILD), y)
  ifndef CL5422
   CL5422	:= y
  endif
- ifndef CRASHDUMP
-  CRASHDUMP	:= y
- endif
- ifndef D2D
-  D2D		:= y
- endif
  ifndef LASERXT
   LASERXT	:= y
+ endif
+ ifndef MGA
+  MGA		:= y
  endif
  ifndef MR495
   MR495		:= y
@@ -71,12 +68,6 @@ ifeq ($(DEV_BUILD), y)
  ifndef PS2M70T4
   PS2M70T4	:= y
  endif
- ifndef TI
-  TI		:= y
- endif
- ifndef TC430HX
-  TC430HX	:= y
- endif
  ifndef VECTRA54
   VECTRA54	:= y
  endif
@@ -95,6 +86,9 @@ ifeq ($(DEV_BUILD), y)
  ifndef VNC
   VNC		:= y
  endif
+ ifndef WIN471
+  WIN471		:= y
+ endif
  ifndef XL24
   XL24		:= y
  endif
@@ -111,14 +105,11 @@ else
  ifndef CL5422
   CL5422	:= n
  endif
- ifndef CRASHDUMP
-  CRASHDUMP	:= n
- endif
- ifndef D2D
-  D2D		:= n
- endif
  ifndef LASERXT
   LASERXT	:= n
+ endif
+ ifndef MGA
+  MGA		:= n
  endif
  ifndef MR495
   MR495		:= n
@@ -138,12 +129,6 @@ else
  ifndef PS2M70T4
   PS2M70T4	:= n
  endif
- ifndef TI
-  TI		:= n
- endif
- ifndef TC430HX
-  TC430HX	:= n
- endif
  ifndef VECTRA54
   VECTRA54	:= n
  endif
@@ -161,6 +146,9 @@ else
  endif
  ifndef VNC
   VNC		:= n
+ endif
+ ifndef WIN471
+  WIN471		:= n
  endif
  ifndef XL24
   XL24		:= n
@@ -191,9 +179,6 @@ WX		:= n
 endif
 ifndef USB
 USB		:= n
-endif
-ifndef RDP
-RDP		:= n
 endif
 ifndef DINPUT
  DINPUT		:= y
@@ -415,13 +400,6 @@ MUNTOBJ		:= midi_mt32.o \
 		    Tables.o TVA.o TVF.o TVP.o sha1.o c_interface.o
 endif
 
-ifeq ($(D2D), y)
-OPTS		+= -DUSE_D2D
-RFLAGS		+= -DUSE_D2D
-D2DLIB		:= -ld2d1
-D2DOBJ		:= win_d2d.o
-endif
-
 ifeq ($(VNC), y)
 OPTS		+= -DUSE_VNC
 RFLAGS		+= -DUSE_VNC
@@ -431,17 +409,6 @@ RFLAGS		+= -DUSE_VNC
  endif
 VNCLIB		+= -lvncserver
 VNCOBJ		:= vnc.o vnc_keymap.o
-endif
-
-ifeq ($(RDP), y)
-OPTS		+= -DUSE_RDP
-RFLAGS		+= -DUSE_RDP
- ifneq ($(RDP_PATH), )
-  OPTS		+= -I$(RDP_PATH)\INCLUDE
-  RDPLIB	:= -L$(RDP_PATH)\LIB
- endif
-RDPLIB		+= -lrdp
-RDPOBJ		:= rdp.o
 endif
 
 ifeq ($(DISCORD), y)
@@ -463,14 +430,14 @@ ifeq ($(CL5422), y)
 OPTS		+= -DUSE_CL5422
 endif
 
-ifeq ($(CRASHDUMPOBJ), y)
-OPTS		+= -DUSE_CRASHDUMP
-DEVBROBJ	+= win_crashdump.o
-endif
-
 ifeq ($(LASERXT), y)
 OPTS		+= -DUSE_LASERXT
 DEVBROBJ	+= m_xt_laserxt.o
+endif
+
+ifeq ($(MGA), y)
+OPTS		+= -DUSE_MGA
+DEVBROBJ	+= vid_mga.o
 endif
 
 ifeq ($(MR495), y)
@@ -498,14 +465,6 @@ ifeq ($(PS2M70T4), y)
 OPTS		+= -DUSE_PS2M70T4
 endif
 
-ifeq ($(TI), y)
-OPTS		+= -DUSE_TI
-endif
-
-ifeq ($(TC430HX), y)
-OPTS		+= -DUSE_TC430HX
-endif
-
 ifeq ($(VECTRA54), y)
 OPTS		+= -DUSE_VECTRA54
 endif
@@ -524,6 +483,10 @@ endif
 
 ifeq ($(VGAWONDER), y)
 OPTS		+= -DUSE_VGAWONDER
+endif
+
+ifeq ($(WIN471), y)
+OPTS		+= -DUSE_WIN471
 endif
 
 ifeq ($(XL24), y)
@@ -556,7 +519,7 @@ CXXFLAGS	:= $(CFLAGS)
 MAINOBJ		:= pc.o config.o random.o timer.o io.o acpi.o apm.o dma.o nmi.o \
 		   pic.o pit.o port_92.o ppi.o pci.o mca.o mcr.o mem.o \
 		   rom.o device.o nvr.o nvr_at.o nvr_ps2.o sst_flash.o via_vt82c586b.o \
-		   via_vt82c596b.o $(VNCOBJ) $(RDPOBJ)
+		   via_vt82c596b.o $(VNCOBJ)
 
 INTELOBJ	:= intel_flash.o \
 		    intel_sio.o intel_piix.o
@@ -571,7 +534,7 @@ CPUOBJ		:= cpu.o cpu_table.o \
 CHIPSETOBJ	:= acc2168.o acer_m3a.o cs8230.o ali1429.o headland.o \
 		    intel_4x0.o neat.o opti495.o scamp.o scat.o \
 		    sis_85c471.o sis_85c496.o \
-		    via_apollo.o wd76c10.o
+		    via_apollo.o via_vpx.o wd76c10.o
 
 MCHOBJ		:= machine.o machine_table.o \
 		    m_xt.o m_xt_compaq.o \
@@ -586,7 +549,7 @@ MCHOBJ		:= machine.o machine_table.o \
 		    m_ps2_isa.o m_ps2_mca.o \
 		    m_at_compaq.o \
 		    m_at_286_386sx.o m_at_386dx_486.o \
-		    m_at_socket4_5.o m_at_socket7_s7.o \
+		    m_at_socket4_5.o m_at_socket7_s7.o m_at_super7_ss7.o \
 			m_at_socket8.o m_at_slot1.o m_at_socket370.o
 
 DEVOBJ		:= bugger.o hwm.o hwm_w83781d.o ibm_5161.o isamem.o isartc.o lpt.o postcard.o $(SERIAL) \
@@ -701,7 +664,6 @@ VIDOBJ		:= video.o \
 		    vid_et4000.o vid_sc1502x_ramdac.o \
 		    vid_et4000w32.o vid_stg_ramdac.o \
 		    vid_ht216.o \
-			vid_mga.o \
 		    vid_oak_oti.o \
 		    vid_paradise.o \
 		    vid_ti_cf62011.o \
@@ -715,7 +677,7 @@ VIDOBJ		:= video.o \
 PLATOBJ		:= win.o \
 		    win_dynld.o win_thread.o \
 		    win_cdrom.o win_keyboard.o \
-		    win_midi.o \
+		    win_crashdump.o win_midi.o \
 		    win_mouse.o
 
 ifeq ($(DINPUT), y)
@@ -727,8 +689,8 @@ endif
 OBJ		:= $(MAINOBJ) $(INTELOBJ) $(CPUOBJ) $(CHIPSETOBJ) $(MCHOBJ) \
 		   $(DEVOBJ) $(FDDOBJ) $(CDROMOBJ) $(ZIPOBJ) $(MOOBJ) $(HDDOBJ) \
 		   $(USBOBJ) $(NETOBJ) $(PRINTOBJ) $(SCSIOBJ) $(SNDOBJ) $(VIDOBJ) \
-		   $(PLATOBJ) $(UIOBJ) $(D2DOBJ) $(FSYNTHOBJ) $(MUNTOBJ) \
-		   $(DEVBROBJ) $(DISCORDOBJ)
+		   $(PLATOBJ) $(UIOBJ) $(FSYNTHOBJ) $(MUNTOBJ) $(DEVBROBJ) \
+		   $(DISCORDOBJ)
 ifdef EXOBJ
 OBJ		+= $(EXOBJ)
 endif
@@ -736,19 +698,13 @@ endif
 LIBS		:= -mwindows -lcomctl32 \
 		   -lopenal -lole32
 
-ifeq ($(D2D), y)
-LIBS		+= $(D2DLIB)
-endif
 ifeq ($(VNC), y)
 LIBS		+= $(VNCLIB) -lws2_32
-endif
-ifeq ($(RDP), y)
-LIBS		+= $(RDPLIB)
 endif
 ifneq ($(WX), n)
 LIBS		+= $(WX_LIBS) -lm
 endif
-LIBS		+= -lpng -lz -lwsock32 -lshell32 -liphlpapi -lSDL2 -limm32 -lhid -lsetupapi -loleaut32 -lversion -lwinmm -static -lstdc++
+LIBS		+= -lpng -lz -lwsock32 -lshell32 -liphlpapi -lpsapi -lSDL2 -limm32 -lhid -lsetupapi -loleaut32 -lversion -lwinmm -static -lstdc++
 ifneq ($(X64), y)
 LIBS		+= -Wl,--large-address-aware
 endif
@@ -798,7 +754,7 @@ else
 endif
 
 
-all:		$(PROG).exe pcap_if.exe
+all:		$(PROG).exe
 
 
 86Box.res:	86Box.rc
