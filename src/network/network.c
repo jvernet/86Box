@@ -281,6 +281,8 @@ network_close(void)
     network_mutex = NULL;
     network_mac = NULL;
 
+    /* Here is where we should clear the queue. */
+
     network_log("NETWORK: closed.\n");
 }
 
@@ -313,7 +315,7 @@ network_reset(void)
     /* If no active card, we're done. */
     if ((network_type==NET_TYPE_NONE) || (network_card==0)) return;
 
-    network_mutex = thread_create_mutex(L"VARCem.NetMutex");
+    network_mutex = thread_create_mutex();
 
     /* Initialize the platform module. */
     switch(network_type) {
@@ -328,7 +330,7 @@ network_reset(void)
 
     if (i < 0) {
 	/* Tell user we can't do this (at the moment.) */
-	ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2102);
+	ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2093);
 
 	// FIXME: we should ask in the dialog if they want to
 	//	  reconfigure or quit, and throw them into the

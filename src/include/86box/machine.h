@@ -270,7 +270,6 @@ extern int	machine_at_endeavor_init(const machine_t *);
 extern int	machine_at_zappa_init(const machine_t *);
 extern int	machine_at_mb500n_init(const machine_t *);
 extern int	machine_at_president_init(const machine_t *);
-extern int	machine_at_apollo_init(const machine_t *);
 #if defined(DEV_BRANCH) && defined(USE_VECTRA54)
 extern int	machine_at_vectra54_init(const machine_t *);
 #endif
@@ -295,11 +294,13 @@ extern int	machine_at_p55t2s_init(const machine_t *);
 extern int	machine_at_m7shi_init(const machine_t *);
 extern int	machine_at_tc430hx_init(const machine_t *);
 extern int	machine_at_equium5200_init(const machine_t *);
+extern int	machine_at_p65up5_cp55t2d_init(const machine_t *);
 
 extern int	machine_at_p55tvp4_init(const machine_t *);
 extern int	machine_at_p55va_init(const machine_t *);
 extern int	machine_at_i430vx_init(const machine_t *);
 extern int	machine_at_brio80xx_init(const machine_t *);
+extern int	machine_at_pb680_init(const machine_t *);
 
 extern int	machine_at_p55xb2_init(const machine_t *);
 extern int	machine_at_tx97_init(const machine_t *);
@@ -324,8 +325,14 @@ extern int	machine_at_686nx_init(const machine_t *);
 extern int	machine_at_mb600n_init(const machine_t *);
 extern int	machine_at_8500ttc_init(const machine_t *);
 extern int	machine_at_m6mi_init(const machine_t *);
+extern int	machine_at_vs440fx_init(const machine_t *);
+#ifdef EMU_DEVICE_H
+extern void	machine_at_p65up5_common_init(const machine_t *, const device_t *northbridge);
+#endif
+extern int	machine_at_p65up5_cp6nd_init(const machine_t *);
 
 /* m_at_slot1.c */
+extern int	machine_at_p65up5_cpknd_init(const machine_t *);
 extern int	machine_at_p6kfx_init(const machine_t *);
 
 extern int	machine_at_6bxc_init(const machine_t *);

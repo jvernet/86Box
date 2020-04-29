@@ -709,9 +709,9 @@ load_network(void)
     if (p != NULL) {
 	if ((network_dev_to_id(p) == -1) || (network_ndev == 1)) {
 		if ((network_ndev == 1) && strcmp(network_host, "none")) {
-			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2103);
+			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2094);
 		} else if (network_dev_to_id(p) == -1) {
-			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2104);
+			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2095);
 		}
 
 		strcpy(network_host, "none");
@@ -957,7 +957,12 @@ load_hard_disks(void)
 		wcsncpy(hdd[c].fn, &wp[wcslen(usr_path)], sizeof_w(hdd[c].fn));
 	} else
 #endif
-	wcsncpy(hdd[c].fn, wp, sizeof_w(hdd[c].fn));
+	if (plat_path_abs(wp)) {
+		wcsncpy(hdd[c].fn, wp, sizeof_w(hdd[c].fn));
+	} else {
+		wcsncpy(hdd[c].fn, usr_path, sizeof_w(hdd[c].fn));
+		wcsncat(hdd[c].fn, wp, sizeof_w(hdd[c].fn)-wcslen(usr_path));
+	}
 
 	/* If disk is empty or invalid, mark it for deletion. */
 	if (! hdd_is_valid(c)) {
@@ -1832,7 +1837,10 @@ save_hard_disks(void)
 
 	sprintf(temp, "hdd_%02i_fn", c+1);
 	if (hdd_is_valid(c) && (wcslen(hdd[c].fn) != 0))
-		config_set_wstring(cat, temp, hdd[c].fn);
+		if (!wcsnicmp(hdd[c].fn, usr_path, wcslen(usr_path)))
+			config_set_wstring(cat, temp, &hdd[c].fn[wcslen(usr_path)]);
+		else
+			config_set_wstring(cat, temp, hdd[c].fn);
 	else
 		config_delete_var(cat, temp);
     }
