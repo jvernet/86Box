@@ -482,7 +482,7 @@ ati28800k_init(const device_t *info)
     rom_init(&ati28800->bios_rom, BIOS_ATIKOR_PATH, 0xc0000, 0x8000, 0x7fff, 0, MEM_MAPPING_EXTERNAL);
     loadfont(FONT_ATIKOR_PATH, 6);
 
-    svga_init(&ati28800->svga, ati28800, ati28800->memory << 10, /*Memory size, default 512KB*/
+    svga_init(info, &ati28800->svga, ati28800, ati28800->memory << 10, /*Memory size, default 512KB*/
 	     ati28800k_recalctimings,
 	     ati28800k_in, ati28800k_out,
 	     NULL,
@@ -495,6 +495,10 @@ ati28800k_init(const device_t *info)
 
     ati28800->svga.miscout = 1;
     ati28800->svga.ksc5601_sbyte_mask = 0;
+    ati28800->svga.ksc5601_udc_area_msb[0] = 0xC9;
+    ati28800->svga.ksc5601_udc_area_msb[1] = 0xFE;
+    ati28800->svga.ksc5601_swap_mode = 0;
+    ati28800->svga.ksc5601_english_font_type = 0;
 
     ati_eeprom_load(&ati28800->eeprom, L"atikorvga.nvr", 0);
 
@@ -543,7 +547,7 @@ ati28800_init(const device_t *info)
 		break;
     }
 
-    svga_init(&ati28800->svga, ati28800, ati28800->memory << 10, /*default: 512kb*/
+    svga_init(info, &ati28800->svga, ati28800, ati28800->memory << 10, /*default: 512kb*/
 	      ati28800_recalctimings,
                    ati28800_in, ati28800_out,
                    NULL,

@@ -245,6 +245,7 @@ extern const device_t compaq_cga_2_device;
 extern const device_t et4000_isa_device;
 extern const device_t et4000k_isa_device;
 extern const device_t et4000k_tg286_isa_device;
+extern const device_t et4000_kasan_isa_device;
 extern const device_t et4000_mca_device;
 
 /* Tseng ET4000-W32p */

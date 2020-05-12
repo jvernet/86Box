@@ -36,7 +36,6 @@
 #include <86box/vid_svga.h>
 #include <86box/vid_svga_render.h>
 
-
 #define BIOS_GD5401_PATH		L"roms/video/cirruslogic/avga1.rom"
 #define BIOS_GD5402_PATH		L"roms/video/cirruslogic/avga2.rom"
 #define BIOS_GD5402_ONBOARD_PATH	L"roms/video/machines/cbm_sl386sx25/Commodore386SX-25_AVGA2.bin"
@@ -59,7 +58,7 @@
 #define BIOS_GD5446_STB_PATH	L"roms/video/cirruslogic/stb nitro64v.BIN"
 #define BIOS_GD5480_PATH		L"roms/video/cirruslogic/clgd5480.rom"
 
-#define CIRRUS_ID_CLGD5401	  	0x88    /* guessed ??? */
+#define CIRRUS_ID_CLGD5401	  	0x88
 #define CIRRUS_ID_CLGD5402	  	0x89
 #define CIRRUS_ID_CLGD5420	  	0x8a
 #define CIRRUS_ID_CLGD5422  	0x8c
@@ -150,7 +149,8 @@ typedef struct gd54xx_t
 
     svga_t		svga;
 
-    int			has_bios, rev;
+    int			has_bios, rev,
+			bit32;
     rom_t		bios_rom;
 
     uint32_t		vram_size;
@@ -210,7 +210,8 @@ typedef struct gd54xx_t
 
 
 static video_timings_t timing_gd54xx_isa	= {VIDEO_ISA, 3,  3,  6,   8,  8, 12};
-static video_timings_t timing_gd54xx_vlb_pci	= {VIDEO_BUS, 4,  4,  8,  10, 10, 20};
+static video_timings_t timing_gd54xx_vlb	= {VIDEO_BUS, 4,  4,  8,  10, 10, 20};
+static video_timings_t timing_gd54xx_pci	= {VIDEO_PCI, 4,  4,  8,  10, 10, 20};
 
 
 static void 
@@ -2958,14 +2959,17 @@ static void
     gd54xx->pci = !!(info->flags & DEVICE_PCI);	
     gd54xx->vlb = !!(info->flags & DEVICE_VLB);
     gd54xx->mca = !!(info->flags & DEVICE_MCA);
+    gd54xx->bit32 = gd54xx->pci || gd54xx->vlb;
 
     gd54xx->rev = 0;
     gd54xx->has_bios = 1;
 
     switch (id) {
+	
 	case CIRRUS_ID_CLGD5401:
 		romfn = BIOS_GD5401_PATH;
 		break;
+		
 	case CIRRUS_ID_CLGD5402:
 		if (info->local & 0x200)
 			romfn = BIOS_GD5402_ONBOARD_PATH;
@@ -3057,35 +3061,53 @@ static void
     if (romfn)
 	rom_init(&gd54xx->bios_rom, romfn, 0xc0000, 0x8000, 0x7fff, 0, MEM_MAPPING_EXTERNAL);
 
+
     if (info->flags & DEVICE_ISA)
 	video_inform(VIDEO_FLAG_TYPE_SPECIAL, &timing_gd54xx_isa);
+    else if (info->flags & DEVICE_PCI)
+	video_inform(VIDEO_FLAG_TYPE_SPECIAL, &timing_gd54xx_pci);
     else
-	video_inform(VIDEO_FLAG_TYPE_SPECIAL, &timing_gd54xx_vlb_pci);
+	video_inform(VIDEO_FLAG_TYPE_SPECIAL, &timing_gd54xx_vlb);
 
-    svga_init(&gd54xx->svga, gd54xx, gd54xx->vram_size,
+    svga_init(info, &gd54xx->svga, gd54xx, gd54xx->vram_size,
 	      gd54xx_recalctimings, gd54xx_in, gd54xx_out,
 	      gd54xx_hwcursor_draw, NULL);
     svga->ven_write = gd54xx_write_modes45;
     if (vram <= 1)
 	svga->decode_mask = gd54xx->vram_mask;
 
-    mem_mapping_set_handler(&svga->mapping, gd54xx_read, gd54xx_readw, gd54xx_readl, gd54xx_write, gd54xx_writew, gd54xx_writel);
-    mem_mapping_set_p(&svga->mapping, gd54xx);
-    
-    mem_mapping_add(&gd54xx->mmio_mapping, 0, 0,
+    if (gd54xx->bit32) {
+	mem_mapping_set_handler(&svga->mapping, gd54xx_read, gd54xx_readw, gd54xx_readl, gd54xx_write, gd54xx_writew, gd54xx_writel);
+	mem_mapping_add(&gd54xx->mmio_mapping, 0, 0,
 			gd543x_mmio_read, gd543x_mmio_readw, gd543x_mmio_readl,
 			gd543x_mmio_writeb, gd543x_mmio_writew, gd543x_mmio_writel,
 			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
-    mem_mapping_disable(&gd54xx->mmio_mapping);
-    mem_mapping_add(&gd54xx->linear_mapping, 0, 0,
+	mem_mapping_add(&gd54xx->linear_mapping, 0, 0,
 			gd54xx_readb_linear, gd54xx_readw_linear, gd54xx_readl_linear,
 			gd54xx_writeb_linear, gd54xx_writew_linear, gd54xx_writel_linear,
 			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
-    mem_mapping_disable(&gd54xx->linear_mapping);
-    mem_mapping_add(&gd54xx->aperture2_mapping, 0, 0,
+	mem_mapping_add(&gd54xx->aperture2_mapping, 0, 0,
 			gd5436_aperture2_readb, gd5436_aperture2_readw, gd5436_aperture2_readl,
 			gd5436_aperture2_writeb, gd5436_aperture2_writew, gd5436_aperture2_writel,
 			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
+    } else {
+	mem_mapping_set_handler(&svga->mapping, gd54xx_read, gd54xx_readw, NULL, gd54xx_write, gd54xx_writew, NULL);
+	mem_mapping_add(&gd54xx->mmio_mapping, 0, 0,
+			gd543x_mmio_read, gd543x_mmio_readw, NULL,
+			gd543x_mmio_writeb, gd543x_mmio_writew, NULL,
+			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
+	mem_mapping_add(&gd54xx->linear_mapping, 0, 0,
+			gd54xx_readb_linear, gd54xx_readw_linear, NULL,
+			gd54xx_writeb_linear, gd54xx_writew_linear, NULL,
+			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
+	mem_mapping_add(&gd54xx->aperture2_mapping, 0, 0,
+			gd5436_aperture2_readb, gd5436_aperture2_readw, NULL,
+			gd5436_aperture2_writeb, gd5436_aperture2_writew, NULL,
+			NULL, MEM_MAPPING_EXTERNAL, gd54xx);
+    }
+    mem_mapping_set_p(&svga->mapping, gd54xx);
+    mem_mapping_disable(&gd54xx->mmio_mapping);
+    mem_mapping_disable(&gd54xx->linear_mapping);
     mem_mapping_disable(&gd54xx->aperture2_mapping);
 
     io_sethandler(0x03c0, 0x0020, gd54xx_in, NULL, NULL, gd54xx_out, NULL, NULL, gd54xx);
@@ -3142,8 +3164,10 @@ static void
 static int
 gd5401_available(void)
 {
-	return rom_present(BIOS_GD5401_PATH);
+    return rom_present(BIOS_GD5401_PATH);
 }
+
+>>>>>>> upstream/master
 static int
 gd5402_available(void)
 {
@@ -3368,15 +3392,15 @@ static const device_config_t gd5434_config[] =
 
 const device_t gd5401_isa_device =
 {
-	"Cirrus Logic GD-5401 (ACUMOS AVGA1)",
-	DEVICE_AT | DEVICE_ISA,
-	CIRRUS_ID_CLGD5401,
-	gd54xx_init, gd54xx_close,
-	NULL,
-	gd5401_available,
-	gd54xx_speed_changed,
-	gd54xx_force_redraw,
-	NULL,
+    "Cirrus Logic GD-5401 (ACUMOS AVGA1)",
+    DEVICE_AT | DEVICE_ISA,
+    CIRRUS_ID_CLGD5401,
+    gd54xx_init, gd54xx_close,
+    NULL,
+    gd5401_available,
+    gd54xx_speed_changed,
+    gd54xx_force_redraw,
+    NULL,
 };
 
 const device_t gd5402_isa_device =
