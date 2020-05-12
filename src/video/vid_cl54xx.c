@@ -3167,7 +3167,6 @@ gd5401_available(void)
     return rom_present(BIOS_GD5401_PATH);
 }
 
->>>>>>> upstream/master
 static int
 gd5402_available(void)
 {

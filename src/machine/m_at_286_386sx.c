@@ -190,12 +190,10 @@ machine_at_kenitec286_init(const machine_t* model)
         return ret;
 
     machine_at_common_init(model);
-
-    device_add(&neat_device);
-    device_add(&fdc_at_device);
-
     device_add(&keyboard_at_device);
-
+    device_add(&fdc_at_device);
+    device_add(&neat_device);
+    
     return ret;
 }
 
@@ -267,9 +265,18 @@ machine_at_px286_init(const machine_t *model)
 {
     int ret;
 
-	ret = bios_load_linear(L"roms/machines/px286/KENITEC.BIN",
-				0x000f0000, 65536, 0);
+//	ret = bios_load_linear(L"roms/machines/px286/KENITEC.BIN",
+//				0x000f0000, 65536, 0);
 
+//    ret = bios_load_interleaved(L"roms/machines/px286/Phoenix 80286 ROM BIOS Version 3.07 (R04) - EVEN.BIN",
+//        L"roms/machines/px286/Phoenix 80286 ROM BIOS Version 3.07 (R04) - ODD.BIN",
+//        0x000f0000, 65536, 0);
+
+    ret = bios_load_interleaved(L"roms/machines/px286/286-Headland-LO.BIN",
+                L"roms/machines/px286/286-Headland-HI.BIN",
+                0x000f0000, 65536, 0);
+
+    
     if (bios_only || !ret)
 	return ret;
 
