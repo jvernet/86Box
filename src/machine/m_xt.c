@@ -283,14 +283,6 @@ machine_xt_pxxt_init(const machine_t *model)
     return 1;
 }
 
-extern const device_t colorplus_device;
-
-const device_t*
-to16pc_get_device(void)
-{
-    return(&colorplus_device);
-}
-
 
 int
 machine_thomson_to16pc(const machine_t* model)
