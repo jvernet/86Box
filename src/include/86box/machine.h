@@ -474,6 +474,7 @@ extern int	machine_xt_xi8088_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t	*xi8088_get_device(void);
+extern const device_t   *to16pc_get_device(void);
 #endif
 
 

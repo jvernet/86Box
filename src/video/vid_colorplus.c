@@ -473,7 +473,7 @@ const device_t colorplus_device =
         DEVICE_ISA, 0,
         colorplus_standalone_init,
         colorplus_close,
-	NULL, NULL,
+	    NULL, NULL,
         colorplus_speed_changed,
         NULL,
         colorplus_config
