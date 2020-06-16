@@ -23,8 +23,8 @@
 #include <string.h>
 #include <wchar.h>
 #include <86box/86box.h>
-#include "cpu_common/cpu.h"
-#include "cpu_common/x86.h"
+#include "cpu.h"
+#include "x86.h"
 #include <86box/machine.h>
 #include <86box/mca.h>
 #include <86box/mem.h>
@@ -1243,13 +1243,13 @@ _dma_read(uint32_t addr, dma_t *dma_c)
 static uint16_t
 _dma_readw(uint32_t addr, dma_t *dma_c)
 {
-    uint8_t temp;
+    uint16_t temp;
 
     if (dma_advanced) {
 	if (dma_c->sg_status & 1)
-		dma_c->sg_status = (dma_c->sg_status & 0x0f) | (dma_sg(&temp, 2, 1, dma_c) << 4);
+		dma_c->sg_status = (dma_c->sg_status & 0x0f) | (dma_sg((uint8_t *) &temp, 2, 1, dma_c) << 4);
 	else
-		dma_bm_read(addr, &temp, 2, dma_transfer_size(dma_c));
+		dma_bm_read(addr, (uint8_t *) &temp, 2, dma_transfer_size(dma_c));
     } else
 	temp = _dma_read(addr, dma_c) | (_dma_read(addr + 1, dma_c) << 8);
 

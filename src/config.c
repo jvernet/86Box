@@ -528,6 +528,9 @@ load_machine(void)
     cpu = config_get_int(cat, "cpu", 0);
     cpu_waitstates = config_get_int(cat, "cpu_waitstates", 0);
 
+    p = (char *)config_get_string(cat, "fpu_type", "none");
+    fpu_type = fpu_get_type(machine, cpu_manufacturer, cpu, p);
+
     mem_size = config_get_int(cat, "mem_size", 4096);
 	
 #if 0
@@ -536,12 +539,10 @@ load_machine(void)
 	mem_size = (((machines[machine].flags & MACHINE_AT) && (machines[machine].ram_granularity < 128)) ? machines[machine].min_ram*1024 : machines[machine].min_ram);
 #endif    
 	
-	if (mem_size > 1048576)
-	mem_size = 1048576;
+    if (mem_size > 2097152)
+	mem_size = 2097152;
 
     cpu_use_dynarec = !!config_get_int(cat, "cpu_use_dynarec", 0);
-
-    enable_external_fpu = !!config_get_int(cat, "cpu_enable_fpu", 0);
 
     p = config_get_string(cat, "time_sync", NULL);
     if (p != NULL) {        
@@ -1336,6 +1337,7 @@ config_load(void)
 #endif
 	scale = 1;
 	machine = machine_get_machine_from_internal_name("ibmpc");
+	fpu_type = fpu_get_type(machine, cpu_manufacturer, cpu, "none");
 	gfxcard = video_get_video_from_internal_name("cga");
 	vid_api = plat_vidapi("default");
 	time_sync = TIME_SYNC_ENABLED;
@@ -1509,17 +1511,17 @@ save_machine(void)
       else
 	config_set_int(cat, "cpu_waitstates", cpu_waitstates);
 
+    if (fpu_type == 0)
+	config_delete_var(cat, "fpu_type");
+      else
+	config_set_string(cat, "fpu_type", fpu_get_internal_name(machine, cpu_manufacturer, cpu, fpu_type));
+
     if (mem_size == 4096)
 	config_delete_var(cat, "mem_size");
       else
 	config_set_int(cat, "mem_size", mem_size);
 
     config_set_int(cat, "cpu_use_dynarec", cpu_use_dynarec);
-
-    if (enable_external_fpu == 0)
-	config_delete_var(cat, "cpu_enable_fpu");
-      else
-	config_set_int(cat, "cpu_enable_fpu", enable_external_fpu);
 
     if (time_sync & TIME_SYNC_ENABLED)
 	if (time_sync & TIME_SYNC_UTC)

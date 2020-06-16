@@ -135,7 +135,7 @@ uint32_t mem_size = 0;				/* (C) memory size */
 int	cpu_manufacturer = 0,			/* (C) cpu manufacturer */
 	cpu_use_dynarec = 0,			/* (C) cpu uses/needs Dyna */
 	cpu = 3,				/* (C) cpu type */
-	enable_external_fpu = 0;		/* (C) enable external FPU */
+	fpu_type = 0;				/* (C) fpu type */
 int	time_sync = 0;				/* (C) enable time sync */
 #ifdef USE_DISCORD
 int	enable_discord = 0;			/* (C) enable Discord integration */
@@ -731,6 +731,8 @@ pc_reset_hard_init(void)
 
     sound_reset();
 
+    scsi_device_init();
+
     /* Initialize the actual machine and its basic modules. */
     machine_init();
 
@@ -838,7 +840,7 @@ pc_close(thread_t *ptr)
 	plat_delay_ms(200);
     }
 
-#ifdef USE_NEW_DYNAREC
+#if (defined(USE_DYNAREC) && defined(USE_NEW_DYNAREC))
     codegen_close();
 #endif
 

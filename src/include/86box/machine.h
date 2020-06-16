@@ -62,10 +62,38 @@
 #define IS_ARCH(m, a)		(machines[(m)].flags & (a)) ? 1 : 0;
 
 
+enum {
+    MACHINE_TYPE_NONE = 0,
+    MACHINE_TYPE_8088,
+    MACHINE_TYPE_8086,
+    MACHINE_TYPE_286,
+    MACHINE_TYPE_386SX,
+    MACHINE_TYPE_386DX,
+    MACHINE_TYPE_486,
+    MACHINE_TYPE_SOCKET4,
+    MACHINE_TYPE_SOCKET5,
+    MACHINE_TYPE_SOCKET7_3V,
+    MACHINE_TYPE_SOCKET7,
+    MACHINE_TYPE_SOCKETS7,
+    MACHINE_TYPE_SOCKET8,
+    MACHINE_TYPE_SLOT1,
+    MACHINE_TYPE_SLOT2,
+    MACHINE_TYPE_SOCKET370,
+    MACHINE_TYPE_MAX
+};
+
+
+typedef struct _machine_type_ {
+    const char	*name;
+    const char  id;
+} machine_type_t;
+
+
 #ifdef NEW_STRUCT
 typedef struct _machine_ {
     const char	*name;
     const char	*internal_name;
+    const char  type;
 #ifdef EMU_DEVICE_H
     const device_t	*device;
 #else
@@ -88,6 +116,7 @@ typedef struct _machine_ {
 typedef struct _machine_ {
     const char	*name;
     const char	*internal_name;
+    const char  type;
     struct {
 	const char *name;
 #ifdef EMU_CPU_H
@@ -111,10 +140,11 @@ typedef struct _machine_ {
 
 
 /* Global variables. */
-extern const machine_t	machines[];
-extern int		bios_only;
-extern int		machine;
-extern int		AT, PCI;
+extern const machine_type_t	machine_types[];
+extern const machine_t		machines[];
+extern int			bios_only;
+extern int			machine;
+extern int			AT, PCI;
 
 
 /* Core functions. */
@@ -241,9 +271,8 @@ extern int	machine_at_r418_init(const machine_t *);
 extern int	machine_at_ls486e_init(const machine_t *);
 extern int	machine_at_4dps_init(const machine_t *);
 extern int	machine_at_alfredo_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(NO_SIO)
 extern int	machine_at_486sp3g_init(const machine_t *);
-#endif
+extern int	machine_at_486ap4_init(const machine_t *);
 
 /* m_at_commodore.c */
 extern int	machine_at_cmdpc_init(const machine_t *);
@@ -290,6 +319,7 @@ extern const device_t	*at_endeavor_get_device(void);
 extern int	machine_at_chariot_init(const machine_t *);
 extern int	machine_at_mr586_init(const machine_t *);
 extern int	machine_at_thor_init(const machine_t *);
+extern int	machine_at_gw2katx_init(const machine_t *);
 extern int	machine_at_mrthor_init(const machine_t *);
 extern int	machine_at_pb640_init(const machine_t *);
 
@@ -330,6 +360,10 @@ extern int	machine_at_mvp3_init(const machine_t *);
 
 /* m_at_socket8.c */
 extern int	machine_at_686nx_init(const machine_t *);
+extern int	machine_at_v60n_init(const machine_t *);
+extern int	machine_at_vs440fx_init(const machine_t *);
+extern int	machine_at_gw2kvs_init(const machine_t *);
+extern int	machine_at_ap440fx_init(const machine_t *);
 extern int	machine_at_mb600n_init(const machine_t *);
 extern int	machine_at_8500ttc_init(const machine_t *);
 extern int	machine_at_m6mi_init(const machine_t *);
@@ -349,16 +383,13 @@ extern int	machine_at_p6i440e2_init(const machine_t *);
 extern int	machine_at_p2bls_init(const machine_t *);
 extern int	machine_at_p3bf_init(const machine_t *);
 extern int	machine_at_bf6_init(const machine_t *);
+extern int	machine_at_ax6bc_init(const machine_t *);
 extern int	machine_at_atc6310bxii_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(NO_SIO)
 extern int	machine_at_tsunamiatx_init(const machine_t *);
-#endif
 extern int	machine_at_p6sba_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
-#if defined(DEV_BRANCH) && defined(NO_SIO)
 extern const device_t 	*at_tsunamiatx_get_device(void);
-#endif
 #endif
 
 /* m_at_slot2.c */
