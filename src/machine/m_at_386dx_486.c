@@ -62,6 +62,7 @@ machine_at_acc386_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_asus386_init(const machine_t *model)
 {
@@ -80,6 +81,7 @@ ret = bios_load_linear(L"roms/machines/asus386/ASUS_ISA-386C_BIOS.bin",
 
     return ret;
 }
+
 
 int
 machine_at_ecs386_init(const machine_t *model)
@@ -100,6 +102,7 @@ machine_at_ecs386_init(const machine_t *model)
 
     return ret;
 }
+
 
 int
 machine_at_pb410a_init(const machine_t *model)
@@ -123,6 +126,37 @@ machine_at_pb410a_init(const machine_t *model)
 	device_add(&ht216_32_pb410a_device);
 
     return ret;
+}
+
+
+int
+machine_at_acera1g_init(const machine_t *model)
+{
+    int ret;
+
+   ret = bios_load_linear(L"roms/machines/acera1g/4alo001.bin",
+			  0x000e0000, 131072, 0);
+
+    if (bios_only || !ret)
+	return ret;
+
+    machine_at_common_init(model);
+
+    if (gfxcard == VID_INTERNAL)
+	device_add(&gd5428_a1g_device);
+
+    device_add(&ali1429_device);
+    device_add(&keyboard_ps2_acer_pci_device);
+    device_add(&fdc_at_device);
+    device_add(&ide_vlb_2ch_device);
+
+    return ret;
+}
+
+const device_t *
+at_acera1g_get_device(void)
+{
+    return &gd5428_a1g_device;
 }
 
 
@@ -243,7 +277,7 @@ machine_at_opti495_mr_init(const machine_t *model)
 static void
 machine_at_sis_85c471_common_init(const machine_t *model)
 {
-    machine_at_common_ide_init(model);
+    machine_at_common_init(model);
     device_add(&fdc_at_device);
 
     device_add(&sis_85c471_device);
@@ -262,11 +296,29 @@ machine_at_ami471_init(const machine_t *model)
 	return ret;
 
     machine_at_sis_85c471_common_init(model);
+    device_add(&ide_vlb_device);
     device_add(&keyboard_at_ami_device);
 
     return ret;
 }
 
+int
+machine_at_vli486sv2g_init(const machine_t *model)
+{
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/vli486sv2g/0402.001",
+			   0x000f0000, 65536, 0);
+
+    if (bios_only || !ret)
+	return ret;
+
+    machine_at_sis_85c471_common_init(model);
+    device_add(&ide_vlb_2ch_device);
+    device_add(&keyboard_at_device);
+
+    return ret;
+}
 
 int
 machine_at_dtk486_init(const machine_t *model)
@@ -280,6 +332,7 @@ machine_at_dtk486_init(const machine_t *model)
 	return ret;
 
     machine_at_sis_85c471_common_init(model);
+    device_add(&ide_vlb_device);
     device_add(&keyboard_at_device);
 
     return ret;
@@ -298,6 +351,7 @@ machine_at_px471_init(const machine_t *model)
 	return ret;
 
     machine_at_sis_85c471_common_init(model);
+    device_add(&ide_vlb_device);
     device_add(&keyboard_at_device);
 
     return ret;
@@ -317,6 +371,7 @@ machine_at_win471_init(const machine_t *model)
 	return ret;
 
     machine_at_sis_85c471_common_init(model);
+    device_add(&ide_vlb_device);
     device_add(&keyboard_at_ami_device);
 
     return ret;

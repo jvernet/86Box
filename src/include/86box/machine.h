@@ -255,6 +255,7 @@ extern int	machine_at_micronics386_init(const machine_t *);
 
 extern int	machine_at_pb410a_init(const machine_t *);
 
+extern int	machine_at_acera1g_init(const machine_t *);
 extern int	machine_at_ali1429_init(const machine_t *);
 extern int	machine_at_winbios1429_init(const machine_t *);
 
@@ -262,6 +263,7 @@ extern int	machine_at_opti495_init(const machine_t *);
 extern int	machine_at_opti495_ami_init(const machine_t *);
 extern int	machine_at_opti495_mr_init(const machine_t *);
 
+extern int	machine_at_vli486sv2g_init(const machine_t *);
 extern int	machine_at_ami471_init(const machine_t *);
 extern int	machine_at_dtk486_init(const machine_t *);
 extern int	machine_at_px471_init(const machine_t *);
@@ -275,6 +277,10 @@ extern int	machine_at_4dps_init(const machine_t *);
 extern int	machine_at_alfredo_init(const machine_t *);
 extern int	machine_at_486sp3g_init(const machine_t *);
 extern int	machine_at_486ap4_init(const machine_t *);
+
+#ifdef EMU_DEVICE_H
+extern const device_t 	*at_acera1g_get_device(void);
+#endif
 
 /* m_at_commodore.c */
 extern int	machine_at_cmdpc_init(const machine_t *);
@@ -312,6 +318,7 @@ extern int	machine_at_mb500n_init(const machine_t *);
 extern int	machine_at_vectra54_init(const machine_t *);
 #endif
 extern int	machine_at_powermate_v_init(const machine_t *);
+extern int	machine_at_acerv30_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_endeavor_get_device(void);

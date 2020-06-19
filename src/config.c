@@ -451,7 +451,7 @@ load_general(void)
 
     video_fullscreen_scale = config_get_int(cat, "video_fullscreen_scale", 0);
 
-    video_fullscreen_first = config_get_int(cat, "video_fullscreen_first", 0);
+    video_fullscreen_first = config_get_int(cat, "video_fullscreen_first", 1);
 
     force_43 = !!config_get_int(cat, "force_43", 0);
     scale = config_get_int(cat, "scale", 1);
@@ -713,9 +713,9 @@ load_network(void)
     if (p != NULL) {
 	if ((network_dev_to_id(p) == -1) || (network_ndev == 1)) {
 		if ((network_ndev == 1) && strcmp(network_host, "none")) {
-			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2094);
+			ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2094, (wchar_t *) IDS_2129);
 		} else if (network_dev_to_id(p) == -1) {
-			ui_msgbox(MBX_ERROR, (wchar_t *)IDS_2095);
+			ui_msgbox_header(MBX_ERROR, (wchar_t *) IDS_2095, (wchar_t *) IDS_2129);
 		}
 
 		strcpy(network_host, "none");
@@ -863,7 +863,7 @@ load_hard_disks(void)
 		case HDD_BUS_MFM:
 			max_spt = 26;	/* 26 for RLL */
 			max_hpc = 15;
-			max_tracks = 1023;
+			max_tracks = 2047;
 			break;
 
 		case HDD_BUS_XTA:
