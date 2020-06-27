@@ -6,7 +6,7 @@
  *
  *		This file is part of the 86Box distribution.
  *
- *		Implementation of the Intel PCISet chips from 420TX to 440BX.
+ *		Implementation of the Intel PCISet chips from 420TX to 440GX.
  *
  *
  *
@@ -28,6 +28,7 @@
 #include <86box/device.h>
 #include <86box/keyboard.h>
 #include <86box/chipset.h>
+#include <86box/spd.h>
 
 
 enum
@@ -52,10 +53,30 @@ typedef struct
 {
     uint8_t	pm2_cntrl, max_func,
 		smram_locked, max_drb,
-		drb_default;
+		drb_unit, drb_default;
     uint8_t	regs[2][256], regs_locked[2][256];
     int		type;
 } i4x0_t;
+
+
+#ifdef ENABLE_I4X0_LOG
+int i4x0_do_log = ENABLE_I4X0_LOG;
+
+
+static void
+i4x0_log(const char *fmt, ...)
+{
+    va_list ap;
+
+    if (i4x0_do_log) {
+	va_start(ap, fmt);
+	pclog_ex(fmt, ap);
+	va_end(ap);
+    }
+}
+#else
+#define i4x0_log(fmt, ...)
+#endif
 
 
 static void
@@ -350,8 +371,9 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		switch (dev->type) {
 			case INTEL_440LX: case INTEL_440EX:
 				regs[0x34] = (val & 0xa0);
-				}
 				break;
+		}
+		break;
 
 	case 0x4f:
 		switch (dev->type) {
@@ -627,13 +649,17 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		regs[0x5f] = val & 0x77;
 		break;
 	case 0x60: case 0x61: case 0x62: case 0x63: case 0x64:
+		if ((addr & 0x7) <= dev->max_drb) {
+			spd_write_drbs(regs, 0x60, 0x60 + dev->max_drb, dev->drb_unit);
+			break;
+		}
 		switch (dev->type) {
 			case INTEL_420TX: case INTEL_420ZX:
 			case INTEL_430LX: case INTEL_430NX:
 			case INTEL_430HX:
 			case INTEL_440FX:
 			case INTEL_440LX: case INTEL_440EX:
-      case INTEL_440BX: case INTEL_440ZX:
+			case INTEL_440BX: case INTEL_440ZX:
 			default:
 				regs[addr] = val;
 				break;
@@ -646,13 +672,17 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		}
 		break;
 	case 0x65:
+		if ((addr & 0x7) <= dev->max_drb) {
+			spd_write_drbs(regs, 0x60, 0x60 + dev->max_drb, dev->drb_unit);
+			break;
+		}
 		switch (dev->type) {
 			case INTEL_420TX: case INTEL_420ZX:
 			case INTEL_430LX: case INTEL_430NX:
 			case INTEL_430HX:
 			case INTEL_440FX:
 			case INTEL_440LX: case INTEL_440EX:
-         case INTEL_440GX:
+			case INTEL_440GX:
 			case INTEL_440BX: case INTEL_440ZX:
 				regs[addr] = val;
 				break;
@@ -665,6 +695,10 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		}
 		break;
 	case 0x66:
+		if ((addr & 0x7) <= dev->max_drb) {
+			spd_write_drbs(regs, 0x60, 0x60 + dev->max_drb, dev->drb_unit);
+			break;
+		}
 		switch (dev->type) {
 			case INTEL_430NX: case INTEL_430HX:
 			case INTEL_440FX: case INTEL_440LX:
@@ -675,12 +709,16 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		}
 		break;
 	case 0x67:
+		if ((addr & 0x7) <= dev->max_drb) {
+			spd_write_drbs(regs, 0x60, 0x60 + dev->max_drb, dev->drb_unit);
+			break;
+		}
 		switch (dev->type) {
 			case INTEL_430NX: case INTEL_430HX:	
 			case INTEL_440FX: case INTEL_440LX:
 			case INTEL_440EX:
 			case INTEL_440BX: case INTEL_440GX:
-         case INTEL_440ZX:
+			case INTEL_440ZX:
 				regs[addr] = val;
 				break;
 			case INTEL_430VX:
@@ -904,7 +942,7 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 				regs[0x7c] = val & 0x8f;
 				break;
 			case INTEL_440BX:  case INTEL_440GX:
-         case INTEL_440ZX:
+			case INTEL_440ZX:
 				regs[0x7c] = val & 0x1f;
 				break;
 		}
@@ -912,7 +950,7 @@ i4x0_write(int func, int addr, uint8_t val, void *priv)
 		switch (dev->type) {
 			case INTEL_420TX: case INTEL_420ZX:
 			case INTEL_430LX: case INTEL_430NX:
-				regs[0x7c] = val & 0x32;
+				regs[0x7d] = val & 0x32;
 				break;
 		}
 	case 0x7e: case 0x7f:
@@ -1207,9 +1245,9 @@ i4x0_read(int func, int addr, void *priv)
     uint8_t ret = 0xff;
     uint8_t *regs = (uint8_t *) dev->regs[func];
 
-  if (func > dev->max_func)
+    if (func > dev->max_func)
 	  ret = 0xff;
-  else {
+    else {
 	ret = regs[addr];
 	/* Special behavior for 440FX register 0x93 which is basically TRC in PCI space
 	   with the addition of bits 3 and 0. */
@@ -1305,6 +1343,7 @@ static void
 		regs[0x59] = 0x0f;
 		regs[0x60] = regs[0x61] = regs[0x62] = regs[0x63] = regs[0x64] = regs[0x65] = 0x02;
 		dev->max_drb = 5;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430LX:
@@ -1323,6 +1362,7 @@ static void
 		regs[0x59] = 0x0f;
 		regs[0x60] = regs[0x61] = regs[0x62] = regs[0x63] = regs[0x64] = regs[0x65] = 0x02;
 		dev->max_drb = 5;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430NX:
@@ -1343,6 +1383,7 @@ static void
 		regs[0x59] = 0x0f;
 		regs[0x60] = regs[0x61] = regs[0x62] = regs[0x63] = regs[0x64] = regs[0x65] = regs[0x66] = regs[0x67] = 0x02;
 		dev->max_drb = 7;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430FX:
@@ -1358,6 +1399,7 @@ static void
 		regs[0x60] = regs[0x61] = regs[0x62] = regs[0x63] = regs[0x64] = 0x02;
 		regs[0x72] = 0x02;
 		dev->max_drb = 4;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430HX:
@@ -1372,6 +1414,7 @@ static void
 		regs[0x60] = regs[0x61] = regs[0x62] = regs[0x63] = regs[0x64] = regs[0x65] = regs[0x66] = regs[0x67] = 0x02;
 		regs[0x72] = 0x02;
 		dev->max_drb = 7;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430VX:
@@ -1393,6 +1436,7 @@ static void
 		regs[0x74] = 0x0e;
 		regs[0x78] = 0x23;
 		dev->max_drb = 4;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_430TX:
@@ -1410,6 +1454,7 @@ static void
 		regs[0x70] = 0x20;
 		regs[0x72] = 0x02;
 		dev->max_drb = 5;
+		dev->drb_unit = 4;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_440FX:
@@ -1426,6 +1471,7 @@ static void
 		regs[0x71] = 0x10;
 		regs[0x72] = 0x02;
 		dev->max_drb = 7;
+		dev->drb_unit = 8;
 		dev->drb_default = 0x02;
 		break;
 	case INTEL_440LX:
@@ -1450,12 +1496,13 @@ static void
 		regs[0xa5] = 0x02;
 		regs[0xa7] = 0x1f;
 		dev->max_drb = 7;
+		dev->drb_unit = 8;
 		dev->drb_default = 0x01;
 		break;
 	case INTEL_440EX:
 		dev->max_func = 1;
 
-		regs[0x02] = 0x80; regs[0x03] = 0x71;	/* 82443EX. Same Vendor ID as 440LX*/
+		regs[0x02] = 0x80; regs[0x03] = 0x71;	/* 82443EX. Same Vendor ID as 440LX */
 		regs[0x06] = 0x90;
 		regs[0x10] = 0x08;
 		regs[0x34] = 0xa0;
@@ -1474,6 +1521,7 @@ static void
 		regs[0xa5] = 0x02;
 		regs[0xa7] = 0x1f;
 		dev->max_drb = 7;
+		dev->drb_unit = 8;
 		dev->drb_default = 0x01;
 		break;
 	case INTEL_440BX: case INTEL_440ZX:
@@ -1502,6 +1550,7 @@ static void
 		regs[0xa5] = 0x02;
 		regs[0xa7] = 0x1f;
 		dev->max_drb = 7;
+		dev->drb_unit = 8;
 		dev->drb_default = 0x01;
 		break;
 	case INTEL_440GX:
@@ -1527,6 +1576,7 @@ static void
 		regs[0xa5] = 0x02;
 		regs[0xa7] = 0x1f;
 		dev->max_drb = 7;
+		dev->drb_unit = 8;
 		dev->drb_default = 0x01;
 		break;
     }
@@ -1566,11 +1616,11 @@ static void
 	regs = (uint8_t *) dev->regs[1];
 
 	regs[0x00] = 0x86; regs[0x01] = 0x80;	/* Intel */
-   if(dev->type != INTEL_440GX){
-	regs[0x02] = 0x91; regs[0x03] = 0x71;	/* 82443BX */
-   } else {
-   regs[0x02] = 0xa1; regs[0x03] = 0x71; /* 82443GX (They seem to share the same deal*/
-   }
+	if(dev->type != INTEL_440GX) {
+		regs[0x02] = 0x91; regs[0x03] = 0x71;	/* 82443BX */
+	} else {
+		regs[0x02] = 0xa1; regs[0x03] = 0x71; /* 82443GX (They seem to share the same deal*/
+	}
 	regs[0x06] = 0x20; regs[0x07] = 0x02;
 	regs[0x08] = 0x02;
 	regs[0x0a] = 0x04; regs[0x0b] = 0x06;

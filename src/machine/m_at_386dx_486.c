@@ -38,8 +38,7 @@
 #include <86box/sio.h>
 #include <86box/hdc.h>
 #include <86box/video.h>
-#include <86box/intel_flash.h>
-#include <86box/sst_flash.h>
+#include <86box/flash.h>
 #include <86box/scsi_ncr53c8xx.h>
 #include <86box/machine.h>
 
@@ -148,7 +147,7 @@ machine_at_acera1g_init(const machine_t *model)
     device_add(&ali1429_device);
     device_add(&keyboard_ps2_acer_pci_device);
     device_add(&fdc_at_device);
-    device_add(&ide_vlb_2ch_device);
+    device_add(&ide_isa_2ch_device);
 
     return ret;
 }
