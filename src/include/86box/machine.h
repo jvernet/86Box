@@ -243,6 +243,8 @@ extern int	machine_at_adi386sx_init(const machine_t *);
 extern int	machine_at_commodore_sl386sx_init(const machine_t *);
 extern int	machine_at_wd76c10_init(const machine_t *);
 
+extern int  machine_at_awardsx_init(const machine_t *);
+
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_ama932j_get_device(void);
 extern const device_t	*at_commodore_sl386sx_get_device(void);
@@ -254,6 +256,8 @@ extern int	machine_at_acc386_init(const machine_t *);
 extern int	machine_at_asus386_init(const machine_t *);
 extern int  machine_at_ecs386_init(const machine_t *);
 extern int	machine_at_micronics386_init(const machine_t *);
+
+extern int	machine_at_rycleopardlx_init(const machine_t *);
 
 extern int	machine_at_pb410a_init(const machine_t *);
 
@@ -281,6 +285,12 @@ extern int	machine_at_4dps_init(const machine_t *);
 extern int	machine_at_alfredo_init(const machine_t *);
 extern int	machine_at_486sp3g_init(const machine_t *);
 extern int	machine_at_486ap4_init(const machine_t *);
+#if defined(DEV_BRANCH) && defined(USE_STPC)
+extern int	machine_at_itoxstar_init(const machine_t *);
+extern int	machine_at_arb1479_init(const machine_t *);
+extern int	machine_at_pcm9340_init(const machine_t *);
+extern int	machine_at_pcm5330_init(const machine_t *);
+#endif
 
 #ifdef EMU_DEVICE_H
 extern const device_t 	*at_acera1g_get_device(void);
@@ -421,6 +431,7 @@ extern int	machine_at_s370slm_init(const machine_t *);
 extern int	machine_at_cubx_init(const machine_t *);
 extern int	machine_at_atc7020bxii_init(const machine_t *);
 extern int	machine_at_ambx133_init(const machine_t *);
+extern int	machine_at_awo671r_init(const machine_t *);
 extern int	machine_at_63a_init(const machine_t *);
 extern int	machine_at_s370sba_init(const machine_t *);
 extern int	machine_at_apas3_init(const machine_t *);

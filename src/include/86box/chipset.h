@@ -60,6 +60,8 @@ extern const device_t	slc90e66_device;
 extern const device_t	ioapic_device;
 
 /* OPTi */
+extern const device_t	opti283_device;
+extern const device_t	opti291_device;
 extern const device_t	opti493_device;
 extern const device_t	opti495_device;
 extern const device_t	opti802g_device;
@@ -80,6 +82,14 @@ extern const device_t	sis_85c496_device;
 extern const device_t	sis_85c496_ls486e_device;
 #if defined(DEV_BRANCH) && defined(USE_SIS_85C50X)
 extern const device_t	sis_85c50x_device;
+#endif
+
+/* ST */
+#if defined(DEV_BRANCH) && defined(USE_STPC)
+extern const device_t	stpc_client_device;
+extern const device_t	stpc_consumer2_device;
+extern const device_t	stpc_elite_device;
+extern const device_t	stpc_atlas_device;
 #endif
 
 /* VIA */
