@@ -825,10 +825,6 @@ machine_at_compaq_init(const machine_t *model, int type)
 	device_add(&fdc_at_device);
     switch(type) {
 	    
-	case COMPAQ_DESKPRO_386:
-		if (hdc_current == 1)
-			device_add(&ide_isa_device);
-		break;
 	case COMPAQ_PORTABLEII:
 		break;
 
@@ -918,7 +914,7 @@ machine_at_deskpro386_init(const machine_t* model)
 	if (bios_only || !ret)
 		return ret;
 
-	machine_at_compaq_init(model, COMPAQ_DESKPRO_386);
+	machine_at_compaq_init(model, COMPAQ_DESKPRO386);
 
 	return ret;
 }
