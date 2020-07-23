@@ -39,17 +39,26 @@ ifeq ($(DEV_BUILD), y)
  ifndef AMD_K5
   AMD_K5	:= y
  endif
+ ifndef AMI386X
+  AMI386SX	:= y
+ endif
  ifndef CL5422
   CL5422	:= y
  endif
  ifndef CYRIX_6X86
-  CYRIX_6X86 := y
+  CYRIX_6X86	:= y
  endif 
+ ifndef HEADAKA
+  HEDAKA	:= y
+ endif
  ifndef LASERXT
   LASERXT	:= y
  endif
  ifndef MGA
   MGA		:= y
+ endif
+ ifndef OPEN_AT
+  OPEN_AT	:= y
  endif
  ifndef PAS16
   PAS16		:= n
@@ -65,9 +74,6 @@ ifeq ($(DEV_BUILD), y)
  endif
  ifndef VECTRA54
   VECTRA54	:= y
- endif
- ifndef VPP60
-  VPP60		:= y
  endif
  ifndef SIEMENS
   SIEMENS	:= y
@@ -93,8 +99,8 @@ ifeq ($(DEV_BUILD), y)
  ifndef GUSMAX
   GUSMAX	:= y
  endif
- ifndef DELLXP60
-  DELLXP60		:= y
+ ifndef DELLS4
+  DELLS4	:= y
  endif
 else
  ifndef DEBUG
@@ -109,17 +115,26 @@ else
  ifndef AMD_K5
   AMD_K5	:= n
  endif
+ ifndef AMI386SX
+  AMI386SX	:= n
+ endif
  ifndef CL5422
   CL5422	:= n
  endif
  ifndef CYRIX_6X86
-  CYRIX_6X86 := n
+  CYRIX_6X86	:= n
  endif 
+ ifndef HEDAKA
+  HEDAKA	:= n
+ endif
  ifndef LASERXT
   LASERXT	:= n
  endif
  ifndef MGA
   MGA		:= n
+ endif
+ ifndef OPEN_AT
+  OPEN_AT	:= n
  endif
  ifndef PAS16
   PAS16		:= n
@@ -135,9 +150,6 @@ else
  endif
  ifndef VECTRA54
   VECTRA54	:= n
- endif
- ifndef VPP60
-  VPP60		:= n
  endif
  ifndef SIEMENS
   SIEMENS	:= n
@@ -163,8 +175,8 @@ else
  ifndef GUSMAX
   GUSMAX	:= n
  endif
- ifndef DELLXP60
-  DELLXP60		:= n
+ ifndef DELLS4
+  DELLS4	:= n
  endif
 endif
 
@@ -206,17 +218,17 @@ ifndef NEW_DYNAREC
  NEW_DYNAREC	:= n
 endif
 ifndef DYNAREC
- DYNAREC		:= y
+ DYNAREC	:= y
 endif
 ifeq ($(DYNAREC), y)
  ifeq ($(ARM), y)
   ifeq ($(NEW_DYNAREC), n)
-   DYNAREC		:= n
+   DYNAREC	:= n
   endif
  endif
  ifeq ($(ARM64), y)
   ifeq ($(NEW_DYNAREC), n)
-   DYNAREC		:= n
+   DYNAREC	:= n
   endif
  endif
 endif
@@ -299,13 +311,13 @@ ifeq ($(ARM64), y)
 CPP		:= aarch64-w64-mingw32-g++
 CC		:= aarch64-w64-mingw32-gcc
 WINDRES		:= aarch64-w64-mingw32-windres
-STRIP := aarch64-w64-mingw32-strip
+STRIP		:= aarch64-w64-mingw32-strip
 endif
 ifeq ($(ARM), y)
 CPP		:= armv7-w64-mingw32-g++
 CC		:= armv7-w64-mingw32-gcc
 WINDRES		:= armv7-w64-mingw32-windres
-STRIP := armv7-w64-mingw32-strip
+STRIP		:= armv7-w64-mingw32-strip
 endif
 DEPS		= -MMD -MF $*.d -c $<
 DEPFILE		:= win/.depends
@@ -354,13 +366,13 @@ else
 endif
 AFLAGS		:= -msse2 -mfpmath=sse
 ifeq ($(ARM), y)
- DFLAGS	  := -march=armv7-a
- AOPTIM	  :=
+ DFLAGS		:= -march=armv7-a
+ AOPTIM		:=
  AFLAGS		:= -mfloat-abi=hard
 endif
 ifeq ($(ARM64), y)
- DFLAGS	  := -march=armv8-a
- AOPTIM	  :=
+ DFLAGS		:= -march=armv8-a
+ AOPTIM		:=
  AFLAGS		:= -mfloat-abi=hard
 endif
 RFLAGS		:= --input-format=rc -O coff -Iinclude
@@ -371,6 +383,10 @@ endif
 ifeq ($(VRAMDUMP), y)
 OPTS		+= -DENABLE_VRAM_DUMP
 RFLAGS		+= -DENABLE_VRAM_DUMP
+endif
+ifeq ($(NOHOOK), y)
+OPTS		+= -DNO_KEYBOARD_HOOK
+RFLAGS		+= -DNO_KEYBOARD_HOOK
 endif
 
 
@@ -481,12 +497,20 @@ ifeq ($(AMD_K5), y)
 OPTS		+= -DUSE_AMD_K5
 endif
 
+ifeq ($(AMI386SX), y)
+OPTS		+= -DUSE_AMI386SX
+endif
+
 ifeq ($(CL5422), y)
 OPTS		+= -DUSE_CL5422
 endif
 
 ifeq ($(CYRIX_6X86), y)
 OPTS		+= -DUSE_CYRIX_6X86
+endif
+
+ifeq ($(HEDAKA), y)
+OPTS		+= -DUSE_HEDAKA
 endif
 
 ifeq ($(LASERXT), y)
@@ -497,6 +521,10 @@ endif
 ifeq ($(MGA), y)
 OPTS		+= -DUSE_MGA
 DEVBROBJ	+= vid_mga.o
+endif
+
+ifeq ($(OPEN_AT), y)
+OPTS		+= -DUSE_OPEN_AT
 endif
 
 ifeq ($(PAS16), y)
@@ -518,10 +546,6 @@ endif
 
 ifeq ($(VECTRA54), y)
 OPTS		+= -DUSE_VECTRA54
-endif
-
-ifeq ($(VPP60), y)
-OPTS		+= -DUSE_VPP60
 endif
 
 ifeq ($(SIEMENS), y)
@@ -557,8 +581,8 @@ ifeq ($(GUSMAX), y)
 OPTS		+= -DUSE_GUSMAX
 endif
 
-ifeq ($(DELLXP60), y)
-OPTS		+= -DUSE_DELLXP60
+ifeq ($(DELLS4), y)
+OPTS		+= -DUSE_DELLS4
 endif
 
 endif
@@ -590,9 +614,9 @@ CPUOBJ		:= cpu.o cpu_table.o \
 		    x86seg.o x87.o x87_timings.o \
 		    $(DYNARECOBJ)
 
-CHIPSETOBJ	:= acc2168.o cs8230.o ali1429.o headland.o i82335.o \
+CHIPSETOBJ	:= acc2168.o cs8230.o ali1429.o headland.o i82335.o cs4031.o \
 		    intel_420ex.o intel_4x0.o intel_sio.o intel_piix.o ioapic.o \
-		    neat.o opti495.o opti895.o opti5x7.o scamp.o scat.o \
+		    neat.o opti495.o opti895.o opti5x7.o scamp.o scat.o via_vt82c49x.o via_vt82c505.o \
 		    sis_85c310.o sis_85c471.o sis_85c496.o opti283.o opti291.o $(STPCOBJ) \
 		    via_apollo.o via_vpx.o via_vt82c586b.o via_vt82c596b.o wd76c10.o vl82c480.o \
 			amd640.o
@@ -622,9 +646,8 @@ DEVOBJ		:= bugger.o hwm.o hwm_lm75.o hwm_lm78.o hwm_gl518sm.o ibm_5161.o isamem.
 		    mouse_serial.o mouse_ps2.o
 
 SIOOBJ		:= sio_acc3221.o \
-		    sio_f82c710.o \
-		    sio_fdc37c661.o sio_fdc37c66x.o sio_fdc37c669.o \
-		    sio_fdc37c93x.o \
+		    sio_f82c710.o sio_82091aa.o \
+		    sio_fdc37c661.o sio_fdc37c66x.o sio_fdc37c669.o sio_fdc37c93x.o \
 		    sio_pc87306.o sio_pc87307.o sio_pc87309.o sio_pc87332.o \
 		    sio_w83787f.o \
 		    sio_w83877f.o sio_w83977f.o \
@@ -679,8 +702,7 @@ PRINTOBJ	:= png.o prt_cpmap.o \
 			
 SNDOBJ		:= sound.o \
 		    openal.o \
-		    snd_opl.o snd_opl_backend.o \
-		    nukedopl.o \
+		    snd_opl.o snd_opl_nuked.o \
 		    snd_resid.o \
 		     convolve.o convolve-sse.o envelope.o extfilt.o \
 		     filter.o pot.o sid.o voice.o wave6581__ST.o \

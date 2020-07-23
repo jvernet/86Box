@@ -51,6 +51,7 @@
 #include <86box/hdc.h>
 #include <86box/hdc_ide.h>
 #include <86box/zip.h>
+#include <86box/mo.h>
 #include <86box/fdd.h>
 #include <86box/fdc.h>
 #include <86box/fdc_ext.h>
@@ -116,6 +117,7 @@ static int temp_fdd_check_bpb[FDD_NUM];
 /* Other removable devices category */
 static cdrom_t temp_cdrom[CDROM_NUM];
 static zip_drive_t temp_zip_drives[ZIP_NUM];
+static mo_drive_t temp_mo_drives[MO_NUM];
 
 static HWND hwndParentDialog, hwndChildDialog;
 
@@ -320,6 +322,13 @@ win_settings_init(void)
 	else if (zip_drives[i].bus_type == ZIP_BUS_SCSI)
 		scsi_tracking[zip_drives[i].scsi_device_id >> 3] |= (1 << ((zip_drives[i].scsi_device_id & 0x07) << 3));
     }
+    memcpy(temp_mo_drives, mo_drives, MO_NUM * sizeof(mo_drive_t));
+    for (i = 0; i < MO_NUM; i++) {
+    if (mo_drives[i].bus_type == MO_BUS_ATAPI)
+	ide_tracking |= (1 << (mo_drives[i].ide_channel << 3));
+    else if (mo_drives[i].bus_type == MO_BUS_SCSI)
+	scsi_tracking[mo_drives[i].scsi_device_id >> 3] |= (1 << ((mo_drives[i].scsi_device_id & 0x07) << 3));
+    }
 
     temp_deviceconfig = 0;
 }
@@ -402,6 +411,7 @@ win_settings_changed(void)
     /* Other removable devices category */
     i = i || memcmp(cdrom, temp_cdrom, CDROM_NUM * sizeof(cdrom_t));
     i = i || memcmp(zip_drives, temp_zip_drives, ZIP_NUM * sizeof(zip_drive_t));
+    i = i || memcmp(mo_drives, temp_mo_drives, MO_NUM * sizeof(mo_drive_t));
 
     i = i || !!temp_deviceconfig;
 
@@ -530,6 +540,11 @@ win_settings_save(void)
 	zip_drives[i].f = NULL;
 	zip_drives[i].priv = NULL;
     }
+    memcpy(mo_drives, temp_mo_drives, MO_NUM * sizeof(mo_drive_t));
+    for (i = 0; i < MO_NUM; i++) {
+	mo_drives[i].f = NULL;
+	mo_drives[i].priv = NULL;
+    }
 
     /* Mark configuration as changed. */
     config_changed = 1;
@@ -569,6 +584,8 @@ win_settings_machine_recalc_fpu(HWND hdlg)
 	EnableWindow(h, TRUE);
     else
 	EnableWindow(h, FALSE);
+
+    temp_fpu = fpu_get_type_from_index(temp_machine, temp_cpu_m, temp_cpu, SendMessage(h, CB_GETCURSEL, 0, 0));
 }
 
 
@@ -3503,7 +3520,7 @@ win_settings_hard_disks_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 {
     HWND h = NULL;
     int old_sel = 0, b = 0, assign = 0;
-    const uint8_t hd_icons[2] = { 64, 0 };
+    const uint8_t hd_icons[2] = { 80, 0 };
 
     switch (message) {
 	case WM_INITDIALOG:
@@ -3739,7 +3756,7 @@ win_settings_cdrom_drives_recalc_list(HWND hwndList)
     WCHAR szText[256];
 
     lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
-   lvI.stateMask = lvI.iSubItem = lvI.state = 0;
+    lvI.stateMask = lvI.iSubItem = lvI.state = 0;
 
     for (i = 0; i < 4; i++) {
 	fsid = combo_id_to_format_string_id(temp_cdrom[i].bus_type);
@@ -3785,6 +3802,67 @@ win_settings_cdrom_drives_recalc_list(HWND hwndList)
     return TRUE;
 }
 
+static BOOL
+win_settings_mo_drives_recalc_list(HWND hwndList)
+{
+    LVITEM lvI;
+    int i = 0, fsid = 0;
+    WCHAR szText[256];
+	char szType[30];
+
+    lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
+	lvI.stateMask = lvI.iSubItem = lvI.state = 0;
+
+    for (i = 0; i < MO_NUM; i++) {
+	fsid = combo_id_to_format_string_id(temp_mo_drives[i].bus_type);
+	
+	lvI.iSubItem = 0;
+	switch (temp_mo_drives[i].bus_type) {
+		case MO_BUS_DISABLED:
+		default:
+			lvI.pszText = plat_get_string(fsid);
+			lvI.iImage = 0;
+			break;
+		case MO_BUS_ATAPI:
+			wsprintf(szText, plat_get_string(fsid), temp_mo_drives[i].ide_channel >> 1, temp_mo_drives[i].ide_channel & 1);
+			lvI.pszText = szText;
+			lvI.iImage = 1;
+			break;
+		case MO_BUS_SCSI:
+			wsprintf(szText, plat_get_string(fsid), temp_mo_drives[i].scsi_device_id);
+			lvI.pszText = szText;
+			lvI.iImage = 1;
+			break;
+	}
+
+	lvI.iItem = i;
+
+	if (ListView_InsertItem(hwndList, &lvI) == -1)
+		return FALSE;
+
+	lvI.iSubItem = 1;
+	if (temp_mo_drives[i].bus_type == MO_BUS_DISABLED)
+		lvI.pszText = plat_get_string(IDS_2103);
+	else {
+		memset(szType, 0, 30);
+		memcpy(szType, mo_drive_types[temp_mo_drives[i].type].vendor, 8);
+		szType[strlen(szType)] = ' ';
+		memcpy(szType + strlen(szType), mo_drive_types[temp_mo_drives[i].type].model, 16);
+		szType[strlen(szType)] = ' ';
+		memcpy(szType + strlen(szType), mo_drive_types[temp_mo_drives[i].type].revision, 4);
+
+		mbstowcs(szText, szType, strlen(szType)+1);
+		lvI.pszText = szText;
+	}
+	lvI.iItem = i;
+	lvI.iImage = 0;
+
+	if (ListView_SetItem(hwndList, &lvI) == -1)
+	 	return FALSE;
+    }
+
+    return TRUE;
+}
 
 static BOOL
 win_settings_zip_drives_recalc_list(HWND hwndList)
@@ -3894,6 +3972,35 @@ win_settings_cdrom_drives_init_columns(HWND hwndList)
     lvc.pszText = plat_get_string(IDS_2053);
 
     lvc.cx = 50;
+    lvc.fmt = LVCFMT_LEFT;
+
+    if (ListView_InsertColumn(hwndList, 1, &lvc) == -1)
+	return FALSE;
+
+    return TRUE;
+}
+
+
+static BOOL
+win_settings_mo_drives_init_columns(HWND hwndList)
+{
+    LVCOLUMN lvc;
+
+    lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+
+    lvc.iSubItem = 0;
+    lvc.pszText = plat_get_string(IDS_2081);
+
+    lvc.cx = 120;
+    lvc.fmt = LVCFMT_LEFT;
+
+    if (ListView_InsertColumn(hwndList, 0, &lvc) == -1)
+	return FALSE;
+
+    lvc.iSubItem = 1;
+    lvc.pszText = plat_get_string(IDS_2092);
+
+    lvc.cx = 260;
     lvc.fmt = LVCFMT_LEFT;
 
     if (ListView_InsertColumn(hwndList, 1, &lvc) == -1)
@@ -4048,6 +4155,64 @@ win_settings_cdrom_drives_update_item(HWND hwndList, int i)
 
 
 static void
+win_settings_mo_drives_update_item(HWND hwndList, int i)
+{
+    LVITEM lvI;
+    WCHAR szText[256];
+	char szType[30];
+    int fsid;
+
+    lvI.mask = LVIF_TEXT | LVIF_IMAGE | LVIF_STATE;
+    lvI.stateMask = lvI.iSubItem = lvI.state = 0;
+
+    lvI.iSubItem = 0;
+    lvI.iItem = i;
+
+    fsid = combo_id_to_format_string_id(temp_mo_drives[i].bus_type);
+
+    switch (temp_mo_drives[i].bus_type) {
+	case MO_BUS_DISABLED:
+	default:
+		lvI.pszText = plat_get_string(fsid);
+		lvI.iImage = 0;
+		break;
+	case MO_BUS_ATAPI:
+		wsprintf(szText, plat_get_string(fsid), temp_mo_drives[i].ide_channel >> 1, temp_mo_drives[i].ide_channel & 1);
+		lvI.pszText = szText;
+		lvI.iImage = 1;
+		break;
+	case MO_BUS_SCSI:
+		wsprintf(szText, plat_get_string(fsid), temp_mo_drives[i].scsi_device_id);
+		lvI.pszText = szText;
+		lvI.iImage = 1;
+		break;
+    }
+
+    if (ListView_SetItem(hwndList, &lvI) == -1)
+	return;
+
+    lvI.iSubItem = 1;
+    if (temp_mo_drives[i].bus_type == MO_BUS_DISABLED)
+	lvI.pszText = plat_get_string(IDS_2103);
+    else {
+	memset(szType, 0, 30);
+	memcpy(szType, mo_drive_types[temp_mo_drives[i].type].vendor, 8);
+	szType[strlen(szType)] = ' ';
+	memcpy(szType + strlen(szType), mo_drive_types[temp_mo_drives[i].type].model, 16);
+	szType[strlen(szType)] = ' ';
+	memcpy(szType + strlen(szType), mo_drive_types[temp_mo_drives[i].type].revision, 4);
+	mbstowcs(szText, szType, strlen(szType)+1);
+	lvI.pszText = szText;
+    }
+    lvI.iItem = i;
+    lvI.iImage = 0;
+
+    if (ListView_SetItem(hwndList, &lvI) == -1)
+	return;
+}
+
+
+static void
 win_settings_zip_drives_update_item(HWND hwndList, int i)
 {
     LVITEM lvI;
@@ -4135,7 +4300,7 @@ static void cdrom_recalc_location_controls(HWND hdlg, int assign_id)
     int i = 0;
     HWND h;
 
-    int bus = temp_cdrom[lv1_current_sel].bus_type;
+    int bus = temp_cdrom[lv2_current_sel].bus_type;
 
     for (i = IDT_1741; i < (IDT_1742 + 1); i++) {
 	h = GetDlgItem(hdlg, i);
@@ -4158,7 +4323,7 @@ static void cdrom_recalc_location_controls(HWND hdlg, int assign_id)
     } else {
 	ShowWindow(h, SW_SHOW);
 	EnableWindow(h, TRUE);
-	SendMessage(h, CB_SETCURSEL, temp_cdrom[lv1_current_sel].speed - 1, 0);
+	SendMessage(h, CB_SETCURSEL, temp_cdrom[lv2_current_sel].speed - 1, 0);
     }
 
     h = GetDlgItem(hdlg, IDT_1758);
@@ -4177,12 +4342,12 @@ static void cdrom_recalc_location_controls(HWND hdlg, int assign_id)
 		EnableWindow(h, TRUE);
 
 		if (assign_id)
-			temp_cdrom[lv1_current_sel].ide_channel = next_free_ide_channel();
+			temp_cdrom[lv2_current_sel].ide_channel = next_free_ide_channel();
 
 		h = GetDlgItem(hdlg, IDC_COMBO_CD_CHANNEL_IDE);
 		ShowWindow(h, SW_SHOW);
 		EnableWindow(h, TRUE);
-		SendMessage(h, CB_SETCURSEL, temp_cdrom[lv1_current_sel].ide_channel, 0);
+		SendMessage(h, CB_SETCURSEL, temp_cdrom[lv2_current_sel].ide_channel, 0);
 		break;
 	case CDROM_BUS_SCSI:		/* SCSI */
 		h = GetDlgItem(hdlg, IDT_1741);
@@ -4190,12 +4355,130 @@ static void cdrom_recalc_location_controls(HWND hdlg, int assign_id)
 		EnableWindow(h, TRUE);
 
 		if (assign_id)
-			next_free_scsi_id((uint8_t *) &temp_cdrom[lv1_current_sel].scsi_device_id);
+			next_free_scsi_id((uint8_t *) &temp_cdrom[lv2_current_sel].scsi_device_id);
 
 		h = GetDlgItem(hdlg, IDC_COMBO_CD_ID);
 		ShowWindow(h, SW_SHOW);
 		EnableWindow(h, TRUE);
-		SendMessage(h, CB_SETCURSEL, temp_cdrom[lv1_current_sel].scsi_device_id, 0);
+		SendMessage(h, CB_SETCURSEL, temp_cdrom[lv2_current_sel].scsi_device_id, 0);
+		break;
+    }
+}
+
+static void
+mo_add_locations(HWND hdlg)
+{
+    LPTSTR lptsTemp;
+    char *temp;
+    HWND h;
+    int i = 0;
+
+    lptsTemp = (LPTSTR) malloc(512 * sizeof(WCHAR));
+    temp = (char*) malloc(30*sizeof(char));
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_BUS);
+    for (i = MO_BUS_DISABLED; i <= MO_BUS_SCSI; i++) {
+	if ((i == MO_BUS_DISABLED) || (i >= MO_BUS_ATAPI))
+		SendMessage(h, CB_ADDSTRING, 0, win_get_string(combo_id_to_string_id(i)));
+    }
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_ID);
+    for (i = 0; i < 16; i++) {
+	wsprintf(lptsTemp, plat_get_string(IDS_4098), i);
+	SendMessage(h, CB_ADDSTRING, 0, (LPARAM) lptsTemp);
+    }
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_CHANNEL_IDE);
+    for (i = 0; i < 8; i++) {
+	wsprintf(lptsTemp, plat_get_string(IDS_4097), i >> 1, i & 1);
+	SendMessage(h, CB_ADDSTRING, 0, (LPARAM) lptsTemp);
+    }
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_TYPE);
+    for (int i=0; i < KNOWN_MO_DRIVE_TYPES; i++) {
+	memset(temp, 0, 30);
+	memcpy(temp, mo_drive_types[i].vendor, 8);
+	temp[strlen(temp)] = ' ';
+	memcpy(temp + strlen(temp), mo_drive_types[i].model, 16);
+	temp[strlen(temp)] = ' ';
+	memcpy(temp + strlen(temp), mo_drive_types[i].revision, 4);
+
+	mbstowcs(lptsTemp, temp, strlen(temp)+1);
+	SendMessage(h, CB_ADDSTRING, 0, (LPARAM) lptsTemp);
+    }
+
+    free(temp);
+    free(lptsTemp);
+}
+
+
+static void
+mo_recalc_location_controls(HWND hdlg, int assign_id)
+{
+    int i = 0;
+    HWND h;
+
+    int bus = temp_mo_drives[lv1_current_sel].bus_type;
+
+    for (i = IDT_1771; i < (IDT_1772 + 1); i++) {
+	h = GetDlgItem(hdlg, i);
+	EnableWindow(h, FALSE);
+	ShowWindow(h, SW_HIDE);
+    }
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_ID);
+    EnableWindow(h, FALSE);
+    ShowWindow(h, SW_HIDE);
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_CHANNEL_IDE);
+    EnableWindow(h, FALSE);
+    ShowWindow(h, SW_HIDE);
+
+    h = GetDlgItem(hdlg, IDC_COMBO_MO_TYPE);
+    if (bus == MO_BUS_DISABLED) {
+	EnableWindow(h, FALSE);
+	ShowWindow(h, SW_HIDE);
+    } else {
+	ShowWindow(h, SW_SHOW);
+	EnableWindow(h, TRUE);
+	SendMessage(h, CB_SETCURSEL, temp_mo_drives[lv1_current_sel].type, 0);
+    }
+	
+    h = GetDlgItem(hdlg, IDT_1773);
+    if (bus == CDROM_BUS_DISABLED) {
+	EnableWindow(h, FALSE);
+	ShowWindow(h, SW_HIDE);
+    } else {
+	ShowWindow(h, SW_SHOW);
+	EnableWindow(h, TRUE);
+    }
+
+    switch(bus) {
+	case MO_BUS_ATAPI:		/* ATAPI */
+		h = GetDlgItem(hdlg, IDT_1772);
+		ShowWindow(h, SW_SHOW);
+		EnableWindow(h, TRUE);
+
+		if (assign_id)
+			temp_mo_drives[lv1_current_sel].ide_channel = next_free_ide_channel();
+
+		h = GetDlgItem(hdlg, IDC_COMBO_MO_CHANNEL_IDE);
+		ShowWindow(h, SW_SHOW);
+		EnableWindow(h, TRUE);
+		SendMessage(h, CB_SETCURSEL, temp_mo_drives[lv1_current_sel].ide_channel, 0);
+		break;
+	case MO_BUS_SCSI:		/* SCSI */
+		h = GetDlgItem(hdlg, IDT_1771);
+		ShowWindow(h, SW_SHOW);
+		EnableWindow(h, TRUE);
+
+		if (assign_id)
+			next_free_scsi_id((uint8_t *) &temp_mo_drives[lv1_current_sel].scsi_device_id);
+
+		h = GetDlgItem(hdlg, IDC_COMBO_MO_ID);
+		ShowWindow(h, SW_SHOW);
+		EnableWindow(h, TRUE);
+		SendMessage(h, CB_SETCURSEL, temp_mo_drives[lv1_current_sel].scsi_device_id, 0);
 		break;
     }
 }
@@ -4335,17 +4618,39 @@ zip_untrack(uint8_t id)
 }
 
 
+static void
+mo_track(uint8_t id)
+{
+    if (temp_mo_drives[id].bus_type == MO_BUS_ATAPI)
+	ide_tracking |= (1 << (temp_zip_drives[id].ide_channel << 3));
+    else if (temp_mo_drives[id].bus_type == MO_BUS_SCSI)
+	scsi_tracking[temp_mo_drives[id].scsi_device_id >> 3] |= (1 << (temp_mo_drives[id].scsi_device_id & 0x07));
+}
+
+
+static void
+mo_untrack(uint8_t id)
+{
+    if (temp_mo_drives[id].bus_type == MO_BUS_ATAPI)
+	ide_tracking &= ~(1 << (temp_zip_drives[id].ide_channel << 3));
+    else if (temp_mo_drives[id].bus_type == MO_BUS_SCSI)
+	scsi_tracking[temp_mo_drives[id].scsi_device_id >> 3] &= ~(1 << (temp_mo_drives[id].scsi_device_id & 0x07));
+}
+
+
 #if defined(__amd64__) || defined(__aarch64__)
 static LRESULT CALLBACK
 #else
 static BOOL CALLBACK
 #endif
-win_settings_floppy_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
+win_settings_floppy_and_cdrom_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HWND h = NULL;
-    int i = 0, old_sel = 0;
+    int i = 0, old_sel = 0, b = 0, assign = 0;
+    uint32_t b2 = 0;
     WCHAR szText[256];
     const uint8_t fd_icons[15] = { 248, 16, 16, 16, 16, 16, 16, 24, 24, 24, 24, 24, 24, 24, 0 };
+    const uint8_t cd_icons[3] = { 249, 32, 0 };
 
     switch (message) {
 	case WM_INITDIALOG:
@@ -4374,6 +4679,33 @@ win_settings_floppy_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM l
 		h = GetDlgItem(hdlg, IDC_CHECKBPB);
 		SendMessage(h, BM_SETCHECK, temp_fdd_check_bpb[lv1_current_sel], 0);
 
+		lv2_current_sel = 0;
+		h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+		win_settings_cdrom_drives_init_columns(h);
+		image_list_init(h, (const uint8_t *) cd_icons);
+		win_settings_cdrom_drives_recalc_list(h);
+		ListView_SetItemState(h, 0, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
+		cdrom_add_locations(hdlg);
+
+		h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+
+		switch (temp_cdrom[lv2_current_sel].bus_type) {
+			case CDROM_BUS_DISABLED:
+			default:
+				b = 0;
+				break;
+			case CDROM_BUS_ATAPI:
+				b = 1;
+				break;
+			case CDROM_BUS_SCSI:
+				b = 2;
+				break;
+		}
+
+		SendMessage(h, CB_SETCURSEL, b, 0);
+
+		cdrom_recalc_location_controls(hdlg, 0);
+
 		ignore_change = 0;
 		return TRUE;
 
@@ -4400,6 +4732,39 @@ win_settings_floppy_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM l
 			SendMessage(h, BM_SETCHECK, temp_fdd_turbo[lv1_current_sel], 0);
 			h = GetDlgItem(hdlg, IDC_CHECKBPB);
 			SendMessage(h, BM_SETCHECK, temp_fdd_check_bpb[lv1_current_sel], 0);
+			ignore_change = 0;
+		} else if ((((LPNMHDR)lParam)->code == LVN_ITEMCHANGED) && (((LPNMHDR)lParam)->idFrom == IDC_LIST_CDROM_DRIVES)) {
+			old_sel = lv2_current_sel;
+			lv2_current_sel = get_selected_drive(hdlg, IDC_LIST_CDROM_DRIVES);
+			if (lv2_current_sel == old_sel)
+				return FALSE;
+			else if (lv2_current_sel == -1) {
+				ignore_change = 1;
+				lv2_current_sel = old_sel;
+				ListView_SetItemState(h, lv2_current_sel, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
+				ignore_change = 0;
+				return FALSE;
+			}
+			ignore_change = 1;
+
+			h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+
+			switch (temp_cdrom[lv2_current_sel].bus_type) {
+				case CDROM_BUS_DISABLED:
+				default:
+					b = 0;
+					break;
+				case CDROM_BUS_ATAPI:
+					b = 1;
+					break;
+				case CDROM_BUS_SCSI:
+					b = 2;
+					break;
+			}
+
+			SendMessage(h, CB_SETCURSEL, b, 0);
+
+			mo_recalc_location_controls(hdlg, 0);
 			ignore_change = 0;
 		}
 		break;
@@ -4430,6 +4795,58 @@ win_settings_floppy_drives_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM l
 				h = GetDlgItem(hdlg, IDC_LIST_FLOPPY_DRIVES);
 				win_settings_floppy_drives_update_item(h, lv1_current_sel);
 				break;
+
+			case IDC_COMBO_CD_BUS:
+				h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+				b = SendMessage(h, CB_GETCURSEL, 0, 0);
+				switch (b) {
+					case 0:
+						b2 = CDROM_BUS_DISABLED;
+						break;
+					case 1:
+						b2 = CDROM_BUS_ATAPI;
+						break;
+					case 2:
+						b2 = CDROM_BUS_SCSI;
+						break;
+				}
+				if (b2 == temp_cdrom[lv2_current_sel].bus_type)
+					break;
+				cdrom_untrack(lv2_current_sel);
+				assign = (temp_cdrom[lv2_current_sel].bus_type == b2) ? 0 : 1;
+				if (temp_cdrom[lv2_current_sel].bus_type == CDROM_BUS_DISABLED)
+					temp_cdrom[lv2_current_sel].speed = 8;
+				temp_cdrom[lv2_current_sel].bus_type = b2;
+				cdrom_recalc_location_controls(hdlg, assign);
+				cdrom_track(lv2_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+				win_settings_cdrom_drives_update_item(h, lv2_current_sel);
+				break;
+
+			case IDC_COMBO_CD_ID:
+				h = GetDlgItem(hdlg, IDC_COMBO_CD_ID);
+				cdrom_untrack(lv2_current_sel);
+				temp_cdrom[lv2_current_sel].scsi_device_id = SendMessage(h, CB_GETCURSEL, 0, 0);
+				cdrom_track(lv2_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+				win_settings_cdrom_drives_update_item(h, lv2_current_sel);
+				break;
+
+			case IDC_COMBO_CD_CHANNEL_IDE:
+				h = GetDlgItem(hdlg, IDC_COMBO_CD_CHANNEL_IDE);
+				cdrom_untrack(lv2_current_sel);
+				temp_cdrom[lv2_current_sel].ide_channel = SendMessage(h, CB_GETCURSEL, 0, 0);
+				cdrom_track(lv2_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+				win_settings_cdrom_drives_update_item(h, lv2_current_sel);
+				break;
+
+			case IDC_COMBO_CD_SPEED:
+				h = GetDlgItem(hdlg, IDC_COMBO_CD_SPEED);
+				temp_cdrom[lv2_current_sel].speed = SendMessage(h, CB_GETCURSEL, 0, 0) + 1;
+				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
+				win_settings_cdrom_drives_update_item(h, lv2_current_sel);
+				break;
 		}
 		ignore_change = 0;
 
@@ -4451,7 +4868,7 @@ win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam
     HWND h = NULL;
     int old_sel = 0, b = 0, assign = 0;
     uint32_t b2 = 0;
-    const uint8_t cd_icons[3] = { 249, 32, 0 };
+    const uint8_t mo_icons[3] = { 251, 56, 0 };
     const uint8_t zip_icons[3] = { 250, 48, 0 };
 
     switch (message) {
@@ -4459,31 +4876,31 @@ win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam
 		ignore_change = 1;
 
 		lv1_current_sel = 0;
-		h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
-		win_settings_cdrom_drives_init_columns(h);
-		image_list_init(h, (const uint8_t *) cd_icons);
-		win_settings_cdrom_drives_recalc_list(h);
+		h = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+		win_settings_mo_drives_init_columns(h);
+		image_list_init(h, (const uint8_t *) mo_icons);
+		win_settings_mo_drives_recalc_list(h);
 		ListView_SetItemState(h, 0, LVIS_FOCUSED | LVIS_SELECTED, 0x000F);
-		cdrom_add_locations(hdlg);
+		mo_add_locations(hdlg);
 
-		h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+		h = GetDlgItem(hdlg, IDC_COMBO_MO_BUS);
 
-		switch (temp_cdrom[lv1_current_sel].bus_type) {
-			case CDROM_BUS_DISABLED:
+		switch (temp_mo_drives[lv1_current_sel].bus_type) {
+			case MO_BUS_DISABLED:
 			default:
 				b = 0;
 				break;
-			case CDROM_BUS_ATAPI:
+			case MO_BUS_ATAPI:
 				b = 1;
 				break;
-			case CDROM_BUS_SCSI:
+			case MO_BUS_SCSI:
 				b = 2;
 				break;
 		}
 
 		SendMessage(h, CB_SETCURSEL, b, 0);
 
-		cdrom_recalc_location_controls(hdlg, 0);
+		mo_recalc_location_controls(hdlg, 0);
 
 		lv2_current_sel = 0;
 		h = GetDlgItem(hdlg, IDC_LIST_ZIP_DRIVES);
@@ -4519,9 +4936,9 @@ win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam
 		if (ignore_change)
 			return FALSE;
 
-		if ((((LPNMHDR)lParam)->code == LVN_ITEMCHANGED) && (((LPNMHDR)lParam)->idFrom == IDC_LIST_CDROM_DRIVES)) {
+		if ((((LPNMHDR)lParam)->code == LVN_ITEMCHANGED) && (((LPNMHDR)lParam)->idFrom == IDC_LIST_MO_DRIVES)) {
 			old_sel = lv1_current_sel;
-			lv1_current_sel = get_selected_drive(hdlg, IDC_LIST_CDROM_DRIVES);
+			lv1_current_sel = get_selected_drive(hdlg, IDC_LIST_MO_DRIVES);
 			if (lv1_current_sel == old_sel)
 				return FALSE;
 			else if (lv1_current_sel == -1) {
@@ -4533,24 +4950,24 @@ win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam
 			}
 			ignore_change = 1;
 
-			h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+			h = GetDlgItem(hdlg, IDC_COMBO_MO_BUS);
 
-			switch (temp_cdrom[lv1_current_sel].bus_type) {
-				case CDROM_BUS_DISABLED:
+			switch (temp_mo_drives[lv1_current_sel].bus_type) {
+				case MO_BUS_DISABLED:
 				default:
 					b = 0;
 					break;
-				case CDROM_BUS_ATAPI:
+				case MO_BUS_ATAPI:
 					b = 1;
 					break;
-				case CDROM_BUS_SCSI:
+				case MO_BUS_SCSI:
 					b = 2;
 					break;
 			}
 
 			SendMessage(h, CB_SETCURSEL, b, 0);
 
-			cdrom_recalc_location_controls(hdlg, 0);
+			mo_recalc_location_controls(hdlg, 0);
 			ignore_change = 0;
 		} else if ((((LPNMHDR)lParam)->code == LVN_ITEMCHANGED) && (((LPNMHDR)lParam)->idFrom == IDC_LIST_ZIP_DRIVES)) {
 			old_sel = lv2_current_sel;
@@ -4594,57 +5011,57 @@ win_settings_other_removable_devices_proc(HWND hdlg, UINT message, WPARAM wParam
 			return FALSE;
 
 		ignore_change = 1;
-               	switch (LOWORD(wParam)) {
-			case IDC_COMBO_CD_BUS:
-				h = GetDlgItem(hdlg, IDC_COMBO_CD_BUS);
+		switch (LOWORD(wParam)) {
+			case IDC_COMBO_MO_BUS:
+				h = GetDlgItem(hdlg, IDC_COMBO_MO_BUS);
 				b = SendMessage(h, CB_GETCURSEL, 0, 0);
 				switch (b) {
 					case 0:
-						b2 = CDROM_BUS_DISABLED;
+						b2 = MO_BUS_DISABLED;
 						break;
 					case 1:
-						b2 = CDROM_BUS_ATAPI;
+						b2 = MO_BUS_ATAPI;
 						break;
 					case 2:
-						b2 = CDROM_BUS_SCSI;
+						b2 = MO_BUS_SCSI;
 						break;
 				}
-				if (b2 == temp_cdrom[lv1_current_sel].bus_type)
+				if (b2 == temp_mo_drives[lv1_current_sel].bus_type)
 					break;
-				cdrom_untrack(lv1_current_sel);
-				assign = (temp_cdrom[lv1_current_sel].bus_type == b2) ? 0 : 1;
-				if (temp_cdrom[lv1_current_sel].bus_type == CDROM_BUS_DISABLED)
-					temp_cdrom[lv1_current_sel].speed = 8;
-				temp_cdrom[lv1_current_sel].bus_type = b2;
-				cdrom_recalc_location_controls(hdlg, assign);
-				cdrom_track(lv1_current_sel);
-				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
-				win_settings_cdrom_drives_update_item(h, lv1_current_sel);
+				mo_untrack(lv1_current_sel);
+				assign = (temp_mo_drives[lv1_current_sel].bus_type == b2) ? 0 : 1;
+				if (temp_mo_drives[lv1_current_sel].bus_type == MO_BUS_DISABLED)
+					temp_mo_drives[lv1_current_sel].type = 0;
+				temp_mo_drives[lv1_current_sel].bus_type = b2;
+				mo_recalc_location_controls(hdlg, assign);
+				mo_track(lv1_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+				win_settings_mo_drives_update_item(h, lv1_current_sel);
 				break;
 
-			case IDC_COMBO_CD_ID:
-				h = GetDlgItem(hdlg, IDC_COMBO_CD_ID);
-				cdrom_untrack(lv1_current_sel);
-				temp_cdrom[lv1_current_sel].scsi_device_id = SendMessage(h, CB_GETCURSEL, 0, 0);
-				cdrom_track(lv1_current_sel);
-				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
-				win_settings_cdrom_drives_update_item(h, lv1_current_sel);
+			case IDC_COMBO_MO_ID:
+				h = GetDlgItem(hdlg, IDC_COMBO_MO_ID);
+				mo_untrack(lv1_current_sel);
+				temp_mo_drives[lv1_current_sel].scsi_device_id = SendMessage(h, CB_GETCURSEL, 0, 0);
+				mo_track(lv1_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+				win_settings_mo_drives_update_item(h, lv1_current_sel);
 				break;
 
-			case IDC_COMBO_CD_CHANNEL_IDE:
-				h = GetDlgItem(hdlg, IDC_COMBO_CD_CHANNEL_IDE);
-				cdrom_untrack(lv1_current_sel);
-				temp_cdrom[lv1_current_sel].ide_channel = SendMessage(h, CB_GETCURSEL, 0, 0);
-				cdrom_track(lv1_current_sel);
-				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
-				win_settings_cdrom_drives_update_item(h, lv1_current_sel);
+			case IDC_COMBO_MO_CHANNEL_IDE:
+				h = GetDlgItem(hdlg, IDC_COMBO_MO_CHANNEL_IDE);
+				mo_untrack(lv1_current_sel);
+				temp_mo_drives[lv1_current_sel].ide_channel = SendMessage(h, CB_GETCURSEL, 0, 0);
+				mo_track(lv1_current_sel);
+				h = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+				win_settings_mo_drives_update_item(h, lv1_current_sel);
 				break;
 
-			case IDC_COMBO_CD_SPEED:
-				h = GetDlgItem(hdlg, IDC_COMBO_CD_SPEED);
-				temp_cdrom[lv1_current_sel].speed = SendMessage(h, CB_GETCURSEL, 0, 0) + 1;
-				h = GetDlgItem(hdlg, IDC_LIST_CDROM_DRIVES);
-				win_settings_cdrom_drives_update_item(h, lv1_current_sel);
+			case IDC_COMBO_MO_TYPE:
+				h = GetDlgItem(hdlg, IDC_COMBO_MO_TYPE);
+				temp_mo_drives[lv1_current_sel].type = SendMessage(h, CB_GETCURSEL, 0, 0);
+				h = GetDlgItem(hdlg, IDC_LIST_MO_DRIVES);
+				win_settings_mo_drives_update_item(h, lv1_current_sel);
 				break;
 
 			case IDC_COMBO_ZIP_BUS:
@@ -4743,8 +5160,8 @@ void win_settings_show_child(HWND hwndParent, DWORD child_id)
 	case SETTINGS_PAGE_HARD_DISKS:
 		hwndChildDialog = CreateDialog(hinstance, (LPCWSTR)DLG_CFG_HARD_DISKS, hwndParent, win_settings_hard_disks_proc);
 		break;
-	case SETTINGS_PAGE_FLOPPY_DRIVES:
-		hwndChildDialog = CreateDialog(hinstance, (LPCWSTR)DLG_CFG_FLOPPY_DRIVES, hwndParent, win_settings_floppy_drives_proc);
+	case SETTINGS_PAGE_FLOPPY_AND_CDROM_DRIVES:
+		hwndChildDialog = CreateDialog(hinstance, (LPCWSTR)DLG_CFG_FLOPPY_AND_CDROM_DRIVES, hwndParent, win_settings_floppy_and_cdrom_drives_proc);
 		break;
 	case SETTINGS_PAGE_OTHER_REMOVABLE_DEVICES:
 		hwndChildDialog = CreateDialog(hinstance, (LPCWSTR)DLG_CFG_OTHER_REMOVABLE_DEVICES, hwndParent, win_settings_other_removable_devices_proc);
@@ -4768,12 +5185,12 @@ win_settings_main_insert_categories(HWND hwndList)
     lvI.stateMask = lvI.iSubItem = lvI.state = 0;
 
     for (i = 0; i < 10; i++) {
-	lvI.pszText = plat_get_string(IDS_2065+i);
-	lvI.iItem = i;
-	lvI.iImage = i;
+		lvI.pszText = plat_get_string(IDS_2065+i);
+		lvI.iItem = i;
+		lvI.iImage = i;
 
-	if (ListView_InsertItem(hwndList, &lvI) == -1)
-		return FALSE;
+		if (ListView_InsertItem(hwndList, &lvI) == -1)
+			return FALSE;
     }
 
     return TRUE;
@@ -4815,7 +5232,7 @@ win_settings_main_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     HWND h = NULL;
     int category, i = 0, j = 0;
-    const uint8_t cat_icons[11] = { 240, 241, 242, 243, 80, 244, 245, 64, 246, 247, 0 };
+    const uint8_t cat_icons[12] = { 240, 241, 242, 243, 96, 244, 245, 80, 246, 247, 0 };
 
     hwndParentDialog = hdlg;
 
@@ -4831,7 +5248,7 @@ win_settings_main_proc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_NOTIFY:
 		if ((((LPNMHDR)lParam)->code == LVN_ITEMCHANGED) && (((LPNMHDR)lParam)->idFrom == IDC_SETTINGSCATLIST)) {
 			category = -1;
-			for (i = 0; i < 10; i++) {
+			for (i = 0; i < 11; i++) {
 				h = GetDlgItem(hdlg, IDC_SETTINGSCATLIST);
 				j = ListView_GetItemState(h, i, LVIS_SELECTED);
 				if (j)

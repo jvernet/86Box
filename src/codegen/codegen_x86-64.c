@@ -49,11 +49,6 @@ int block_current = 0;
 static int block_num;
 int block_pos;
 
-int cpu_recomp_flushes, cpu_recomp_flushes_latched;
-int cpu_recomp_evicted, cpu_recomp_evicted_latched;
-int cpu_recomp_reuse, cpu_recomp_reuse_latched;
-int cpu_recomp_removed, cpu_recomp_removed_latched;
-
 uint32_t codegen_endpc;
 
 int codegen_block_cycles;
@@ -224,7 +219,6 @@ void codegen_check_flush(page_t *page, uint64_t mask, uint32_t phys_addr)
                 if (mask & block->page_mask)
                 {
                         delete_block(block);
-                        cpu_recomp_evicted++;
                 }
                 if (block == block->next)
                         fatal("Broken 1\n");
@@ -238,7 +232,6 @@ void codegen_check_flush(page_t *page, uint64_t mask, uint32_t phys_addr)
                 if (mask & block->page_mask2)
                 {
                         delete_block(block);
-                        cpu_recomp_evicted++;
                 }
                 if (block == block->next_2)
                         fatal("Broken 2\n");
@@ -260,7 +253,6 @@ void codegen_block_init(uint32_t phys_addr)
         if (block->valid != 0)
         {
                 delete_block(block);
-                cpu_recomp_reuse++;
         }
         block_num = HASH(phys_addr);
         codeblock_hash[block_num] = &codeblock[block_current];
@@ -302,6 +294,7 @@ void codegen_block_start_recompile(codeblock_t *block)
         block->status = cpu_cur_status;
         
         block_pos = BLOCK_GPF_OFFSET;
+#ifdef OLD_GPF
 #if WIN64
         addbyte(0x48); /*XOR RCX, RCX*/
         addbyte(0x31);
@@ -318,6 +311,17 @@ void codegen_block_start_recompile(codeblock_t *block)
 	call(block, (uintptr_t)x86gpf);
 	while (block_pos < BLOCK_EXIT_OFFSET)
 	       addbyte(0x90); /*NOP*/
+#else
+	addbyte(0xc6);	/* mov byte ptr[&(cpu_state.abrt)],ABRT_GPF */
+	addbyte(0x05);
+	addlong((uint32_t) (uintptr_t) &(cpu_state.abrt));
+	addbyte(ABRT_GPF);
+	addbyte(0x31);	/* xor eax,eax */
+	addbyte(0xc0);
+	addbyte(0x67);	/* mov [&(abrt_error)],eax */
+	addbyte(0xa3);
+	addlong((uint32_t) (uintptr_t) &(abrt_error));
+#endif
         block_pos = BLOCK_EXIT_OFFSET; /*Exit code*/
         addbyte(0x48); /*ADDL $40,%rsp*/
         addbyte(0x83);
@@ -393,7 +397,6 @@ void codegen_block_remove()
         codeblock_t *block = &codeblock[block_current];
 
         delete_block(block);
-        cpu_recomp_removed++;
 
         recomp_page = -1;
 }
@@ -1049,7 +1052,6 @@ void codegen_generate_call(uint8_t opcode, OpFn op, uint32_t fetchdat, uint32_t 
 generate_call:
         codegen_timing_opcode(opcode, fetchdat, op_32, op_pc);
 
-        codegen_accumulate(ACCREG_ins, 1);
         codegen_accumulate(ACCREG_cycles, -codegen_block_cycles);
         codegen_block_cycles = 0;
         
@@ -1094,6 +1096,17 @@ generate_call:
                         block->ins++;
                         codegen_block_full_ins++;
                         codegen_endpc = (cs + cpu_state.pc) + 8;
+
+#ifdef CHECK_INT
+			/* Check for interrupts. */
+			addbyte(0xf6);	/* test byte ptr[&pic_pending],1 */
+			addbyte(0x04);
+			addbyte(0x25);
+			addlong((uint32_t) (uintptr_t) &pic_pending);
+			addbyte(0x01);
+			addbyte(0x0F); addbyte(0x85); /*JNZ 0*/
+			addlong((uint32_t)(uintptr_t)&block->data[BLOCK_EXIT_OFFSET] - (uint32_t)(uintptr_t)(&block->data[block_pos + 4]));
+#endif
 
                         return;
                 }
@@ -1166,6 +1179,14 @@ generate_call:
         codegen_block_ins++;
         
         block->ins++;
+
+#ifdef CHECK_INT
+	/* Check for interrupts. */
+	addbyte(0x0a);	/* or  al,byte ptr[&pic_pending] */
+	addbyte(0x04);
+	addbyte(0x25);
+	addlong((uint32_t) (uintptr_t) &pic_pending);
+#endif
 
         addbyte(0x85); /*OR %eax, %eax*/
         addbyte(0xc0);

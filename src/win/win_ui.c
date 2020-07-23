@@ -39,6 +39,7 @@
 #include <86box/plat_midi.h>
 #include <86box/ui.h>
 #include <86box/win.h>
+#include <86box/version.h>
 #ifdef USE_DISCORD
 # include <86box/win_discord.h>
 #endif
@@ -297,10 +298,12 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
 	case WM_CREATE:
 		SetTimer(hwnd, TIMER_1SEC, 1000, NULL);
+#ifndef NO_KEYBOARD_HOOK
 		hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,
 						 LowLevelKeyboardProc,
 						 GetModuleHandle(NULL), 0);
 		hook_enabled = 1;
+#endif
 		break;
 
 	case WM_COMMAND:
@@ -329,7 +332,9 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else
 					i = ui_msgbox_ex(MBX_QUESTION_YN, (wchar_t *) IDS_2113, NULL, (wchar_t *) IDS_2119, (wchar_t *) IDS_2136, NULL);
 				if (i == 0) {
+#ifndef NO_KEYBOARD_HOOK
 					UnhookWindowsHookEx(hKeyboardHook);
+#endif
 					KillTimer(hwnd, TIMER_1SEC);
 					PostQuitMessage(0);
 				}
@@ -357,6 +362,10 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			case IDM_ABOUT:
 				AboutDialogCreate(hwnd);
+				break;
+
+			case IDM_DOCS:
+				ShellExecute(hwnd, L"open", EMU_DOCS_URL, NULL, NULL, SW_SHOW);
 				break;
 
 			case IDM_UPDATE_ICONS:
@@ -697,7 +706,9 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 			i = ui_msgbox_ex(MBX_QUESTION_YN, (wchar_t *) IDS_2113, NULL, (wchar_t *) IDS_2119, (wchar_t *) IDS_2136, NULL);
 		if (i == 0) {
+#ifndef NO_KEYBOARD_HOOK
 			UnhookWindowsHookEx(hKeyboardHook);
+#endif
 			KillTimer(hwnd, TIMER_1SEC);
 			PostQuitMessage(0);
 		}
@@ -705,7 +716,9 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_DESTROY:
+#ifndef NO_KEYBOARD_HOOK
 		UnhookWindowsHookEx(hKeyboardHook);
+#endif
 		KillTimer(hwnd, TIMER_1SEC);
 		PostQuitMessage(0);
 		break;
@@ -746,7 +759,9 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else
 			i = ui_msgbox_ex(MBX_QUESTION_YN, (wchar_t *) IDS_2113, NULL, (wchar_t *) IDS_2119, (wchar_t *) IDS_2136, NULL);
 		if (i == 0) {
+#ifndef NO_KEYBOARD_HOOK
 			UnhookWindowsHookEx(hKeyboardHook);
+#endif
 			KillTimer(hwnd, TIMER_1SEC);
 			PostQuitMessage(0);
 		}
@@ -776,6 +791,7 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_SETFOCUS:
 		infocus = 1;
+#ifndef NO_KEYBOARD_HOOK
 		if (! hook_enabled) {
 			hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,
 							 LowLevelKeyboardProc,
@@ -783,15 +799,18 @@ MainWindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 							 0);
 			hook_enabled = 1;
 		}
+#endif
 		break;
 
 	case WM_KILLFOCUS:
 		infocus = 0;
 		plat_mouse_capture(0);
+#ifndef NO_KEYBOARD_HOOK
 		if (hook_enabled) {
 			UnhookWindowsHookEx(hKeyboardHook);
 			hook_enabled = 0;
 		}
+#endif
 		break;
 
 	case WM_ENTERSIZEMOVE:
@@ -1276,6 +1295,7 @@ input_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_SETFOCUS:
 		infocus = 1;
+#ifndef NO_KEYBOARD_HOOK
 		if (! hook_enabled) {
 			hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL,
 							 LowLevelKeyboardProc,
@@ -1283,15 +1303,18 @@ input_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 							 0);
 			hook_enabled = 1;
 		}
+#endif
 		break;
 
 	case WM_KILLFOCUS:
 		infocus = 0;
 		plat_mouse_capture(0);
+#ifndef NO_KEYBOARD_HOOK
 		if (hook_enabled) {
 			UnhookWindowsHookEx(hKeyboardHook);
 			hook_enabled = 0;
 		}
+#endif
 		break;
 
 	case WM_LBUTTONUP:

@@ -51,6 +51,7 @@
 #include <86box/plat.h>
 #include <86box/ui.h>
 #include <86box/win.h>
+#include <86box/mo.h>
 
 #ifndef GWL_WNDPROC
 #define GWL_WNDPROC GWLP_WNDPROC
@@ -258,6 +259,7 @@ StatusBarCreateZIPTip(int part)
     wcscpy(sbTips[part], tempTip);
 }
 
+
 static void
 StatusBarCreateMOTip(int part)
 {
@@ -285,6 +287,7 @@ StatusBarCreateMOTip(int part)
     sbTips[part] = (WCHAR *)malloc((wcslen(tempTip) << 1) + 2);
     wcscpy(sbTips[part], tempTip);
 }
+
 
 static void
 StatusBarCreateDiskTip(int part)
@@ -492,6 +495,18 @@ ui_sb_update_panes(void)
 	if (zip_drives[i].bus_type != 0)
 		sb_parts++;
     }
+	for (i=0; i<MO_NUM; i++) {
+	/* Could be Internal or External IDE.. */
+	if ((mo_drives[i].bus_type == MO_BUS_ATAPI) &&
+	    !(hdint || !memcmp(hdc_name, "ide", 3)))
+		continue;
+
+	if ((mo_drives[i].bus_type == MO_BUS_SCSI) &&
+	    (scsi_card_current == 0))
+		continue;
+	if (mo_drives[i].bus_type != 0)
+		sb_parts++;
+    }
     if (c_mfm && (hdint || !memcmp(hdc_name, "st506", 5))) {
 	/* MFM drives, and MFM or Internal controller. */
 	sb_parts++;
@@ -664,12 +679,12 @@ ui_sb_update_panes(void)
 			break;
 
 		case SB_HDD:		/* Hard disk */
-			sb_part_icons[i] = 64;
+			sb_part_icons[i] = 80;
 			StatusBarCreateDiskTip(i);
 			break;
 
 		case SB_NETWORK:	/* Network */
-			sb_part_icons[i] = 80;
+			sb_part_icons[i] = 96;
 			StatusBarCreateNetworkTip(i);
 			break;
 
@@ -793,9 +808,13 @@ StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 48; i < 50; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
+    for (i = 56; i < 58; i++)
+	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 64; i < 66; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 80; i < 82; i++)
+	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
+    for (i = 96; i < 98; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 144; i < 146; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
@@ -804,6 +823,10 @@ StatusBarCreate(HWND hwndParent, uintptr_t idStatus, HINSTANCE hInst)
     for (i = 160; i < 162; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 176; i < 178; i++)
+	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
+    for (i = 184; i < 186; i++)
+	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
+    for (i = 192; i < 194; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);
     for (i = 243; i < 244; i++)
 	hIcon[i] = LoadIconEx((PCTSTR) (uintptr_t) i);

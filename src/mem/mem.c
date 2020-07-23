@@ -219,12 +219,12 @@ flushmmucache(void)
 
     for (c = 0; c < 256; c++) {
 	if (readlookup[c] != (int) 0xffffffff) {
-		readlookup2[readlookup[c]] = -1;
+		readlookup2[readlookup[c]] = LOOKUP_INV;
 		readlookup[c] = 0xffffffff;
 	}
 	if (writelookup[c] != (int) 0xffffffff) {
 		page_lookup[writelookup[c]] = NULL;
-		writelookup2[writelookup[c]] = -1;
+		writelookup2[writelookup[c]] = LOOKUP_INV;
 		writelookup[c] = 0xffffffff;
 	}
     }
@@ -246,12 +246,12 @@ flushmmucache_nopc(void)
 
     for (c = 0; c < 256; c++) {
 	if (readlookup[c] != (int) 0xffffffff) {
-		readlookup2[readlookup[c]] = -1;
+		readlookup2[readlookup[c]] = LOOKUP_INV;
 		readlookup[c] = 0xffffffff;
 	}
 	if (writelookup[c] != (int) 0xffffffff) {
 		page_lookup[writelookup[c]] = NULL;
-		writelookup2[writelookup[c]] = -1;
+		writelookup2[writelookup[c]] = LOOKUP_INV;
 		writelookup[c] = 0xffffffff;
 	}
     }
@@ -265,12 +265,12 @@ flushmmucache_cr3(void)
 
     for (c = 0; c < 256; c++) {
 	if (readlookup[c] != (int) 0xffffffff) {
-		readlookup2[readlookup[c]] = -1;
+		readlookup2[readlookup[c]] = LOOKUP_INV;
 		readlookup[c] = 0xffffffff;
 	}
 	if (writelookup[c] != (int) 0xffffffff) {
 		page_lookup[writelookup[c]] = NULL;
-		writelookup2[writelookup[c]] = -1;
+		writelookup2[writelookup[c]] = LOOKUP_INV;
 		writelookup[c] = 0xffffffff;
 	}
     }
@@ -295,7 +295,7 @@ mem_flush_write_page(uint32_t addr, uint32_t virt)
 			target = (uintptr_t)&ram[a];
 
 		if (writelookup2[writelookup[c]] == target || page_lookup[writelookup[c]] == page_target) {
-			writelookup2[writelookup[c]] = -1;
+			writelookup2[writelookup[c]] = LOOKUP_INV;
 			page_lookup[writelookup[c]] = NULL;
 			writelookup[c] = 0xffffffff;
 		}
@@ -579,16 +579,24 @@ mem_addr_translate(uint32_t addr, uint32_t chunk_start, uint32_t len)
 void
 addreadlookup(uint32_t virt, uint32_t phys)
 {
+#if (defined __amd64__ || defined _M_X64)
+    uint64_t a;
+#else
     uint32_t a;
+#endif
 
     if (virt == 0xffffffff) return;
 
-    if (readlookup2[virt>>12] != (uintptr_t) -1) return;
+    if (readlookup2[virt>>12] != (uintptr_t) LOOKUP_INV) return;
 
     if (readlookup[readlnext] != (int) 0xffffffff)
-	readlookup2[readlookup[readlnext]] = -1;
+	readlookup2[readlookup[readlnext]] = LOOKUP_INV;
 
-    a = (uintptr_t)(phys & ~0xfff) - (uintptr_t)(virt & ~0xfff);
+#if (defined __amd64__ || defined _M_X64)
+    a = ((uint64_t)(phys & ~0xfff) - (uint64_t)(virt & ~0xfff));
+#else
+    a = ((uint32_t)(phys & ~0xfff) - (uint32_t)(virt & ~0xfff));
+#endif
 
     if ((phys & ~0xfff) >= (1 << 30))
 	readlookup2[virt>>12] = (uintptr_t)&ram2[a - (1 << 30)];
@@ -606,7 +614,11 @@ addreadlookup(uint32_t virt, uint32_t phys)
 void
 addwritelookup(uint32_t virt, uint32_t phys)
 {
+#if (defined __amd64__ || defined _M_X64)
+    uint64_t a;
+#else
     uint32_t a;
+#endif
 
     if (virt == 0xffffffff) return;
 
@@ -614,7 +626,7 @@ addwritelookup(uint32_t virt, uint32_t phys)
 
     if (writelookup[writelnext] != -1) {
 	page_lookup[writelookup[writelnext]] = NULL;
-	writelookup2[writelookup[writelnext]] = -1;
+	writelookup2[writelookup[writelnext]] = LOOKUP_INV;
     }
 
 #ifdef USE_NEW_DYNAREC
@@ -632,7 +644,11 @@ addwritelookup(uint32_t virt, uint32_t phys)
 #endif
 	page_lookup[virt >> 12] = &pages[phys >> 12];
     else {
-	a = (uintptr_t)(phys & ~0xfff) - (uintptr_t)(virt & ~0xfff);
+#if (defined __amd64__ || defined _M_X64)
+	a = ((uint64_t)(phys & ~0xfff) - (uint64_t)(virt & ~0xfff));
+#else
+	a = ((uint32_t)(phys & ~0xfff) - (uint32_t)(virt & ~0xfff));
+#endif
 
 	if ((phys & ~0xfff) >= (1 << 30))
 		writelookup2[virt>>12] = (uintptr_t)&ram2[a - (1 << 30)];
@@ -756,7 +772,7 @@ readmemwl(uint32_t addr)
 				return 0xffff;
 		}
 		return readmembl(addr)|(readmembl(addr+1)<<8);
-	} else if (readlookup2[addr >> 12] != -1)
+	} else if (readlookup2[addr >> 12] != LOOKUP_INV)
 		return *(uint16_t *)(readlookup2[addr >> 12] + addr);
     }
     if (cr0>>31) {
@@ -802,7 +818,7 @@ writememwl(uint32_t addr, uint16_t val)
 		writemembl(addr,val);
 		writemembl(addr+1,val>>8);
 		return;
-	} else if (writelookup2[addr >> 12] != -1) {
+	} else if (writelookup2[addr >> 12] != LOOKUP_INV) {
 		*(uint16_t *)(writelookup2[addr >> 12] + addr) = val;
 		return;
 	}
@@ -853,7 +869,7 @@ readmemll(uint32_t addr)
 				return 0xffffffff;
 		}
 		return readmemwl(addr)|(readmemwl(addr+2)<<16);
-	} else if (readlookup2[addr >> 12] != -1)
+	} else if (readlookup2[addr >> 12] != LOOKUP_INV)
 		return *(uint32_t *)(readlookup2[addr >> 12] + addr);
     }
 
@@ -905,7 +921,7 @@ writememll(uint32_t addr, uint32_t val)
 		writememwl(addr,val);
 		writememwl(addr+2,val>>16);
 		return;
-	} else if (writelookup2[addr >> 12] != -1) {
+	} else if (writelookup2[addr >> 12] != LOOKUP_INV) {
 		*(uint32_t *)(writelookup2[addr >> 12] + addr) = val;
 		return;
 	}
@@ -959,7 +975,7 @@ readmemql(uint32_t addr)
 				return 0xffffffffffffffffULL;
 		}
 		return readmemll(addr)|((uint64_t)readmemll(addr+4)<<32);
-	} else if (readlookup2[addr >> 12] != -1)
+	} else if (readlookup2[addr >> 12] != LOOKUP_INV)
 		return *(uint64_t *)(readlookup2[addr >> 12] + addr);
     }
 
@@ -1001,7 +1017,7 @@ writememql(uint32_t addr, uint64_t val)
 		writememll(addr, val);
 		writememll(addr+4, val >> 32);
 		return;
-	} else if (writelookup2[addr >> 12] != -1) {
+	} else if (writelookup2[addr >> 12] != LOOKUP_INV) {
 		*(uint64_t *)(writelookup2[addr >> 12] + addr) = val;
 		return;
 	}
@@ -1078,7 +1094,7 @@ readmemwl(uint32_t seg, uint32_t addr)
 		if (is386) return readmemb386l(seg,addr)|(((uint16_t) readmemb386l(seg,addr+1))<<8);
 		else       return readmembl(seg+addr)|(((uint16_t) readmembl(seg+addr+1))<<8);
 	}
-	else if (readlookup2[addr2 >> 12] != (uintptr_t) -1)
+	else if (readlookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV)
 		return *(uint16_t *)(readlookup2[addr2 >> 12] + addr2);
     }
 
@@ -1134,7 +1150,7 @@ writememwl(uint32_t seg, uint32_t addr, uint16_t val)
 			writemembl(seg+addr+1,val>>8);
 		}
 		return;
-	} else if (writelookup2[addr2 >> 12] != (uintptr_t) -1) {
+	} else if (writelookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV) {
 		*(uint16_t *)(writelookup2[addr2 >> 12] + addr2) = val;
 		return;
 	}
@@ -1187,7 +1203,7 @@ readmemll(uint32_t seg, uint32_t addr)
 			if (mmutranslate_read(addr2+3) == 0xffffffffffffffffULL) return 0xffffffff;
 		}
 		return readmemwl(seg,addr)|(readmemwl(seg,addr+2)<<16);
-	} else if (readlookup2[addr2 >> 12] != (uintptr_t) -1)
+	} else if (readlookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV)
 		return *(uint32_t *)(readlookup2[addr2 >> 12] + addr2);
     }
 
@@ -1239,7 +1255,7 @@ writememll(uint32_t seg, uint32_t addr, uint32_t val)
 		writememwl(seg,addr,val);
 		writememwl(seg,addr+2,val>>16);
 		return;
-	} else if (writelookup2[addr2 >> 12] != (uintptr_t) -1) {
+	} else if (writelookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV) {
 		*(uint32_t *)(writelookup2[addr2 >> 12] + addr2) = val;
 		return;
 	}
@@ -1297,7 +1313,7 @@ readmemql(uint32_t seg, uint32_t addr)
 			if (mmutranslate_read(addr2+7) == 0xffffffffffffffffULL) return 0xffffffffffffffffULL;
 		}
 		return readmemll(seg,addr)|((uint64_t)readmemll(seg,addr+4)<<32);
-	} else if (readlookup2[addr2 >> 12] != (uintptr_t) -1)
+	} else if (readlookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV)
 		return *(uint64_t *)(readlookup2[addr2 >> 12] + addr2);
     }
 
@@ -1337,7 +1353,7 @@ writememql(uint32_t seg, uint32_t addr, uint64_t val)
 		writememll(seg, addr, val);
 		writememll(seg, addr+4, val >> 32);
 		return;
-	} else if (writelookup2[addr2 >> 12] != (uintptr_t) -1) {
+	} else if (writelookup2[addr2 >> 12] != (uintptr_t) LOOKUP_INV) {
 		*(uint64_t *)(writelookup2[addr2 >> 12] + addr2) = val;
 		return;
 	}
@@ -2530,22 +2546,47 @@ mem_reset(void)
 	free(ram);
 	ram = NULL;
     }
+#if (!(defined __amd64__ || defined _M_X64))
     if (ram2 != NULL) {
 	free(ram2);
 	ram2 = NULL;
     }
+#endif
     if (mem_size > 2097152)
 	fatal("Attempting to use more than 2 GB of guest RAM\n");
 
+#if (!(defined __amd64__ || defined _M_X64))
     if (mem_size > 1048576) {
 	ram = (uint8_t *)malloc(1 << 30);		/* allocate and clear the RAM block of the first 1 GB */
-	memset(ram, 0x00, 1 << 30);
+	if (ram == NULL) {
+		fatal("X86 > 1 GB: Failed to malloc() ram\n");
+		return;
+	}
+	memset(ram, 0x00, (1 << 30));
 	ram2 = (uint8_t *)malloc(m - (1 << 30));	/* allocate and clear the RAM block above 1 GB */
+	if (ram2 == NULL) {
+		fatal("X86 > 1 GB: Failed to malloc() ram2\n");
+		return;
+	}
 	memset(ram2, 0x00, m - (1 << 30));
     } else {
 	ram = (uint8_t *)malloc(m);		/* allocate and clear the RAM block */
+	if (ram == NULL) {
+		fatal("X86 <= 1 GB: Failed to malloc() ram\n");
+		return;
+	}
 	memset(ram, 0x00, m);
     }
+#else
+    ram = (uint8_t *)malloc(m);		/* allocate and clear the RAM block */
+    if (ram == NULL) {
+	fatal("X64: Failed to malloc() ram\n");
+	return;
+    }
+    memset(ram, 0x00, m);
+    if (mem_size > 1048576)
+    	ram2 = &(ram[1 << 30]);
+#endif
 
     /*
      * Allocate the page table based on how much RAM we have.

@@ -254,10 +254,14 @@ extern const device_t	*at_commodore_sl386sx_get_device(void);
 
 extern int	machine_at_acc386_init(const machine_t *);
 extern int	machine_at_asus386_init(const machine_t *);
-extern int  machine_at_ecs386_init(const machine_t *);
+extern int	machine_at_ecs386_init(const machine_t *);
 extern int	machine_at_micronics386_init(const machine_t *);
 
 extern int	machine_at_rycleopardlx_init(const machine_t *);
+
+extern int	machine_at_486vchd_init(const machine_t *);
+
+extern int	machine_at_cs4031_init(const machine_t *);
 
 extern int	machine_at_pb410a_init(const machine_t *);
 
@@ -285,6 +289,9 @@ extern int	machine_at_4dps_init(const machine_t *);
 extern int	machine_at_alfredo_init(const machine_t *);
 extern int	machine_at_486sp3g_init(const machine_t *);
 extern int	machine_at_486ap4_init(const machine_t *);
+#if defined(DEV_BRANCH) && defined(NO_SIO)
+extern int	machine_at_486vipio2_init(const machine_t *);
+#endif
 #if defined(DEV_BRANCH) && defined(USE_STPC)
 extern int	machine_at_itoxstar_init(const machine_t *);
 extern int	machine_at_arb1479_init(const machine_t *);
@@ -310,18 +317,17 @@ extern const device_t 	*at_cpqiii_get_device(void);
 #endif
 
 /* m_at_socket4_5.c */
-extern int  machine_at_excalibur_init(const machine_t *);
+extern int	machine_at_excalibur_init(const machine_t *);
 
 extern int	machine_at_batman_init(const machine_t *);
 extern int	machine_at_ambradp60_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(USE_VPP60)
 extern int	machine_at_valuepointp60_init(const machine_t *);
-#endif
+#if defined(DEV_BRANCH) && defined(USE_DELLS4)
 extern int	machine_at_opti560l_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(USE_DELLXP60)
 extern int	machine_at_dellxp60_init(const machine_t *);
 #endif
 extern int	machine_at_p5mp3_init(const machine_t *);
+extern int	machine_at_pb520r_init(const machine_t *);
 extern int	machine_at_586mc1_init(const machine_t *);
 
 extern int	machine_at_plato_init(const machine_t *);
@@ -341,6 +347,7 @@ extern int	machine_at_acerv30_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_endeavor_get_device(void);
+extern const device_t	*at_pb520r_get_device(void);
 #endif
 
 /* m_at_socket7_s7.c */
@@ -510,6 +517,10 @@ extern int	machine_xt_pxxt_init(const machine_t *);
 extern int  machine_thomson_to16pc(const machine_t*);
 extern int  machine_xt_ataripc3(const machine_t*);
 extern int  machine_xt_hed919_init(const machine_t *);
+
+#if defined(DEV_BRANCH) && defined(USE_HEDAKA)
+extern int 	machine_xt_hed919_init(const machine_t *);
+#endif
 
 /* m_xt_compaq.c */
 extern int	machine_xt_compaq_init(const machine_t *);

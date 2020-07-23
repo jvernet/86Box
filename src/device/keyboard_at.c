@@ -2207,7 +2207,6 @@ kbd_read(uint16_t port, void *priv)
 {
     atkbd_t *dev = (atkbd_t *)priv;
     uint8_t ret = 0xff;
-    static int flip_flop = 0;
 
     if ((dev->flags & KBC_TYPE_MASK) >= KBC_TYPE_PS2_NOREF)
 	sub_cycles(ISA_CYCLES(8));
@@ -2245,11 +2244,6 @@ kbd_read(uint16_t port, void *priv)
                         else
                                 ret &= ~0x04;
                 }
-#ifdef USE_DYNAREC
-		flip_flop = (flip_flop + 1) & 3;
-		if (cpu_use_dynarec && (flip_flop == 3))
-			update_tsc();
-#endif
 		break;
 
 	case 0x64:
@@ -2472,6 +2466,16 @@ const device_t keyboard_ps2_ps2_device = {
 const device_t keyboard_ps2_ps1_device = {
     "PS/2 Keyboard (IBM PS/1)",
     0,
+    KBC_TYPE_PS2_NOREF | KBC_VEN_IBM_PS1,
+    kbd_init,
+    kbd_close,
+    kbd_reset,
+    NULL, NULL, NULL, NULL
+};
+
+const device_t keyboard_ps2_ps1_pci_device = {
+    "PS/2 Keyboard (IBM PS/1)",
+    DEVICE_PCI,
     KBC_TYPE_PS2_NOREF | KBC_VEN_IBM_PS1,
     kbd_init,
     kbd_close,

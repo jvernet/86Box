@@ -65,9 +65,9 @@ machine_at_headland_common_init(int ht386)
     device_add(&fdc_at_device);
 
     if (ht386)
-	device_add(&headland_386_device);
+	device_add(&headland_ht18b_device);
     else
-	device_add(&headland_device);
+	device_add(&headland_gc10x_device);
 }
 
 
@@ -139,6 +139,7 @@ machine_at_ama932j_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_quadt286_init(const machine_t *model)
 {
@@ -154,10 +155,11 @@ machine_at_quadt286_init(const machine_t *model)
     machine_at_common_ide_init(model);
     device_add(&keyboard_at_device);
     device_add(&fdc_at_device);
-	device_add(&headland_device);
+    device_add(&headland_gc10x_device);
 
     return ret;
 }
+
 
 int
 machine_at_neat_init(const machine_t *model)
@@ -260,6 +262,7 @@ machine_at_neat_ami_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_px286_init(const machine_t *model)
 {
@@ -283,7 +286,7 @@ machine_at_px286_init(const machine_t *model)
     machine_at_common_init(model);
     device_add(&keyboard_at_device);
     device_add(&fdc_at_device);
-	device_add(&neat_device);
+    device_add(&neat_device);
 
     return ret;
 }
@@ -328,6 +331,7 @@ machine_at_micronics386_init(const machine_t *model)
 
     return ret;
 }
+
 
 static void
 machine_at_scat_init(const machine_t *model, int is_v4)
@@ -473,6 +477,7 @@ machine_at_kmxc02_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_deskmaster286_init(const machine_t *model)
 {
@@ -488,6 +493,7 @@ machine_at_deskmaster286_init(const machine_t *model)
 
     return ret;
 }
+
 
 int
 machine_at_shuttle386sx_init(const machine_t *model)
@@ -510,6 +516,7 @@ machine_at_shuttle386sx_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_adi386sx_init(const machine_t *model)
 {
@@ -530,6 +537,7 @@ machine_at_adi386sx_init(const machine_t *model)
 
     return ret;
 }
+
 
 int
 machine_at_wd76c10_init(const machine_t *model)
@@ -555,11 +563,13 @@ machine_at_wd76c10_init(const machine_t *model)
     return ret;
 }
 
+
 const device_t *
 at_commodore_sl386sx_get_device(void)
 {
     return &gd5402_onboard_device;
 }
+
 
 int
 machine_at_commodore_sl386sx_init(const machine_t *model)
@@ -584,6 +594,8 @@ machine_at_commodore_sl386sx_init(const machine_t *model)
 
     return ret;
 }
+
+
 int
 machine_at_awardsx_init(const machine_t *model)
 {

@@ -24,9 +24,22 @@ extern const device_t	acc2168_device;
 /* ALi */
 extern const device_t	ali1429_device;
 
+/* AMD */
+extern const device_t	amd640_device;
+
+/* C&T */
+extern const device_t	neat_device;
+extern const device_t	scat_device;
+extern const device_t	scat_4_device;
+extern const device_t	scat_sx_device;
+extern const device_t	cs8230_device;
+extern const device_t   cs4031_device;
+
 /* Headland */
-extern const device_t	headland_device;
-extern const device_t	headland_386_device;
+extern const device_t	headland_gc10x_device;
+extern const device_t	headland_ht18a_device;
+extern const device_t	headland_ht18b_device;
+extern const device_t	headland_ht18c_device;
 
 /* Intel */
 extern const device_t   i82335_device;
@@ -68,13 +81,6 @@ extern const device_t	opti802g_device;
 extern const device_t	opti895_device;
 extern const device_t	opti5x7_device;
 
-/* C&T */
-extern const device_t	neat_device;
-extern const device_t	scat_device;
-extern const device_t	scat_4_device;
-extern const device_t	scat_sx_device;
-extern const device_t	cs8230_device;
-
 /* SiS */
 extern const device_t   rabbit_device;
 extern const device_t	sis_85c471_device;
@@ -90,9 +96,16 @@ extern const device_t	stpc_client_device;
 extern const device_t	stpc_consumer2_device;
 extern const device_t	stpc_elite_device;
 extern const device_t	stpc_atlas_device;
+extern const device_t	stpc_serial_device;
+extern const device_t	stpc_lpt_device;
 #endif
 
 /* VIA */
+
+extern const device_t   via_vt82c49x_device;
+
+extern const device_t   via_vt82c505_device;
+
 extern const device_t	via_vpx_device;
 extern const device_t	via_vp3_device;
 extern const device_t	via_mvp3_device;
@@ -100,9 +113,6 @@ extern const device_t	via_apro_device;
 
 extern const device_t	via_vt82c586b_device;
 extern const device_t	via_vt82c596b_device;
-
-/* AMD */
-extern const device_t amd640_device;
 
 /* VLSI */
 extern const device_t   vl82c480_device;

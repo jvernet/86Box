@@ -599,8 +599,7 @@ generate_call:
 
         codegen_timing_opcode(opcode, fetchdat, op_32, op_pc);
 
-        codegen_accumulate(ACCREG_ins, 1);
-        codegen_accumulate(ACCREG_cycles, -codegen_block_cycles);
+        codegen_accumulate(ir, ACCREG_cycles, -codegen_block_cycles);
         codegen_block_cycles = 0;
 
         if ((op_table == x86_dynarec_opcodes &&
@@ -620,10 +619,10 @@ generate_call:
 			codegen_timing_jump_cycles();
                 
                 if (jump_cycles)
-                        codegen_accumulate(ACCREG_cycles, -jump_cycles);
+                        codegen_accumulate(ir, ACCREG_cycles, -jump_cycles);
                 codegen_accumulate_flush(ir);
                 if (jump_cycles)
-                        codegen_accumulate(ACCREG_cycles, jump_cycles);
+                        codegen_accumulate(ir, ACCREG_cycles, jump_cycles);
         }
 
         if (op_table == x86_dynarec_opcodes_0f && opcode == 0x0f)
@@ -684,6 +683,9 @@ generate_call:
         }
         codegen_mark_code_present(block, cs+old_pc, (op_pc - old_pc) - pc_off);
 	/* It is apparently a prefixed instruction. */
+	// if ((recomp_op_table == recomp_opcodes) && (opcode == 0x48))
+		// goto codegen_skip;
+
         if (recomp_op_table && recomp_op_table[(opcode | op_32) & recomp_opcode_mask])
         {
                 uint32_t new_pc = recomp_op_table[(opcode | op_32) & recomp_opcode_mask](block, ir, opcode, fetchdat, op_32, op_pc);
@@ -702,7 +704,8 @@ generate_call:
                         return;
                 }
         }
-        
+
+codegen_skip:
         if ((op_table == x86_dynarec_opcodes_REPNE || op_table == x86_dynarec_opcodes_REPE) && !op_table[opcode | op_32])
         {
                 op_table = (OpFn *) x86_dynarec_opcodes;

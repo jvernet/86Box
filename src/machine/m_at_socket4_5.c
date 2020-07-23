@@ -140,7 +140,6 @@ machine_at_ambradp60_init(const machine_t *model)
 }
 
 
-#if defined(DEV_BRANCH) && defined(USE_VPP60)
 int
 machine_at_valuepointp60_init(const machine_t *model)
 {
@@ -152,27 +151,8 @@ machine_at_valuepointp60_init(const machine_t *model)
     if (bios_only || !ret)
 	return ret;
 
-    machine_at_premiere_common_init(model, 0);
-
-    device_add(&i430lx_device);
-
-    return ret;
-}
-#endif
-
-
-int
-machine_at_pb502r_init(const machine_t *model)
-{
-    int ret;
-
-    ret = bios_load_linear_combined(L"roms/machines/revenge/1009af2_.bio",
-				    L"roms/machines/revenge/1009af2_.bi1", 0x1c000, 128);
-
-    if (bios_only || !ret)
-	return ret;
-
     machine_at_common_init(model);
+    device_add(&ide_pci_2ch_device);
 
     pci_init(PCI_CONFIG_TYPE_2 | PCI_NO_IRQ_STEERING);
     pci_register_slot(0x00, PCI_CARD_NORTHBRIDGE, 0, 0, 0, 0);
@@ -181,17 +161,61 @@ machine_at_pb502r_init(const machine_t *model)
     pci_register_slot(0x0E, PCI_CARD_NORMAL, 2, 1, 3, 4);
     pci_register_slot(0x0C, PCI_CARD_NORMAL, 1, 3, 2, 4);
     pci_register_slot(0x02, PCI_CARD_SOUTHBRIDGE, 0, 0, 0, 0);
-    device_add(&i430lx_device);
-    device_add(&keyboard_ps2_pci_device);
+    device_add(&keyboard_ps2_ps1_pci_device);
     device_add(&sio_device);
-    device_add(&ide_cmd640_pci_device);
     device_add(&fdc37c665_device);
-    device_add(&intel_flash_bxt_device);
+    device_add(&intel_flash_bxt_ami_device);
+
+    device_add(&i430lx_device);
 
     return ret;
 }
 
 
+int
+machine_at_pb520r_init(const machine_t *model)
+{
+    int ret;
+
+    ret = bios_load_linear_combined(L"roms/machines/pb520r/1009bc0r.bio",
+				    L"roms/machines/pb520r/1009bc0r.bi1", 0x1c000, 128);
+
+    if (bios_only || !ret)
+	return ret;
+
+    machine_at_common_init(model);
+
+    pci_init(PCI_CONFIG_TYPE_2);
+    pci_register_slot(0x00, PCI_CARD_NORTHBRIDGE, 0, 0, 0, 0);
+    pci_register_slot(0x01, PCI_CARD_IDE, 0, 0, 0, 0);
+    pci_register_slot(0x03, PCI_CARD_ONBOARD, 3, 3, 3, 3);
+    pci_register_slot(0x06, PCI_CARD_NORMAL, 3, 2, 1, 4);
+    pci_register_slot(0x0E, PCI_CARD_NORMAL, 2, 1, 3, 4);
+    pci_register_slot(0x0C, PCI_CARD_NORMAL, 1, 3, 2, 4);
+    pci_register_slot(0x02, PCI_CARD_SOUTHBRIDGE, 0, 0, 0, 0);
+    device_add(&i430lx_device);
+    device_add(&ide_cmd640_pci_single_channel_device);
+
+    if (gfxcard == VID_INTERNAL)
+	device_add(&gd5434_onboard_pci_device);
+
+    device_add(&keyboard_ps2_pci_device);
+    device_add(&sio_zb_device);
+    device_add(&i82091aa_ide_device);
+    device_add(&intel_flash_bxt_ami_device);
+
+    return ret;
+}
+
+
+const device_t *
+at_pb520r_get_device(void)
+{
+    return &gd5434_onboard_pci_device;
+}
+
+
+#if defined(DEV_BRANCH) && defined(USE_DELLS4)
 int
 machine_at_opti560l_init(const machine_t *model)
 {
@@ -223,7 +247,6 @@ machine_at_opti560l_init(const machine_t *model)
 }
 
 
-#if defined(DEV_BRANCH) && defined(USE_DELLXP60)
 int
 machine_at_dellxp60_init(const machine_t *model)	// Doesn't like the regular SMC 665
 {

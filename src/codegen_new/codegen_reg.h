@@ -41,7 +41,7 @@ enum
 	
 	IREG_rm_mod_reg = 18,
 	
-	IREG_ins = 19,
+	IREG_acycs = 19,
 	IREG_cycles = 20,
 
         IREG_CS_base = 21,
