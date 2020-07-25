@@ -2019,6 +2019,9 @@ device_config_t vid_pc3086_config[] =
 				"English", 7
 			},
 			{
+				"French", 5
+			},
+			{
 				"Diagnostic mode", 3
 			},
 			{
