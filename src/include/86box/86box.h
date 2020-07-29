@@ -45,8 +45,11 @@
 # define ENABLE_LOG_COMMANDS	1
 #endif
 
-#define MIN(a, b)             ((a) < (b) ? (a) : (b))
-#define ABS(x)		      ((x) > 0 ? (x) : -(x))
+#define MIN(a, b)	((a) < (b) ? (a) : (b))
+#define ABS(x)		((x) > 0 ? (x) : -(x))
+#define BCD8(x)		((((x) / 10) << 4) | ((x) % 10))
+#define BCD16(x)	((((x) / 1000) << 12) | (((x) / 100) << 8) | BCD8(x))
+#define BCD32(x)	((((x) / 10000000) << 28) | (((x) / 1000000) << 24) | (((x) / 100000) << 20) | (((x) / 10000) << 16) | BCD16(x))
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,7 +66,7 @@ extern int	force_debug;			/* (O) force debug output */
 extern int	video_fps;			/* (O) render speed in fps */
 #endif
 extern int	settings_only;			/* (O) show only the settings dialog */
-extern int	no_quit_confirm;		/* (O) do not ask for confirmation on quit */
+extern int	confirm_exit_cmdl;		/* (O) do not ask for confirmation on quit if set to 0 */
 #ifdef _WIN32
 extern uint64_t	unique_id;
 extern uint64_t	source_hwnd;
@@ -106,6 +109,8 @@ extern int	network_type;			/* (C) net provider type */
 extern int	network_card;			/* (C) net interface num */
 extern char	network_host[522];		/* (C) host network intf */
 extern int	hdd_format_type;		/* (C) hard disk file format */
+extern int	confirm_reset,			/* (C) enable reset confirmation */
+		confirm_exit;			/* (C) enable exit confirmation */
 #ifdef USE_DISCORD
 extern int	enable_discord;			/* (C) enable Discord integration */
 #endif

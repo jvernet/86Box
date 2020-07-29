@@ -484,6 +484,9 @@ load_general(void)
 
     sound_gain = config_get_int(cat, "sound_gain", 0);
 
+    confirm_reset = config_get_int(cat, "confirm_reset", 1);
+    confirm_exit = config_get_int(cat, "confirm_exit", 1);
+
 #ifdef USE_LANGUAGE
     /*
      * Currently, 86Box is English (US) only, but in the future
@@ -531,7 +534,18 @@ load_machine(void)
 	machine = machine_count() - 1;
 
     cpu_manufacturer = config_get_int(cat, "cpu_manufacturer", 0);
+    if ((cpu_manufacturer >= (sizeof(machines[machine].cpu) / sizeof(machines[machine].cpu[0]))) ||
+	(machines[machine].cpu[cpu_manufacturer].cpus == NULL))
+	cpu_manufacturer = 0;
+
     cpu = config_get_int(cat, "cpu", 0);
+    for (int i = 0; i != cpu; i++) {
+	if (machines[machine].cpu[cpu_manufacturer].cpus[i].cpu_type == -1) {
+		cpu = 0;
+		break;
+	}
+    }
+
     cpu_waitstates = config_get_int(cat, "cpu_waitstates", 0);
 
     p = (char *)config_get_string(cat, "fpu_type", "none");
@@ -543,7 +557,7 @@ load_machine(void)
     if (mem_size < (((machines[machine].flags & MACHINE_AT) &&
         (machines[machine].ram_granularity < 128)) ? machines[machine].min_ram*1024 : machines[machine].min_ram))
 	mem_size = (((machines[machine].flags & MACHINE_AT) && (machines[machine].ram_granularity < 128)) ? machines[machine].min_ram*1024 : machines[machine].min_ram);
-#endif    
+#endif
 	
     if (mem_size > 2097152)
 	mem_size = 2097152;
@@ -1576,7 +1590,7 @@ save_general(void)
       else
 	config_set_int(cat, "video_fullscreen_scale", video_fullscreen_scale);
 
-    if (video_fullscreen_first == 0)
+    if (video_fullscreen_first == 1)
 	config_delete_var(cat, "video_fullscreen_first");
       else
 	config_set_int(cat, "video_fullscreen_first", video_fullscreen_first);
@@ -1635,6 +1649,16 @@ save_general(void)
 	config_set_int(cat, "sound_gain", sound_gain);
     else
 	config_delete_var(cat, "sound_gain");
+
+    if (confirm_reset != 1)
+    	config_set_int(cat, "confirm_reset", confirm_reset);
+    else
+    	config_delete_var(cat, "confirm_reset");
+
+    if (confirm_exit != 1)
+    	config_set_int(cat, "confirm_exit", confirm_exit);
+    else
+    	config_delete_var(cat, "confirm_exit");
 
 #ifdef USE_LANGUAGE
     if (plat_langid == 0x0409)
