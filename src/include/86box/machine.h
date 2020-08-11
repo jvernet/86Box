@@ -274,6 +274,7 @@ extern int	machine_at_opti495_ami_init(const machine_t *);
 extern int	machine_at_opti495_mr_init(const machine_t *);
 
 extern int	machine_at_403tg_init(const machine_t *);
+extern int	machine_at_pc330_6571_init(const machine_t *);
 
 extern int	machine_at_vli486sv2g_init(const machine_t *);
 extern int	machine_at_ami471_init(const machine_t *);
@@ -291,6 +292,9 @@ extern int	machine_at_486sp3g_init(const machine_t *);
 extern int	machine_at_486ap4_init(const machine_t *);
 #if defined(DEV_BRANCH) && defined(NO_SIO)
 extern int	machine_at_486vipio2_init(const machine_t *);
+#endif
+#if defined(DEV_BRANCH) && defined(USE_M1489)
+extern int	machine_at_abpb4_init(const machine_t *);
 #endif
 #if defined(DEV_BRANCH) && defined(USE_STPC)
 extern int	machine_at_itoxstar_init(const machine_t *);
@@ -374,6 +378,7 @@ extern int	machine_at_p55va_init(const machine_t *);
 extern int	machine_at_i430vx_init(const machine_t *);
 extern int	machine_at_brio80xx_init(const machine_t *);
 extern int	machine_at_8500tvxa_init(const machine_t *);
+extern int	machine_at_presario4500_init(const machine_t *);
 extern int	machine_at_pb680_init(const machine_t *);
 
 extern int	machine_at_nupro592_init(const machine_t *);
@@ -434,6 +439,7 @@ extern const device_t 	*at_tsunamiatx_get_device(void);
 /* m_at_slot2.c */
 extern int	machine_at_6gxu_init(const machine_t *);
 extern int	machine_at_s2dge_init(const machine_t *);
+extern int	machine_at_fw6400gx_init(const machine_t *);
 
 /* m_at_socket370.c */
 extern int	machine_at_s370slm_init(const machine_t *);

@@ -48,7 +48,7 @@ ifeq ($(DEV_BUILD), y)
  ifndef CYRIX_6X86
   CYRIX_6X86	:= y
  endif 
- ifndef HEADAKA
+ ifndef HEDAKA
   HEDAKA	:= y
  endif
  ifndef LASERXT
@@ -80,6 +80,9 @@ ifeq ($(DEV_BUILD), y)
  endif
  ifndef STPC
   STPC		:= y
+ endif
+ ifndef M1489
+  M1489		:= y
  endif
  ifndef VGAWONDER
   VGAWONDER	:= y
@@ -159,6 +162,9 @@ else
  endif
  ifndef STPC
   STPC		:= y
+ endif
+ ifndef M1489
+  M1489		:= n
  endif
  ifndef VGAWONDER
   VGAWONDER	:= n
@@ -563,6 +569,11 @@ OPTS		+= -DUSE_STPC
 DEVBROBJ	+= stpc.o
 endif
 
+ifeq ($(M1489), y)
+OPTS		+= -DUSE_M1489
+DEVBROBJ	+= ali1489.o
+endif
+
 ifeq ($(596B), y)
 OPTS		+= -DUSE_596B
 endif
@@ -701,9 +712,9 @@ SCSIOBJ		:= scsi.o scsi_device.o \
 NETOBJ		:= network.o \
 		    net_pcap.o \
 		    net_slirp.o \
-		     bootp.o ip_icmp.o misc.o socket.o tcp_timer.o cksum.o \
-		     ip_input.o queue.o tcp_input.o debug.o ip_output.o \
-		     sbuf.o tcp_output.o udp.o if.o mbuf.o slirp.o tcp_subr.o \
+		     arp_table.o bootp.o cksum.o dnssearch.o if.o ip_icmp.o ip_input.o \
+		     ip_output.o mbuf.o misc.o sbuf.o slirp.o socket.o tcp_input.o \
+		     tcp_output.o tcp_subr.o tcp_timer.o udp.o util.o version.o \
 		    net_dp8390.o \
 		    net_3c503.o net_ne2000.o \
 		    net_pcnet.o net_wd8003.o
