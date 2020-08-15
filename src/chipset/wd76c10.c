@@ -63,7 +63,10 @@ wd76c10_read(uint16_t port, void *priv)
     int16_t ret = 0xffff;
 
     switch (port) {
-	case 0x2072:
+    case 0x0092:
+        ret = dev->reg_0092;
+        break;
+    case 0x2072:
 		ret = dev->reg_2072;
 		break;
 
