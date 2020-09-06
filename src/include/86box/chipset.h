@@ -74,7 +74,6 @@ extern const device_t	piix4e_device;
 extern const device_t	slc90e66_device;
 
 extern const device_t	ioapic_device;
-extern const device_t	vpc2007_device;
 
 /* OPTi */
 extern const device_t	opti283_device;
@@ -104,6 +103,9 @@ extern const device_t	stpc_serial_device;
 extern const device_t	stpc_lpt_device;
 #endif
 
+/* UMC */
+extern const device_t   umc491_device;
+
 /* VIA */
 
 extern const device_t   via_vt82c49x_device;
@@ -125,5 +127,7 @@ extern const device_t   vlsi_scamp_device;
 /* WD */
 extern const device_t	wd76c10_device;
 
+/* Miscellaneous Hardware */
+extern const device_t	vpc2007_device;
 
 #endif	/*EMU_CHIPSET_H*/
