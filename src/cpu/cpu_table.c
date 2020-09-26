@@ -211,6 +211,18 @@ CPU cpus_Am386DX[] = {
     {"",             -1,                   0, 0,      0, 0, 0, 0, 0,0,0,0, 0}
 };
 
+
+#if defined(DEV_BRANCH) && defined(USE_M6117)
+/* All M6117 timings and edx_reset values assumed. */
+CPU cpus_ALiM6117[] = {
+    /*i386DX/RapidCAD*/
+    {"M6117/33",    CPU_386DX,      fpus_80386,  33333333, 1, 0x2308, 0, 0, 0, 6,6,3,3, 4},
+    {"M6117/40",    CPU_386DX,      fpus_80386,  40000000, 1, 0x2308, 0, 0, 0, 7,7,3,3, 5},
+    {"",             -1,                   0, 0,      0, 0, 0, 0, 0,0,0,0, 0}
+};
+#endif
+
+
 CPU cpus_486SLC[] = {
     /*Cx486SLC*/
     {"Cx486SLC/20",  CPU_486SLC, fpus_80386, 20000000, 1, 0x400, 0, 0x0000, 0, 4,4,3,3, 3},
@@ -374,14 +386,14 @@ CPU cpus_Cx486[] = {
 
 #if defined(DEV_BRANCH) && defined(USE_STPC)
 /* All STPC timings and Cyrix CPUID values assumed. */
-CPU cpus_STPC6675[] = {
-    {"STPC 66",      CPU_Cx486DX,  fpus_internal,  66666666, 1.0, 0x430, 0, 0x051a, CPU_SUPPORTS_DYNAREC, 7, 7, 3, 3,  5},
-    {"STPC 75",      CPU_Cx486DX,  fpus_internal,  75000000, 1.0, 0x430, 0, 0x051a, CPU_SUPPORTS_DYNAREC, 7, 7, 3, 3,  5},
+CPU cpus_STPCDX[] = {
+    {"STPC-DX/66",      CPU_Cx486DX,  fpus_internal,  66666666, 1.0, 0x430, 0, 0x051a, CPU_SUPPORTS_DYNAREC, 7, 7, 3, 3,  5},
+    {"STPC-DX/75",      CPU_Cx486DX,  fpus_internal,  75000000, 1.0, 0x430, 0, 0x051a, CPU_SUPPORTS_DYNAREC, 7, 7, 3, 3,  5},
     {"",             -1,                   0, 0,     0, 0,      0,                    0,  0, 0, 0, 0,  0}
 };
 
-CPU cpus_STPC133[] = {
-    {"STPC 133",     CPU_Cx486DX2, fpus_internal, 133333333, 2.0, 0x430, 0, 0x0b1b, CPU_SUPPORTS_DYNAREC, 14,14, 6, 6, 10},
+CPU cpus_STPCDX2[] = {
+    {"STPC-DX2/133",     CPU_Cx486DX2, fpus_internal, 133333333, 2.0, 0x430, 0, 0x0b1b, CPU_SUPPORTS_DYNAREC, 14,14, 6, 6, 10},
     {"",             -1,                   0, 0,     0, 0,      0,                    0,  0, 0, 0, 0,  0}
 };
 #endif
@@ -789,9 +801,11 @@ CPU cpus_Xeon[] = {
 	   The <400Mhz Xeons are only meant to not cause any struggle
        to the recompiler. */
     {"Pentium II Xeon 75",     CPU_PENTIUM2D,  fpus_internal,  75000000, 1.5,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  7, 7, 4, 4, 9},
+    {"Pentium II Xeon 100",    CPU_PENTIUM2D,  fpus_internal, 100000000, 1.5,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 10,10, 6, 6, 12},
     {"Pentium II Xeon 133",    CPU_PENTIUM2D,  fpus_internal, 133333333, 2.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 12,12, 6, 6, 16},
     {"Pentium II Xeon 166",    CPU_PENTIUM2D,  fpus_internal, 166666666, 2.5,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 15,15, 7, 7, 20},
     {"Pentium II Xeon 400",    CPU_PENTIUM2D,  fpus_internal, 400000000, 4.0,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 36,36,12,12, 48},
+    {"Pentium II Xeon 450",    CPU_PENTIUM2D,  fpus_internal, 450000000, 4.5,  0x652,  0x652, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 41,41,14,14, 54},
     {"",                                       -1,          0,   0,      0,      0, 0, 0,  0, 0, 0, 0,  0}	
 };
 
@@ -800,15 +814,18 @@ CPU cpus_Celeron[] = {
        Intended for the PGA370 boards but they were capable to fit on a PGA 370 to Slot 1
        adaptor card so they work on Slot 1 motherboards too!.
 
-       The 100Mhz & 166Mhz Mendocino is only meant to not cause any struggle
+       The 66Mhz, 100Mhz, 133Mhz & 166Mhz Mendocino is only meant to not cause any struggle
        to the recompiler. */
+    {"Celeron Mendocino 66",	    CPU_PENTIUM2D,  fpus_internal,  66666666, 1.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC,  6, 6, 3, 3, 8},
     {"Celeron Mendocino 100",       CPU_PENTIUM2D,  fpus_internal, 100000000, 1.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 10,10, 6, 6, 12},
+    {"Celeron Mendocino 133",       CPU_PENTIUM2D,  fpus_internal, 133333333, 2.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 12,12, 6, 6, 16},
     {"Celeron Mendocino 166",       CPU_PENTIUM2D,  fpus_internal, 166666666, 2.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 15,15, 7, 7, 20},
     {"Celeron Mendocino 300/66",    CPU_PENTIUM2D,  fpus_internal, 300000000, 4.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 25,25,12,12, 36},
     {"Celeron Mendocino 333",       CPU_PENTIUM2D,  fpus_internal, 333333333, 5.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 27,27,13,13, 40},
     {"Celeron Mendocino 366",       CPU_PENTIUM2D,  fpus_internal, 366666666, 5.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 33,33,17,17, 44},
     {"Celeron Mendocino 400",       CPU_PENTIUM2D,  fpus_internal, 400000000, 6.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 36,36,12,12, 48},
     {"Celeron Mendocino 433",       CPU_PENTIUM2D,  fpus_internal, 433333333, 6.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 39,39,13,13, 51},
+    {"Celeron Mendocino 466",       CPU_PENTIUM2D,  fpus_internal, 466666666, 7.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 42,42,14,14, 56},
     {"Celeron Mendocino 500",       CPU_PENTIUM2D,  fpus_internal, 500000000, 7.5,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 45,45,15,15, 60},
     {"Celeron Mendocino 533",       CPU_PENTIUM2D,  fpus_internal, 533333333, 8.0,  0x665,  0x665, 0, CPU_SUPPORTS_DYNAREC | CPU_REQUIRES_DYNAREC, 48,48,17,17, 64},
     {"",                                       -1,          0,   0,      0,      0, 0, 0,  0, 0, 0, 0,  0}	

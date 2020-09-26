@@ -26,6 +26,9 @@ extern const device_t	ali1429_device;
 #if defined(DEV_BRANCH) && defined(USE_M1489)
 extern const device_t	ali1489_device;
 #endif
+#if defined(DEV_BRANCH) && defined(USE_M6117)
+extern const device_t	ali6117d_device;
+#endif
 
 /* AMD */
 extern const device_t	amd640_device;
@@ -45,7 +48,7 @@ extern const device_t	headland_ht18b_device;
 extern const device_t	headland_ht18c_device;
 
 /* Intel */
-extern const device_t   i82335_device;
+extern const device_t   intel_82335_device;
 extern const device_t	i420ex_device;
 extern const device_t	i420tx_device;
 extern const device_t	i420zx_device;

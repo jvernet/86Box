@@ -39,9 +39,6 @@ ifeq ($(DEV_BUILD), y)
  ifndef AMD_K5
   AMD_K5	:= y
  endif
- ifndef AMI386X
-  AMI386SX	:= y
- endif
  ifndef CL5422
   CL5422	:= y
  endif
@@ -84,6 +81,9 @@ ifeq ($(DEV_BUILD), y)
  ifndef M1489
   M1489		:= y
  endif
+ ifndef M6117
+  M6117		:= y
+ endif
  ifndef VGAWONDER
   VGAWONDER	:= y
  endif
@@ -117,9 +117,6 @@ else
  endif
  ifndef AMD_K5
   AMD_K5	:= n
- endif
- ifndef AMI386SX
-  AMI386SX	:= n
  endif
  ifndef CL5422
   CL5422	:= n
@@ -162,6 +159,9 @@ else
  endif
  ifndef M1489
   M1489		:= n
+ endif
+ ifndef M6117
+  M6117		:= n
  endif
  ifndef VGAWONDER
   VGAWONDER	:= n
@@ -503,10 +503,6 @@ ifeq ($(AMD_K5), y)
 OPTS		+= -DUSE_AMD_K5
 endif
 
-ifeq ($(AMI386SX), y)
-OPTS		+= -DUSE_AMI386SX
-endif
-
 ifeq ($(CL5422), y)
 OPTS		+= -DUSE_CL5422
 endif
@@ -568,6 +564,11 @@ OPTS		+= -DUSE_M1489
 DEVBROBJ	+= ali1489.o
 endif
 
+ifeq ($(M6117), y)
+OPTS		+= -DUSE_M6117
+DEVBROBJ	+= ali6117.o
+endif
+
 ifeq ($(596B), y)
 OPTS		+= -DUSE_596B
 endif
@@ -601,7 +602,7 @@ endif
 
 # Final versions of the toolchain flags.
 CFLAGS		:= $(WX_FLAGS) $(OPTS) $(DFLAGS) $(COPTIM) $(AOPTIM) \
-		   $(AFLAGS) -fomit-frame-pointer -mstackrealign -Wall \
+		   $(AFLAGS) -mstackrealign -Wall \
 		   -fno-strict-aliasing
 
 # Add freetyp2 references through pkgconfig
@@ -625,7 +626,7 @@ CPUOBJ		:= cpu.o cpu_table.o \
 		    x86seg.o x87.o x87_timings.o \
 		    $(DYNARECOBJ)
 
-CHIPSETOBJ	:= acc2168.o cs8230.o ali1429.o headland.o i82335.o cs4031.o \
+CHIPSETOBJ	:= acc2168.o cs8230.o ali1429.o headland.o intel_82335.o cs4031.o \
 		    intel_420ex.o intel_4x0.o intel_sio.o intel_piix.o ioapic.o \
 		    neat.o opti495.o opti895.o opti5x7.o scamp.o scat.o via_vt82c49x.o via_vt82c505.o \
 		    sis_85c310.o sis_85c471.o sis_85c496.o opti283.o opti291.o umc491.o \
@@ -649,7 +650,7 @@ MCHOBJ		:= machine.o machine_table.o \
 		    m_at_socket8.o m_at_slot1.o m_at_slot2.o m_at_socket370.o \
 			m_at_misc.o
 
-DEVOBJ		:= bugger.o hwm.o hwm_lm75.o hwm_lm78.o hwm_gl518sm.o ibm_5161.o isamem.o isartc.o lpt.o postcard.o serial.o vpc2007.o \
+DEVOBJ		:= bugger.o hwm.o hwm_lm75.o hwm_lm78.o hwm_gl518sm.o ibm_5161.o isamem.o isartc.o lpt.o pci_bridge.o postcard.o serial.o vpc2007.o \
 		    smbus.o smbus_piix4.o \
 		   keyboard.o \
 		    keyboard_xt.o keyboard_at.o \

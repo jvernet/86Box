@@ -213,9 +213,6 @@ extern int	machine_at_open_at_init(const machine_t *);
 #endif
 
 /* m_at_286_386sx.c */
-#if defined(DEV_BRANCH) && defined(USE_AMI386SX)
-extern int	machine_at_headland_init(const machine_t *);
-#endif
 extern int	machine_at_tg286m_init(const machine_t *);
 extern int	machine_at_ama932j_init(const machine_t *);
 extern int	machine_at_px286_init(const machine_t *);
@@ -227,8 +224,6 @@ extern int	machine_at_neat_ami_init(const machine_t *);
 extern int  machine_at_kenitec286_init(const machine_t*);
 extern int  machine_at_micral_45_286_init(const machine_t*);
 extern int machine_at_dells200_init(const machine_t*);
-
-extern int	machine_at_goldstar386_init(const machine_t *);
 
 extern int	machine_at_award286_init(const machine_t *);
 extern int	machine_at_gdc212m_init(const machine_t *);
@@ -244,7 +239,11 @@ extern int	machine_at_adi386sx_init(const machine_t *);
 extern int	machine_at_commodore_sl386sx_init(const machine_t *);
 extern int	machine_at_wd76c10_init(const machine_t *);
 
-extern int  machine_at_awardsx_init(const machine_t *);
+extern int	machine_at_awardsx_init(const machine_t *);
+#if defined(DEV_BRANCH) && defined(USE_M6117)
+extern int	machine_at_arb1375_init(const machine_t *);
+extern int	machine_at_pja511m_init(const machine_t *);
+#endif
 
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_ama932j_get_device(void);
@@ -519,6 +518,7 @@ extern int	machine_genxt_init(const machine_t *);
 
 extern int	machine_xt86_init(const machine_t *);
 
+extern int	machine_xt_americxt_init(const machine_t *);
 extern int	machine_xt_amixt_init(const machine_t *);
 extern int	machine_xt_dtk_init(const machine_t *);
 extern int	machine_xt_jukopc_init(const machine_t *);
@@ -527,6 +527,8 @@ extern int	machine_xt_pxxt_init(const machine_t *);
 extern int  machine_thomson_to16pc(const machine_t*);
 extern int  machine_xt_ataripc3(const machine_t*);
 extern int  machine_xt_hed919_init(const machine_t *);
+
+extern int	machine_xt_iskra3104_init(const machine_t *);
 
 #if defined(DEV_BRANCH) && defined(USE_HEDAKA)
 extern int 	machine_xt_hed919_init(const machine_t *);
