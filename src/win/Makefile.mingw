@@ -72,6 +72,9 @@ ifeq ($(DEV_BUILD), y)
  ifndef VECTRA54
   VECTRA54	:= y
  endif
+ ifndef S3TRIO3D2X
+  S3TRIO3D2X	:= y
+ endif
  ifndef SIEMENS
   SIEMENS	:= y
  endif
@@ -150,6 +153,9 @@ else
  endif
  ifndef VECTRA54
   VECTRA54	:= n
+ endif
+ ifndef S3TRIO3D2X
+  S3TRIO3D2X	:= n
  endif
  ifndef SIEMENS
   SIEMENS	:= n
@@ -550,6 +556,10 @@ ifeq ($(VECTRA54), y)
 OPTS		+= -DUSE_VECTRA54
 endif
 
+ifeq ($(S3TRIO3D2X), y)
+OPTS		+= -DUSE_S3TRIO3D2X
+endif
+
 ifeq ($(SIEMENS), y)
 OPTS		+= -DUSE_SIEMENS
 endif
@@ -656,7 +666,8 @@ DEVOBJ		:= bugger.o hwm.o hwm_lm75.o hwm_lm78.o hwm_gl518sm.o ibm_5161.o isamem.
 		    keyboard_xt.o keyboard_at.o \
 		   mouse.o \
 		    mouse_bus.o \
-		    mouse_serial.o mouse_ps2.o
+		    mouse_serial.o mouse_ps2.o \
+			phoenix_486_jumper.o
 
 SIOOBJ		:= sio_acc3221.o \
 		    sio_f82c710.o sio_82091aa.o \
