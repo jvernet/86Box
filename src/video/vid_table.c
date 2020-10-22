@@ -106,6 +106,7 @@ video_cards[] = {
     { "[ISA] SPEA V7 Mirage (S3 86c801)",		"px_s3_v7_801_isa",	&s3_v7mirage_86c801_isa_device		},
     { "[ISA] Trident TVGA8900B",			"tvga8900b",		&tvga8900b_device			},
     { "[ISA] Trident TVGA8900D",			"tvga8900d",		&tvga8900d_device			},
+    { "[ISA] Trident TVGA9000B",			"tvga9000b",		&tvga9000b_device			},
     { "[ISA] Trigem Korean VGA (ET4000AX)",		"tgkorvga",		&et4000k_isa_device			},
     { "[ISA] Tseng ET4000AX",				"et4000ax",		&et4000_isa_device			},
     { "[ISA] VGA",					"vga",			&vga_device				},
@@ -136,10 +137,11 @@ video_cards[] = {
     { "[PCI] Phoenix S3 Vision864",			"px_vision864_pci",	&s3_phoenix_vision864_pci_device	},
     { "[PCI] Phoenix S3 Trio32",			"px_trio32_pci",	&s3_phoenix_trio32_pci_device		},
     { "[PCI] Phoenix S3 Trio64",			"px_trio64_pci",	&s3_phoenix_trio64_pci_device		},
+    { "[PCI] Phoenix S3 Trio64V+",			"px_trio64vplus_pci",	&s3_phoenix_trio64vplus_pci_device	},
 #if defined(DEV_BRANCH) && defined(USE_S3TRIO3D2X)    
     { "[PCI] S3 Trio3D/2X",				"trio3d2x",		&s3_trio3d_2x_pci_device		},
 #endif    
-    { "[PCI] S3 Trio64V2/DX",				"trio64v2dx_pci",	&s3_trio64v2_dx_pci_device		},    
+    { "[PCI] S3 Trio64V2/DX",				"trio64v2dx_pci",	&s3_trio64v2_dx_pci_device		},
     { "[PCI] S3 ViRGE/DX",				"virge375_pci",		&s3_virge_375_pci_device		},
     { "[PCI] S3 ViRGE/DX (VBE 2.0)",			"virge375_vbe20_pci",	&s3_virge_375_4_pci_device		},
     { "[PCI] STB Nitro 64V (CL-GD 5446)",		"cl_gd5446_stb_pci",	&gd5446_stb_pci_device			},
@@ -166,6 +168,7 @@ video_cards[] = {
     { "[VLB] Phoenix S3 Vision864",			"px_vision864_vlb",	&s3_phoenix_vision864_vlb_device	},
     { "[VLB] Phoenix S3 Trio32",			"px_trio32_vlb",	&s3_phoenix_trio32_vlb_device		},
     { "[VLB] Phoenix S3 Trio64",			"px_trio64_vlb",	&s3_phoenix_trio64_vlb_device		},
+    { "[VLB] Phoenix S3 Trio64V+",			"px_trio64vplus_vlb",	&s3_phoenix_trio64vplus_vlb_device	},
     { "[VLB] S3 ViRGE/DX",				"virge375_vlb",		&s3_virge_375_vlb_device		},
     { "[VLB] S3 ViRGE/DX (VBE 2.0)",			"virge375_vbe20_vlb",	&s3_virge_375_4_vlb_device		},
     { "[VLB] Trident TGUI9400CXi",			"tgui9400cxi_vlb",	&tgui9400cxi_device			},
@@ -229,7 +232,7 @@ video_reset(int card)
 
     /* Do not initialize internal cards here. */
     if (!(card == VID_NONE) && \
-	!(card == VID_INTERNAL) && !(machines[machine].flags & MACHINE_VIDEO_FIXED)) {
+	!(card == VID_INTERNAL) && !(machines[machine].flags & MACHINE_VIDEO_ONLY)) {
 	vid_table_log("VIDEO: initializing '%s'\n", video_cards[card].name);
 
 	/* Do an inform on the default values, so that that there's some sane values initialized

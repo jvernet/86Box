@@ -207,45 +207,11 @@ machine_at_pb520r_init(const machine_t *model)
     return ret;
 }
 
-
 const device_t *
 at_pb520r_get_device(void)
 {
     return &gd5434_onboard_pci_device;
 }
-
-
-#if defined(DEV_BRANCH) && defined(USE_DELLS4)
-int
-machine_at_dellxp60_init(const machine_t *model)
-{
-    int ret;
-
-    ret = bios_load_linear(L"roms/machines/dellxp60/XP60-A08.ROM",
-			   0x000e0000, 131072, 0);
-
-    if (bios_only || !ret)
-	return ret;
-
-    machine_at_common_init(model);
-    device_add(&ide_pci_2ch_device);
-
-    pci_init(PCI_CONFIG_TYPE_2 | PCI_NO_IRQ_STEERING);
-    pci_register_slot(0x00, PCI_CARD_NORTHBRIDGE, 0, 0, 0, 0);
-    pci_register_slot(0x01, PCI_CARD_SPECIAL, 0, 0, 0, 0);
-    pci_register_slot(0x06, PCI_CARD_NORMAL, 3, 2, 1, 4);
-    pci_register_slot(0x0E, PCI_CARD_NORMAL, 2, 1, 3, 4);
-    pci_register_slot(0x0C, PCI_CARD_NORMAL, 1, 3, 2, 4);
-    pci_register_slot(0x02, PCI_CARD_SOUTHBRIDGE, 0, 0, 0, 0);
-    device_add(&i430lx_device);
-    device_add(&keyboard_ps2_pci_device);
-    device_add(&sio_device);
-    device_add(&fdc37c665_device);
-    device_add(&intel_flash_bxt_device);
-
-    return ret;
-}
-#endif
 
 
 int
@@ -460,6 +426,7 @@ machine_at_zappa_init(const machine_t *model)
     return ret;
 }
 
+
 int
 machine_at_mb500n_init(const machine_t *model)
 {
@@ -484,6 +451,37 @@ machine_at_mb500n_init(const machine_t *model)
     device_add(&i430fx_device);
     device_add(&piix_device);
     device_add(&fdc37c665_device);
+    device_add(&intel_flash_bxt_device);
+
+    return ret;
+}
+
+
+int
+machine_at_apollo_init(const machine_t *model)
+{
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/apollo/S728P.ROM",
+			   0x000e0000, 131072, 0);
+
+    if (bios_only || !ret)
+	return ret;
+
+    machine_at_common_init_ex(model, 2);
+    device_add(&ami_apollo_nvr_device);
+
+    pci_init(PCI_CONFIG_TYPE_1);
+    pci_register_slot(0x00, PCI_CARD_NORTHBRIDGE, 0, 0, 0, 0);
+    pci_register_slot(0x08, PCI_CARD_NORMAL, 1, 2, 3, 4);
+    pci_register_slot(0x09, PCI_CARD_NORMAL, 2, 3, 4, 1);
+    pci_register_slot(0x0A, PCI_CARD_NORMAL, 3, 4, 1, 2);
+    pci_register_slot(0x0B, PCI_CARD_NORMAL, 4, 1, 2, 3);
+    pci_register_slot(0x07, PCI_CARD_SOUTHBRIDGE, 0, 0, 0, 0);
+    device_add(&keyboard_ps2_ami_pci_device);
+    device_add(&i430fx_device);
+    device_add(&piix_device);
+    device_add(&pc87332_ps1_device);
     device_add(&intel_flash_bxt_device);
 
     return ret;

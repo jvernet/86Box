@@ -225,7 +225,7 @@ extern const device_t gd5426_onboard_device;
 extern const device_t gd5428_isa_device;
 extern const device_t gd5428_vlb_device;
 extern const device_t gd5428_mca_device;
-extern const device_t gd5428_a1g_device;
+extern const device_t gd5428_onboard_device;
 extern const device_t gd5429_isa_device;
 extern const device_t gd5429_vlb_device;
 extern const device_t gd5430_vlb_device;
@@ -312,6 +312,9 @@ extern const device_t s3_phoenix_trio32_pci_device;
 extern const device_t s3_phoenix_trio64_vlb_device;
 extern const device_t s3_phoenix_trio64_onboard_pci_device;
 extern const device_t s3_phoenix_trio64_pci_device;
+extern const device_t s3_phoenix_trio64vplus_vlb_device;
+extern const device_t s3_phoenix_trio64vplus_pci_device;
+extern const device_t s3_phoenix_trio64vplus_onboard_pci_device;
 extern const device_t s3_phoenix_vision864_pci_device;
 extern const device_t s3_phoenix_vision864_vlb_device;
 extern const device_t s3_diamond_stealth64_pci_device;
@@ -347,6 +350,7 @@ extern const device_t ibm_ps1_2121_device;
 /* Trident TVGA 8900 */
 extern const device_t tvga8900b_device;
 extern const device_t tvga8900d_device;
+extern const device_t tvga9000b_device;
 
 /* IBM VGA */
 extern const device_t vga_device;

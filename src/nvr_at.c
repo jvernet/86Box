@@ -286,8 +286,9 @@
 #define RTC_CENTURY_VIA	0x7F		/* century register for VIA VT82C586B */
 #define RTC_REGS	14		/* number of registers */
 
-#define FLAG_LS_HACK	0x01
-#define FLAG_PIIX4	0x02
+#define FLAG_LS_HACK		0x01
+#define FLAG_APOLLO_HACK	0x02
+#define FLAG_PIIX4		0x04
 
 
 typedef struct {
@@ -514,21 +515,18 @@ timer_intr(void *priv)
     timer_advance_u64(&local->rtc_timer, RTCCONST);
 
     if (local->state == 1) {
-	local->count--;
-	if (local->count == 0)
+	if (--local->count == 0) {
 		timer_load_count(nvr);
-	else
-		return;
-    } else
-	return;
 
-    nvr->regs[RTC_REGC] |= REGC_PF;
-    if (nvr->regs[RTC_REGB] & REGB_PIE) {
-	nvr->regs[RTC_REGC] |= REGC_IRQF;
+		nvr->regs[RTC_REGC] |= REGC_PF;
+		if (nvr->regs[RTC_REGB] & REGB_PIE) {
+			nvr->regs[RTC_REGC] |= REGC_IRQF;
 
-	/* Generate an interrupt. */
-	if (nvr->irq != -1)
-		picint(1 << nvr->irq);
+			/* Generate an interrupt. */
+			if (nvr->irq != -1)
+				picint(1 << nvr->irq);
+		}
+	}
     }
 }
 
@@ -580,7 +578,17 @@ nvr_reg_write(uint16_t reg, uint8_t val, void *priv)
 		break;
 
 	case RTC_REGC:		/* R/O */
+		break;
+
 	case RTC_REGD:		/* R/O */
+		/* VT82C686A/B have an ACPI register bit controlled by 0D bit 7.
+		   This is overwritten on read, but testing shows BIOSes will
+		   immediately check the ACPI register after writing to this. */
+		if (local->cent == RTC_CENTURY_VIA) {
+			nvr->regs[RTC_REGD] &= ~0x80;
+			if (val & 0x80)
+				nvr->regs[RTC_REGD] |= 0x80;
+		}
 		break;
 
 	case 0x2e:
@@ -660,7 +668,7 @@ nvr_read(uint16_t addr, void *priv)
     local_t *local = (local_t *)nvr->data;
     uint8_t ret;
     uint8_t addr_id = (addr & 0x0e) >> 1;
-    uint16_t checksum;
+    uint16_t i, checksum = 0x0000;
 
     sub_cycles(ISA_CYCLES(8));
 
@@ -693,14 +701,44 @@ nvr_read(uint16_t addr, void *priv)
 	case 0x2e:
 	case 0x2f:
 		if (local->flags & FLAG_LS_HACK) {
-			checksum = (nvr->regs[0x2e] << 8) | nvr->regs[0x2f];
-			if (nvr->regs[0x2c] & 0x80)
-				checksum -= 0x80;
+			for (i = 0x10; i <= 0x2d; i++) {
+				if (i == 0x2c)
+					checksum += (nvr->regs[i] & 0x7f);
+				else
+					checksum += nvr->regs[i];
+			}
 			if (local->addr[addr_id] == 0x2e)
 				ret = checksum >> 8;
 			else
 				ret = checksum & 0xff;
 		} else
+			ret = nvr->regs[local->addr[addr_id]];
+		break;
+
+	case 0x3e:
+	case 0x3f:
+		if (local->flags & FLAG_APOLLO_HACK) {
+			/* The checksum at 3E-3F is for 37-3D and 40-7F. */
+			for (i = 0x37; i <= 0x3d; i++)
+				checksum += nvr->regs[i];
+			for (i = 0x40; i <= 0x7f; i++) {
+				if (i == 0x52)
+					checksum += (nvr->regs[i] & 0xf3);
+				else
+					checksum += nvr->regs[i];
+			}
+			if (local->addr[addr_id] == 0x3e)
+				ret = checksum >> 8;
+			else
+				ret = checksum & 0xff;
+		} else
+			ret = nvr->regs[local->addr[addr_id]];
+		break;
+
+	case 0x52:
+		if (local->flags & FLAG_APOLLO_HACK)
+			ret = nvr->regs[local->addr[addr_id]] & 0xf3;
+		else
 			ret = nvr->regs[local->addr[addr_id]];
 		break;
 
@@ -884,13 +922,17 @@ nvr_at_init(const device_t *info)
 		local->cent = 0xff;
 		break;
 
-	case 5:		/* Lucky Star LS-486E */
-		local->flags |= FLAG_LS_HACK;
-		/*FALLTHROUGH*/
-
 	case 1:		/* standard AT */
+	case 5:		/* Lucky Star LS-486E */
+	case 6:		/* AMI Apollo */
 		if (info->local == 9)
 			local->flags |= FLAG_PIIX4;
+		else {
+			if ((info->local & 7) == 5)
+				local->flags |= FLAG_LS_HACK;
+			else if ((info->local & 7) == 6)
+				local->flags |= FLAG_APOLLO_HACK;
+		}
 		nvr->irq = 8;
 		local->cent = RTC_CENTURY_AT;
 		break;
@@ -912,7 +954,7 @@ nvr_at_init(const device_t *info)
 		local->def = 0xff;
 		break;
 
-	case 6:		/* VIA VT82C586B */
+	case 7:		/* VIA VT82C586B */
 		nvr->irq = 8;
 		local->cent = RTC_CENTURY_VIA;
 		break;
@@ -1005,7 +1047,7 @@ const device_t ps_nvr_device = {
 
 const device_t amstrad_nvr_device = {
     "Amstrad NVRAM",
-    MACHINE_ISA | MACHINE_AT,
+    DEVICE_ISA | DEVICE_AT,
     3,
     nvr_at_init, nvr_at_close, NULL,
     NULL, nvr_at_speed_changed,
@@ -1039,10 +1081,19 @@ const device_t ls486e_nvr_device = {
     NULL
 };
 
+const device_t ami_apollo_nvr_device = {
+    "AMI Apollo PC/AT NVRAM",
+    DEVICE_ISA | DEVICE_AT,
+    14,
+    nvr_at_init, nvr_at_close, NULL,
+    NULL, nvr_at_speed_changed,
+    NULL
+};
+
 const device_t via_nvr_device = {
     "VIA PC/AT NVRAM",
     DEVICE_ISA | DEVICE_AT,
-    14,
+    15,
     nvr_at_init, nvr_at_close, NULL,
     NULL, nvr_at_speed_changed,
     NULL

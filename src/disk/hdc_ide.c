@@ -412,7 +412,7 @@ ide_get_max(ide_t *ide, int type)
 		return -1;
 	case TYPE_UDMA:	/* UDMA */
 		if (!ide_boards[ide->board]->force_ata3 && (ide_bm[ide->board] != NULL))
-			return 4 /*2*/;
+			return 5;
 
 		return -1;
 	default:
@@ -486,7 +486,7 @@ static void ide_hd_identify(ide_t *ide)
     ide_log("Default CHS translation: %i, %i, %i\n", ide->buffer[1], ide->buffer[3], ide->buffer[6]);
 
     ide_padstr((char *) (ide->buffer + 10), "", 20); /* Serial Number */
-    ide_padstr((char *) (ide->buffer + 23), EMU_VERSION, 8); /* Firmware */
+    ide_padstr((char *) (ide->buffer + 23), EMU_VERSION_EX, 8); /* Firmware */
     ide_padstr((char *) (ide->buffer + 27), device_identify, 40); /* Model */
     ide->buffer[20] = 3;   /*Buffer type*/
     ide->buffer[21] = 512; /*Buffer size*/
@@ -533,8 +533,8 @@ static void ide_hd_identify(ide_t *ide)
 
     if (!ide_boards[ide->board]->force_ata3 && ide_bm[ide->board]) {
 	ide->buffer[47] = 32 | 0x8000;  /*Max sectors on multiple transfer command*/
-	ide->buffer[80] = 0x1e; /*ATA-1 to ATA-4 supported*/
-	ide->buffer[81] = 0x18; /*ATA-4 revision 18 supported*/
+	ide->buffer[80] = 0x7e; /*ATA-1 to ATA-6 supported*/
+	ide->buffer[81] = 0x19; /*ATA-6 revision 3a supported*/
     } else {
 	ide->buffer[47] = 16 | 0x8000;  /*Max sectors on multiple transfer command*/
 	ide->buffer[80] = 0x0e; /*ATA-1 to ATA-3 supported*/
@@ -546,6 +546,7 @@ static void
 ide_identify(ide_t *ide)
 {
     int d, i, max_pio, max_sdma, max_mdma, max_udma;
+    ide_t *ide_other = ide_drives[ide->channel ^ 1];
 
     ide_log("IDE IDENTIFY or IDENTIFY PACKET DEVICE on board %i (channel %i)\n", ide->board, ide->channel);
 
@@ -594,6 +595,18 @@ ide_identify(ide_t *ide)
 	ide->buffer[53] |= 0x0004;
 	for (i = 0; i <= max_udma; i++)
 		ide->buffer[88] |= (1 << i);
+	if (max_udma >= 4)
+		ide->buffer[93] = 0x6000; /* Drive reports 80-conductor cable */
+
+	if (ide->channel & 1)
+		ide->buffer[93] |= 0x0b00;
+	else {
+		ide->buffer[93] |= 0x000b;
+		/* PDIAG- is assered by device 1, so the bit should be 1 if there's a device 1,
+		   so it should be |= 0x001b if device 1 is present. */
+		if (ide_other != NULL)
+			ide->buffer[93] |= 0x0010;
+	}
     }
 
     if ((max_sdma != -1) || (max_mdma != -1) || (max_udma != -1)) {
@@ -721,7 +734,7 @@ ide_set_features(ide_t *ide)
 		mode = (features_data >> 3);
 		submode = features_data & 7;
 
-		switch(mode) {
+		switch (mode) {
 			case 0x00:	/* PIO default */
 				if (submode != 0)
 					return 0;

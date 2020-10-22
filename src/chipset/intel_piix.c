@@ -1053,8 +1053,8 @@ piix_reset_hard(piix_t *dev)
     }
     fregs[0x20] = 0x01;
     if (dev->type == 5) {
-	fregs[0x3c] = 0x0e;
-	fregs[0x3d] = 0x01;
+	fregs[0x3c] = 0x0e; fregs[0x3d] = 0x01;
+	fregs[0x45] = 0x55; fregs[0x46] = 0x01;
     }
     if ((dev->type == 1) && (dev->rev == 2))
 	dev->max_func = 0;		/* It starts with IDE disabled, then enables it. */
@@ -1170,7 +1170,23 @@ piix_reset(void *p)
 	piix_write(0, 0xa8, 0x0f, p);
     }
 
+    if (dev->type == 5)
+	piix_write(0, 0xe1, 0x40, p);
     piix_write(1, 0x04, 0x00, p);
+    if (dev->type == 5) {
+	piix_write(1, 0x09, 0x8a, p);
+	piix_write(1, 0x10, 0xf1, p);
+	piix_write(1, 0x11, 0x01, p);
+	piix_write(1, 0x14, 0xf5, p);
+	piix_write(1, 0x15, 0x03, p);
+	piix_write(1, 0x18, 0x71, p);
+	piix_write(1, 0x19, 0x01, p);
+	piix_write(1, 0x1c, 0x75, p);
+	piix_write(1, 0x1d, 0x03, p);
+    } else
+	piix_write(1, 0x09, 0x80, p);
+    piix_write(1, 0x20, 0x01, p);
+    piix_write(1, 0x21, 0x00, p);
     piix_write(1, 0x41, 0x00, p);
     piix_write(1, 0x43, 0x00, p);
 

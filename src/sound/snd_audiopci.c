@@ -79,6 +79,7 @@ typedef struct {
     int64_t dac_latch, dac_time;
 
     int master_vol_l, master_vol_r;
+    int cd_vol_l, cd_vol_r;
 
     int card;
 
@@ -592,7 +593,7 @@ static void es1371_outl(uint16_t port, uint32_t val, void *p)
 		if (!(val & CODEC_READ))
 		{
 //			audiopci_log("Write codec %02x %04x\n", (val >> 16) & 0x7f, val & 0xffff);
-			if ((((val >> 16) & 0x7f) != 0x7c) || (((val >> 16) & 0x7f) != 0x7e))
+			if ((((val >> 16) & 0x7f) != 0x7c) && (((val >> 16) & 0x7f) != 0x7e))
 				es1371->codec_regs[(val >> 16) & 0x7f] = val & 0xffff;
 			switch ((val >> 16) & 0x7f)
 			{
@@ -613,9 +614,12 @@ static void es1371_outl(uint16_t port, uint32_t val, void *p)
 				break;
 				case 0x12: /*CD volume*/
 				if (val & 0x8000)
-					sound_set_cd_volume(0, 0);
+					es1371->cd_vol_l = es1371->cd_vol_r = 0;
 				else
-					sound_set_cd_volume(codec_attn[0x1f - ((val >> 8) & 0x1f)] * 2, codec_attn[0x1f - (val & 0x1f)] * 2);
+				{
+					es1371->cd_vol_l = codec_attn[0x1f - ((val >> 8) & 0x1f)];
+					es1371->cd_vol_r = codec_attn[0x1f - (val & 0x1f)];
+				}
 				break;
 			}       
 		}
@@ -1145,7 +1149,7 @@ static void es1371_update(es1371_t *es1371)
         l = (es1371->dac[0].out_l * es1371->dac[0].vol_l) >> 12;
         l += ((es1371->dac[1].out_l * es1371->dac[1].vol_l) >> 12);
         r = (es1371->dac[0].out_r * es1371->dac[0].vol_r) >> 12;
-       r += ((es1371->dac[1].out_r * es1371->dac[1].vol_r) >> 12);
+        r += ((es1371->dac[1].out_r * es1371->dac[1].vol_r) >> 12);
                 
         l >>= 1;
         r >>= 1;
@@ -1270,6 +1274,19 @@ static void es1371_get_buffer(int32_t *buffer, int len, void *p)
 	es1371->pos = 0;
 }
 
+static void es1371_filter_cd_audio(int channel, double *buffer, void *p)
+{
+	es1371_t *es1371 = (es1371_t *)p;
+	int32_t c;
+	int cd = channel ? es1371->cd_vol_r : es1371->cd_vol_l;
+	int master = channel ? es1371->master_vol_r : es1371->master_vol_l;
+
+        c = (((int32_t) *buffer) * cd) >> 15;
+	c = (c * master) >> 15;
+
+	*buffer     = (double) c;
+}
+
 static inline double sinc(double x)
 {
 	return sin(M_PI * x) / (M_PI * x);
@@ -1312,6 +1329,7 @@ static void *es1371_init(const device_t *info)
 	memset(es1371, 0, sizeof(es1371_t));
 		
 	sound_add_handler(es1371_get_buffer, es1371);
+	sound_set_cd_audio_filter(es1371_filter_cd_audio, es1371);
 
 	es1371->card = pci_add_card(info->local ? PCI_ADD_SOUND : PCI_ADD_NORMAL, es1371_pci_read, es1371_pci_write, es1371);
 	

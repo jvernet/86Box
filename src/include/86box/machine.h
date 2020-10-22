@@ -23,43 +23,65 @@
 
 
 /* Machine feature flags. */
-#ifdef NEW_FLAGS
-#define MACHINE_PC		0x000000	/* PC architecture */
-#define MACHINE_AT		0x000001	/* PC/AT architecture */
-#define MACHINE_PS2		0x000002	/* PS/2 architecture */
-#define MACHINE_ISA		0x000010	/* sys has ISA bus */
-#define MACHINE_CBUS		0x000020	/* sys has C-BUS bus */
-#define MACHINE_EISA		0x000040	/* sys has EISA bus */
-#define MACHINE_VLB		0x000080	/* sys has VL bus */
-#define MACHINE_MCA		0x000100	/* sys has MCA bus */
-#define MACHINE_PCI		0x000200	/* sys has PCI bus */
-#define MACHINE_AGP		0x000400	/* sys has AGP bus */
-#define MACHINE_HDC		0x001000	/* sys has int HDC */
-#define MACHINE_VIDEO		0x002000	/* sys has int video */
-#define MACHINE_VIDEO_FIXED	0x004000	/* sys has ONLY int video */
-#define MACHINE_MOUSE		0x008000	/* sys has int mouse */
-#define MACHINE_SOUND		0x010000	/* sys has int sound */
-#define MACHINE_NONMI		0x020000	/* sys does not have NMI's */
-#define MACHINE_FDC		0x040000	/* sys has int FDC */
-#else
-#define MACHINE_PC		0x000000	/* PC architecture */
-#define MACHINE_AT		0x000001	/* PC/AT architecture */
-#define MACHINE_PS2		0x000002	/* PS/2 architecture */
-#define MACHINE_ISA		0x000010	/* sys has ISA bus */
-#define MACHINE_CBUS		0x000020	/* sys has C-BUS bus */
-#define MACHINE_EISA		0x000040	/* sys has EISA bus */
-#define MACHINE_VLB		0x000080	/* sys has VL bus */
-#define MACHINE_MCA		0x000100	/* sys has MCA bus */
-#define MACHINE_PCI		0x000200	/* sys has PCI bus */
-#define MACHINE_AGP		0x000400	/* sys has AGP bus */
-#define MACHINE_HDC		0x001000	/* sys has int HDC */
-#define MACHINE_VIDEO		0x002000	/* sys has int video */
-#define MACHINE_VIDEO_FIXED	0x004000	/* sys has ONLY int video */
-#define MACHINE_MOUSE		0x008000	/* sys has int mouse */
-#define MACHINE_SOUND		0x010000	/* sys has int sound */
-#define MACHINE_NONMI		0x020000	/* sys does not have NMI's */
-#define MACHINE_FDC		0x040000	/* sys has int FDC */
-#endif
+// #define MACHINE_PC		0x00000000	/* PC architecture */
+/* Feature flags for features. */
+#define MACHINE_NONMI		0x00000001	/* sys does not have NMI's */
+/* Feature flags for BUS'es. */
+#define MACHINE_BUS_ISA		0x00000004	/* sys has ISA bus */
+#define MACHINE_BUS_ISA16	0x00000008	/* sys has ISA16 bus - PC/AT architecture */
+#define MACHINE_BUS_CBUS	0x00000010	/* sys has C-BUS bus */
+#define MACHINE_BUS_PS2		0x00000020	/* system has PS/2 keyboard and mouse ports */
+#define MACHINE_BUS_EISA	0x00000040	/* sys has EISA bus */
+#define MACHINE_BUS_VLB		0x00000080	/* sys has VL bus */
+#define MACHINE_BUS_MCA		0x00000100	/* sys has MCA bus */
+#define MACHINE_BUS_PCI		0x00000200	/* sys has PCI bus */
+#define MACHINE_BUS_PCMCIA	0x00000400	/* sys has PCMCIA bus */
+#define MACHINE_BUS_AGP		0x00000800	/* sys has AGP bus */
+/* Combined flags. */
+#define MACHINE_PC		0x00000004	/* sys is PC/XT-compatible (ISA) */
+#define MACHINE_AT		0x0000000C	/* sys is AT-compatible (ISA + ISA16) */
+#define MACHINE_PC98		0x00000010	/* sys is NEC PC-98x1 series */
+#define MACHINE_EISA		0x0000004C	/* sys is AT-compatible with EISA */
+#define MACHINE_VLB		0x0000008C	/* sys is AT-compatible with VLB */
+#define MACHINE_VLB98		0x00000090	/* sys is NEC PC-98x1 series with VLB (did that even exist?) */
+#define MACHINE_VLBE		0x000000CC	/* sys is AT-compatible with EISA and VLB */
+#define MACHINE_MCA		0x00000100	/* sys is MCA */
+#define MACHINE_PCI		0x0000020C	/* sys is AT-compatible with PCI */
+#define MACHINE_PCI98		0x00000210	/* sys is NEC PC-98x1 series with PCI */
+#define MACHINE_PCIE		0x0000024C	/* sys is AT-compatible with PCI, and EISA */
+#define MACHINE_PCIV		0x0000028C	/* sys is AT-compatible with PCI and VLB */
+#define MACHINE_PCIVE		0x000002CC	/* sys is AT-compatible with PCI, VLB, and EISA */
+#define MACHINE_PCMCIA		0x00000400	/* sys is AT-compatible laptop with PCMCIA */
+#define MACHINE_AGP		0x00000A0C	/* sys is AT-compatible with AGP  */
+#define MACHINE_AGP98		0x00000A10	/* sys is NEC PC-98x1 series with AGP (did that even exist?) */
+#define MACHINE_IS_AT		0x00000FCC	/* sys is AT-compatible (ISA + ISA16) */
+/* Feature flags for miscellaneous internal devices. */
+#define MACHINE_VIDEO		0x00001000	/* sys has int video */
+#define MACHINE_VIDEO_ONLY	0x00002000	/* sys has fixed video */
+#define MACHINE_MOUSE		0x00004000	/* sys has int mouse */
+#define MACHINE_SOUND		0x00008000	/* sys has int sound */
+#define MACHINE_FDC		0x00010000	/* sys has int FDC */
+#define MACHINE_NIC		0x00020000	/* sys has int NIC */
+/* Combined flags. */
+#define MACHINE_VIDEO_FIXED	0x00003000	/* sys has fixed int video */
+/* Feature flags for internal storage controllers. */
+#define MACHINE_HDC		0x0FFC0000	/* sys has int HDC */
+#define MACHINE_MFM		0x00100000	/* sys has int MFM/RLL */
+#define MACHINE_XTA		0x00200000	/* sys has int XTA */
+#define MACHINE_ESDI		0x00400000	/* sys has int ESDI */
+#define MACHINE_IDE_PRI		0x00800000	/* sys has int pri IDE/ATAPI */
+#define MACHINE_IDE_SEC		0x01000000	/* sys has int sec IDE/ATAPI */
+#define MACHINE_IDE_TER		0x02000000	/* sys has int ter IDE/ATAPI */
+#define MACHINE_IDE_QUA		0x04000000	/* sys has int qua IDE/ATAPI */
+#define MACHINE_SCSI_PRI	0x08000000	/* sys has int pri SCSI */
+#define MACHINE_SCSI_SEC	0x10000000	/* sys has int sec SCSI */
+#define MACHINE_USB		0x20000000	/* sys has int USB */
+/* Combined flags. */
+#define MACHINE_IDE		0x00800000	/* sys has int single IDE/ATAPI - mark as pri IDE/ATAPI */
+#define MACHINE_IDE_DUAL	0x01800000	/* sys has int dual IDE/ATAPI - mark as both pri and sec IDE/ATAPI */
+#define MACHINE_IDE_QUAD	0x07800000	/* sys has int quad IDE/ATAPI - mark as dual + both ter and and qua IDE/ATAPI */
+#define MACHINE_SCSI		0x08000000	/* sys has int single SCSI - mark as pri SCSI */
+#define MACHINE_SCSI_DUAL	0x18000000	/* sys has int dual SCSI - mark as both pri and sec SCSI */
 
 #define IS_ARCH(m, a)		(machines[(m)].flags & (a)) ? 1 : 0;
 
@@ -274,20 +296,27 @@ extern int	machine_at_opti495_init(const machine_t *);
 extern int	machine_at_opti495_ami_init(const machine_t *);
 extern int	machine_at_opti495_mr_init(const machine_t *);
 
+#if defined(DEV_BRANCH) && defined(USE_VECT486VL)
+extern int	machine_at_vect486vl_init(const machine_t *);
+#endif
+
 extern int	machine_at_403tg_init(const machine_t *);
 extern int	machine_at_pc330_6571_init(const machine_t *);
+
+extern int	machine_at_sis401_init(const machine_t *);
+extern int	machine_at_valuepoint433_init(const machine_t *);
 
 extern int	machine_at_vli486sv2g_init(const machine_t *);
 extern int	machine_at_ami471_init(const machine_t *);
 extern int	machine_at_dtk486_init(const machine_t *);
 extern int	machine_at_px471_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(USE_WIN471)
 extern int	machine_at_win471_init(const machine_t *);
-#endif
+extern int	machine_at_vi15g_init(const machine_t *);
 
 extern int	machine_at_r418_init(const machine_t *);
 extern int	machine_at_ls486e_init(const machine_t *);
 extern int	machine_at_4dps_init(const machine_t *);
+extern int	machine_at_4sa2_init(const machine_t *);
 extern int	machine_at_alfredo_init(const machine_t *);
 extern int	machine_at_486sp3g_init(const machine_t *);
 extern int	machine_at_486ap4_init(const machine_t *);
@@ -306,6 +335,9 @@ extern int	machine_at_pcm5330_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t 	*at_acera1g_get_device(void);
+#if defined(DEV_BRANCH) && defined(USE_VECT486VL)
+extern const device_t 	*at_vect486vl_get_device(void);
+#endif
 #endif
 
 /* m_at_commodore.c */
@@ -327,9 +359,6 @@ extern int	machine_at_excalibur_init(const machine_t *);
 extern int	machine_at_batman_init(const machine_t *);
 extern int	machine_at_ambradp60_init(const machine_t *);
 extern int	machine_at_valuepointp60_init(const machine_t *);
-#if defined(DEV_BRANCH) && defined(USE_DELLS4)
-extern int	machine_at_dellxp60_init(const machine_t *);
-#endif
 extern int	machine_at_p5mp3_init(const machine_t *);
 extern int	machine_at_pb520r_init(const machine_t *);
 extern int	machine_at_586mc1_init(const machine_t *);
@@ -342,6 +371,7 @@ extern int	machine_at_p54tp4xe_init(const machine_t *);
 extern int	machine_at_endeavor_init(const machine_t *);
 extern int	machine_at_zappa_init(const machine_t *);
 extern int	machine_at_mb500n_init(const machine_t *);
+extern int	machine_at_apollo_init(const machine_t *);
 #if defined(DEV_BRANCH) && defined(USE_VECTRA54)
 extern int	machine_at_vectra54_init(const machine_t *);
 #endif
@@ -351,6 +381,7 @@ extern int	machine_at_acerv30_init(const machine_t *);
 #ifdef EMU_DEVICE_H
 extern const device_t	*at_endeavor_get_device(void);
 extern const device_t	*at_pb520r_get_device(void);
+extern const device_t	*at_thor_get_device(void);
 #endif
 
 /* m_at_socket7_s7.c */
@@ -379,6 +410,7 @@ extern int	machine_at_i430vx_init(const machine_t *);
 extern int	machine_at_brio80xx_init(const machine_t *);
 extern int	machine_at_8500tvxa_init(const machine_t *);
 extern int	machine_at_presario4500_init(const machine_t *);
+extern int	machine_at_gw2kte_init(const machine_t *);
 extern int	machine_at_pb680_init(const machine_t *);
 
 extern int	machine_at_nupro592_init(const machine_t *);
@@ -392,12 +424,14 @@ extern int	machine_at_ficva502_init(const machine_t *);
 extern int	machine_at_ficpa2012_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
+extern const device_t 	*at_thor_get_device(void);
 extern const device_t	*at_pb640_get_device(void);
 #endif
 
 /* m_at_super7_ss7.c */
 extern int	machine_at_ax59pro_init(const machine_t *);
 extern int	machine_at_mvp3_init(const machine_t *);
+extern int	machine_at_ficva503a_init(const machine_t *);
 
 /* m_at_socket8.c */
 extern int	machine_at_686nx_init(const machine_t *);
@@ -428,6 +462,7 @@ extern int	machine_at_ax6bc_init(const machine_t *);
 extern int	machine_at_atc6310bxii_init(const machine_t *);
 extern int	machine_at_tsunamiatx_init(const machine_t *);
 extern int	machine_at_p6sba_init(const machine_t *);
+extern int	machine_at_ficka6130_init(const machine_t *);
 
 #ifdef EMU_DEVICE_H
 extern const device_t 	*at_tsunamiatx_get_device(void);
@@ -463,6 +498,9 @@ extern const device_t europc_device;
 
 /* m_oivetti_m24.c */
 extern int	machine_olim24_init(const machine_t *);
+#ifdef EMU_DEVICE_H
+extern const 	device_t *m24_get_device(void);
+#endif
 
 /* m_pcjr.c */
 extern int	machine_pcjr_init(const machine_t *);
@@ -507,6 +545,7 @@ extern int	machine_tandy1000sl2_init(const machine_t *);
 #ifdef EMU_DEVICE_H
 extern const device_t	*tandy1k_get_device(void);
 extern const device_t	*tandy1k_hx_get_device(void);
+extern const device_t   *tandy1k_sl_get_device(void);
 #endif
 
 /* m_xt.c */
@@ -535,7 +574,8 @@ extern int 	machine_xt_hed919_init(const machine_t *);
 #endif
 
 /* m_xt_compaq.c */
-extern int	machine_xt_compaq_init(const machine_t *);
+extern int	machine_xt_compaq_deskpro_init(const machine_t *);
+extern int	machine_xt_compaq_portable_init(const machine_t *);
 
 /* m_xt_laserxt.c */
 #if defined(DEV_BRANCH) && defined(USE_LASERXT)

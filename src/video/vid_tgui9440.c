@@ -388,7 +388,7 @@ void tgui_out(uint16_t addr, uint8_t val, void *p)
         			svga->hwcursor.x = (svga->crtc[0x40] | (svga->crtc[0x41] << 8)) & 0x7ff;
         			svga->hwcursor.y = (svga->crtc[0x42] | (svga->crtc[0x43] << 8)) & 0x7ff;
         			svga->hwcursor.xoff = svga->crtc[0x46] & 0x3f;
-        			svga->hwcursor.yoff = svga->crtc[0x47] & 0x3f;
+				svga->hwcursor.yoff = svga->crtc[0x47] & 0x3f;
         			svga->hwcursor.addr = (svga->crtc[0x44] << 10) | ((svga->crtc[0x45] & 0x7) << 18) | (svga->hwcursor.yoff * 8);
                         }
 			break;
@@ -679,32 +679,58 @@ void tgui_recalcmapping(tgui_t *tgui)
 void tgui_hwcursor_draw(svga_t *svga, int displine)
 {
         uint32_t dat[2];
-        int xx;
-        int offset = svga->hwcursor_latch.x - svga->hwcursor_latch.xoff;
+        int xx, val;
+        int offset = svga->hwcursor_latch.x + svga->hwcursor_latch.xoff;
+	int pitch = (svga->hwcursor.xsize == 64) ? 16 : 8;
+	int byte, bit;
+	uint32_t color;
         
         if (svga->interlace && svga->hwcursor_oddeven)
-                svga->hwcursor_latch.addr += 8;
+                svga->hwcursor_latch.addr += pitch;
 
-        dat[0] = (svga->vram[svga->hwcursor_latch.addr]     << 24) | (svga->vram[svga->hwcursor_latch.addr + 1] << 16) | (svga->vram[svga->hwcursor_latch.addr + 2] << 8) | svga->vram[svga->hwcursor_latch.addr + 3];
-        dat[1] = (svga->vram[svga->hwcursor_latch.addr + 4] << 24) | (svga->vram[svga->hwcursor_latch.addr + 5] << 16) | (svga->vram[svga->hwcursor_latch.addr + 6] << 8) | svga->vram[svga->hwcursor_latch.addr + 7];
-        for (xx = 0; xx < 32; xx++)
-        {
-                if (offset >= svga->hwcursor_latch.x)
-                {
-                        if (!(dat[0] & 0x80000000))
-                                buffer32->line[displine][offset + svga->x_add]  = (dat[1] & 0x80000000) ? 0xffffff : 0;
-                        else if (dat[1] & 0x80000000)
-                                buffer32->line[displine][offset + svga->x_add] ^= 0xffffff;
-                }
-                           
-                offset++;
-                dat[0] <<= 1;
-                dat[1] <<= 1;
-        }
-        svga->hwcursor_latch.addr += 8;
+        for (xx = 0; xx < svga->hwcursor.xsize; xx++) {
+		byte = svga->hwcursor_latch.addr + (xx >> 3);
+		bit = (7 - (xx & 7));
+		dat[0] = (svga->vram[byte] >> bit) & 0x01;			/* AND */
+		dat[1] = (svga->vram[(pitch >> 1) + byte] >> bit) & 0x01;	/* XOR */
+		val = (dat[0] << 1) | dat[1];
+		color = ((uint32_t *)buffer32->line[displine])[svga->x_add + offset + xx];
+		if (!!(svga->crtc[0x50] & 0x40)) {
+			/* X11 style? */
+			switch (val) {
+				case 0x0:	/* Sceen data (Transparent curor) */
+				case 0x1:	/* Sceen data (Transparent curor) */
+					break;
+				case 0x2:	/* Palette index 0? */
+					color = 0x00000000;
+					break;
+				case 0x3:	/* Palette index 255? */
+					color = 0x00ffffff;
+					break;
+			}
+		} else {
+			/* Windows style? */
+			switch (val) {
+				case 0x0:	/* Palette index 0? */
+					color = 0x00000000;
+					break;
+				case 0x1:	/* Palette index 255? */
+					color = 0x00ffffff;
+					break;
+				case 0x2:	/* Sceen data (Transparent curor) */
+					break;
+				case 0x3:	/* Inverted screen (XOR cursor) */
+					color ^= 0x00ffffff;
+					break;
+			}
+		}
+		((uint32_t *)buffer32->line[displine])[svga->x_add + offset + xx] = color;
+	}
+
+        svga->hwcursor_latch.addr += pitch;
         
         if (svga->interlace && !svga->hwcursor_oddeven)
-                svga->hwcursor_latch.addr += 8;
+                svga->hwcursor_latch.addr += pitch;
 }
 
 uint8_t tgui_pci_read(int func, int addr, void *p)
@@ -1037,7 +1063,7 @@ void tgui_accel_command(int count, uint32_t cpu_dat, tgui_t *tgui)
 		{
 			for (x = 0; x < 8; x++)
 			{
-				tgui->accel.tgui_pattern[y][x] = tgui->accel.fg_col;
+				tgui->accel.tgui_pattern[y][7 - x] = tgui->accel.fg_col;
 			}
 		}
 	}
@@ -1047,7 +1073,7 @@ void tgui_accel_command(int count, uint32_t cpu_dat, tgui_t *tgui)
 		{
 			for (x = 0; x < 8; x++)
 			{
-				tgui->accel.tgui_pattern[y][x] = (tgui->accel.pattern[y] & (1 << x)) ? tgui->accel.fg_col : tgui->accel.bg_col;
+				tgui->accel.tgui_pattern[y][7 - x] = (tgui->accel.pattern[y] & (1 << x)) ? tgui->accel.fg_col : tgui->accel.bg_col;
 			}
 		}
 	}
@@ -1059,7 +1085,7 @@ void tgui_accel_command(int count, uint32_t cpu_dat, tgui_t *tgui)
         		{
         			for (x = 0; x < 8; x++)
         			{
-        				tgui->accel.tgui_pattern[y][x] = tgui->accel.pattern[x + y*8];
+        				tgui->accel.tgui_pattern[y][7 - x] = tgui->accel.pattern[x + y*8];
         			}
                         }
 		}
@@ -1069,7 +1095,7 @@ void tgui_accel_command(int count, uint32_t cpu_dat, tgui_t *tgui)
         		{
         			for (x = 0; x < 8; x++)
         			{
-        				tgui->accel.tgui_pattern[y][x] = tgui->accel.pattern[x*2 + y*16] | (tgui->accel.pattern[x*2 + y*16 + 1] << 8);
+        				tgui->accel.tgui_pattern[y][7 - x] = tgui->accel.pattern[x*2 + y*16] | (tgui->accel.pattern[x*2 + y*16 + 1] << 8);
         			}
                         }
 		}

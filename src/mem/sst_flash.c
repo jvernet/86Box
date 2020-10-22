@@ -40,9 +40,11 @@ typedef struct sst_t
 			dirty;
 
     uint32_t		size, mask,
-			page_mask, page_base;
+			page_mask, page_base,
+			last_addr;
         
-    uint8_t		page_buffer[128];
+    uint8_t		page_buffer[128],
+			page_dirty[128];
     uint8_t		*array;
 
     mem_mapping_t	mapping[8], mapping_h[8];
@@ -125,8 +127,11 @@ sst_new_command(sst_t *dev, uint32_t addr, uint8_t val)
 
 	case SST_BYTE_PROGRAM:
 		if (!dev->is_39) {
+			dev->sdp = 1;
 			memset(dev->page_buffer, 0xff, 128);
+			memset(dev->page_dirty, 0x00, 128);
 			dev->page_bytes = 0;
+			dev->last_addr = 0xffffffff;
 			timer_on_auto(&dev->page_write_timer, 210.0);
 		}
 		dev->command_state = 6;
@@ -148,11 +153,20 @@ static void
 sst_page_write(void *priv)
 {
     sst_t *dev = (sst_t *) priv;
+    int i;
 
-    memcpy(&(dev->array[dev->page_base]), dev->page_buffer, 128);
-    dev->dirty = 1;
+    if (dev->last_addr != 0xffffffff) {
+	dev->page_base = dev->last_addr & dev->page_mask;
+	for (i = 0; i < 128; i++) {
+		if (dev->page_dirty[i]) {
+			dev->array[dev->page_base + i] = dev->page_buffer[i];
+			dev->dirty |= 1;
+		}
+	}
+    }
     dev->page_bytes = 0;
     dev->command_state = 0;
+    timer_disable(&dev->page_write_timer);
 }
 
 
@@ -174,12 +188,13 @@ static void
 sst_buf_write(sst_t *dev, uint32_t addr, uint8_t val)
 {
     dev->page_buffer[addr & 0x0000007f] = val;
-    timer_disable(&dev->page_write_timer);
+    dev->page_dirty[addr & 0x0000007f] = 1;
     dev->page_bytes++;
-    if (dev->page_bytes >= 128)
+    dev->last_addr = addr;
+    if (dev->page_bytes >= 128) {
 	sst_page_write(dev);
-    else
-	timer_set_delay_u64(&dev->page_write_timer, 210 * TIMER_USEC);
+    } else
+	timer_on_auto(&dev->page_write_timer, 210.0);
 }
 
 
@@ -201,11 +216,13 @@ sst_write(uint32_t addr, uint8_t val, void *p)
 		else {
 			if (!dev->is_39 && !dev->sdp && (dev->command_state == 0)) {
 				/* 29 series, software data protection off, start loading the page. */
-				dev->page_base = addr & dev->page_mask;		/* First byte, A7 onwards of its address are the page mask. */
+				memset(dev->page_buffer, 0xff, 128);
+				memset(dev->page_dirty, 0x00, 128);
+				dev->page_bytes = 0;
 				dev->command_state = 7;
 				sst_buf_write(dev, addr, val);
-			}
-			dev->command_state = 0;
+			} else
+				dev->command_state = 0;
 		}
 		break;
 	case 1:
@@ -231,13 +248,12 @@ sst_write(uint32_t addr, uint8_t val, void *p)
 			dev->command_state = 0;
 			dev->dirty = 1;
 		} else {
-			dev->page_base = addr & dev->page_mask;		/* First byte, A7 onwards of its address are the page mask. */
 			dev->command_state++;
 			sst_buf_write(dev, addr, val);
 		} 
 		break;
 	case 7:
-		if (!dev->is_39 && ((addr & dev->page_mask) == dev->page_base))
+		if (!dev->is_39)
 			sst_buf_write(dev, addr, val);
 		break;
     }
@@ -323,7 +339,7 @@ sst_add_mappings(sst_t *dev)
 				sst_write, NULL, NULL,
 				dev->array + fbase, MEM_MAPPING_EXTERNAL|MEM_MAPPING_ROMCS, (void *) dev);
 	}
-	mem_mapping_add(&(dev->mapping_h[i]), (base | 0xfff00000), 0x10000,
+	mem_mapping_add(&(dev->mapping_h[i]), (base | (cpu_16bitbus ? 0xf00000 : 0xfff00000)), 0x10000,
 			sst_read, sst_readw, sst_readl,
 			sst_write, NULL, NULL,
 			dev->array + fbase, MEM_MAPPING_EXTERNAL|MEM_MAPPING_ROMCS, (void *) dev);

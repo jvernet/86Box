@@ -1787,13 +1787,13 @@ static void s3_virge_bitblt(virge_t *virge, int count, uint32_t cpu_dat)
                         for (x = 0; x < 8; x++)
                         {
                                 if (virge->s3d.mono_pat_0 & (1 << (x + y*8)))
-                                        mono_pattern[y*8 + x] = virge->s3d.pat_fg_clr;
+                                        mono_pattern[y*8 + (7 - x)] = virge->s3d.pat_fg_clr;
                                 else
-                                        mono_pattern[y*8 + x] = virge->s3d.pat_bg_clr;
+                                        mono_pattern[y*8 + (7 - x)] = virge->s3d.pat_bg_clr;
                                 if (virge->s3d.mono_pat_1 & (1 << (x + y*8)))
-                                        mono_pattern[(y+4)*8 + x] = virge->s3d.pat_fg_clr;
+                                        mono_pattern[(y+4)*8 + (7 - x)] = virge->s3d.pat_fg_clr;
                                 else
-                                        mono_pattern[(y+4)*8 + x] = virge->s3d.pat_bg_clr;
+                                        mono_pattern[(y+4)*8 + (7 - x)] = virge->s3d.pat_bg_clr;
                         }
                 }
         }
@@ -1951,7 +1951,8 @@ static void s3_virge_bitblt(virge_t *virge, int count, uint32_t cpu_dat)
 
                 while (count && virge->s3d.h)
                 {
-			dest_addr = virge->s3d.dest_base + (virge->s3d.dest_x * x_mul) + (virge->s3d.dest_y * virge->s3d.dest_str);
+						source = virge->s3d.pat_fg_clr;
+						dest_addr = virge->s3d.dest_base + (virge->s3d.dest_x * x_mul) + (virge->s3d.dest_y * virge->s3d.dest_str);
                         pattern = virge->s3d.pat_fg_clr;
                         out = 0;
                         update = 1;
@@ -2783,7 +2784,7 @@ static void tri(virge_t *virge, s3d_t *s3d_tri, s3d_state_t *state, int yc, int3
                         state->x1 += (dx1 * diff_y);
                         state->x2 += (dx2 * diff_y);
                         state->y -= diff_y;
-                        dest_offset -= s3d_tri->dest_str;
+                        dest_offset -= s3d_tri->dest_str * diff_y;
                         z_offset -= s3d_tri->z_str;
                         y_count -= diff_y;
                 }
@@ -3667,6 +3668,7 @@ static void *s3_virge_init(const device_t *info)
                    s3_virge_in, s3_virge_out,
                    s3_virge_hwcursor_draw,
                    s3_virge_overlay_draw);
+	virge->svga.hwcursor.ysize = 64;
 
 	virge->pci = !!(info->flags & DEVICE_PCI);
 
@@ -3900,36 +3902,6 @@ static const device_config_t s3_virge_config[] =
         }
 };
 
-static const device_config_t s3_virge_vx_config[] =
-{
-        {
-                "memory", "Memory size", CONFIG_SELECTION, "", 4,
-                {
-                        {
-                                "2 MB", 2
-                        },
-                        {
-                                "4 MB", 4
-                        },
-                        {
-                                "8 MB", 8
-                        },
-                        {
-                                ""
-                        }
-                }
-        },
-        {
-                "bilinear", "Bilinear filtering", CONFIG_BINARY, "", 1
-        },
-        {
-                "dithering", "Dithering", CONFIG_BINARY, "", 1
-        },
-        {
-                "", "", -1
-        }
-};
-
 #if defined(DEV_BRANCH) && defined(USE_S3TRIO3D2X)
 static const device_config_t s3_trio3d_2x_config[] =
 {
@@ -3998,7 +3970,7 @@ const device_t s3_virge_988_vlb_device =
         s3_virge_988_available,
         s3_virge_speed_changed,
         s3_virge_force_redraw,
-        s3_virge_vx_config
+        s3_virge_config
 };
 
 const device_t s3_virge_988_pci_device =
@@ -4012,7 +3984,7 @@ const device_t s3_virge_988_pci_device =
         s3_virge_988_available,
         s3_virge_speed_changed,
         s3_virge_force_redraw,
-        s3_virge_vx_config
+        s3_virge_config
 };
 
 const device_t s3_virge_375_vlb_device =

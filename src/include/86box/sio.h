@@ -15,6 +15,9 @@
 # define EMU_SIO_H
 
 
+extern void		vt82c686_sio_write(uint8_t addr, uint8_t val, void *priv);
+
+
 extern const device_t	acc3221_device;
 extern const device_t	f82c710_device;
 extern const device_t	fdc37c661_device;
@@ -27,6 +30,7 @@ extern const device_t	fdc37c932fr_device;
 extern const device_t	fdc37c932qf_device;
 extern const device_t	fdc37c935_device;
 extern const device_t	i82091aa_device;
+extern const device_t	i82091aa_398_device;
 extern const device_t	i82091aa_ide_device;
 extern const device_t	pc87306_device;
 extern const device_t	pc87307_device;
@@ -39,6 +43,7 @@ extern const device_t	pc97307_device;
 extern const device_t 	ps1_m2133_sio;
 extern const device_t	sio_detect_device;
 extern const device_t	um8669f_device;
+extern const device_t	via_vt82c686_sio_device;
 extern const device_t	w83787f_device;
 extern const device_t	w83877f_device;
 extern const device_t	w83877f_president_device;

@@ -54,6 +54,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <sys/time.h>
 #define HAVE_STDARG_H
 #include <86box/86box.h>
 #include <86box/device.h>
@@ -64,6 +65,7 @@
 #include <86box/net_3c503.h>
 #include <86box/net_ne2000.h>
 #include <86box/net_pcnet.h>
+#include <86box/net_plip.h>
 #include <86box/net_wd8003.h>
 
 
@@ -87,6 +89,8 @@ static netcard_t net_cards[] = {
     { "[ISA] Western Digital WD8003EB", "wd8003eb",	&wd8003eb_device,
       NULL								},
     { "[ISA] Western Digital WD8013EBT","wd8013ebt",	&wd8013ebt_device,
+      NULL								},
+    { "[LPT] PLIP",			"plip",		&plip_device,
       NULL								},
     { "[MCA] NetWorth Ethernet/MC",	"ethernextmc",	&ethernext_mc_device,
       NULL								},
@@ -113,6 +117,7 @@ int		network_ndev;
 int		network_card;
 char		network_host[522];
 netdev_t	network_devs[32];
+int		network_rx_pause = 0;
 #ifdef ENABLE_NIC_LOG
 int		nic_do_log = ENABLE_NIC_LOG;
 #endif
@@ -140,6 +145,8 @@ static struct {
 
 #ifdef ENABLE_NETWORK_LOG
 int network_do_log = ENABLE_NETWORK_LOG;
+static FILE *network_dump = NULL;
+static mutex_t *network_dump_mutex;
 
 
 static void
@@ -153,8 +160,43 @@ network_log(const char *fmt, ...)
 	va_end(ap);
     }
 }
+
+
+static void
+network_dump_packet(netpkt_t *pkt)
+{
+    if (!network_dump)
+	return;
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct {
+	uint32_t ts_sec, ts_usec, incl_len, orig_len;
+    } pcap_packet_hdr = {
+	tv.tv_sec, tv.tv_usec, pkt->len, pkt->len
+    };
+
+    if (network_dump_mutex)
+	thread_wait_mutex(network_dump_mutex);
+
+    size_t written;
+    if ((written = fwrite(&pcap_packet_hdr, 1, sizeof(pcap_packet_hdr), network_dump)) < sizeof(pcap_packet_hdr)) {
+	network_log("NETWORK: failed to write dump packet header\n");
+	fseek(network_dump, -written, SEEK_CUR);
+    } else {
+	if ((written = fwrite(pkt->data, 1, pkt->len, network_dump)) < pkt->len) {
+		network_log("NETWORK: failed to write dump packet data\n");
+		fseek(network_dump, -written - sizeof(pcap_packet_hdr), SEEK_CUR);
+	}
+	fflush(network_dump);
+    }
+
+    if (network_dump_mutex)
+	thread_release_mutex(network_dump_mutex);
+}
 #else
 #define network_log(fmt, ...)
+#define network_dump_packet(pkt)
 #endif
 
 
@@ -220,6 +262,25 @@ network_init(void)
     i = net_pcap_prepare(&network_devs[network_ndev]);
     if (i > 0)
 	network_ndev += i;
+
+#ifdef ENABLE_NETWORK_LOG
+    /* Start packet dump. */
+    network_dump = fopen("network.pcap", "wb");
+
+    struct {
+	uint32_t magic_number;
+	uint16_t version_major, version_minor;
+	int32_t	 thiszone;
+	uint32_t sigfigs, snaplen, network;
+    } pcap_hdr = {
+	0xa1b2c3d4,
+	2, 4,
+	0,
+	0, 65535, 1
+    };
+    fwrite(&pcap_hdr, sizeof(pcap_hdr), 1, network_dump);
+    fflush(network_dump);
+#endif
 }
 
 
@@ -294,12 +355,18 @@ network_queue_clear(int tx)
 static void
 network_rx_queue(void *priv)
 {
+    if (network_rx_pause) {
+	timer_on_auto(&network_rx_queue_timer, 0.762939453125 * 2.0 * 128.0);
+	return;
+    }
+
     netpkt_t *pkt = NULL;
 
     network_busy(1);
 
     network_queue_get(0, &pkt);
     if ((pkt != NULL) && (pkt->len > 0)) {
+	network_dump_packet(pkt);
 	net_cards[network_card].rx(pkt->priv, pkt->data, pkt->len);
 	if (pkt->len >= 128)
 		timer_on_auto(&network_rx_queue_timer, 0.762939453125 * 2.0 * ((double) pkt->len));
@@ -400,10 +467,15 @@ network_close(void)
     thread_close_mutex(network_mutex);
     network_mutex = NULL;
     network_mac = NULL;
+#ifdef ENABLE_NETWORK_LOG
+    thread_close_mutex(network_dump_mutex);
+    network_dump_mutex = NULL;
+#endif
 
     /* Here is where we clear the queues. */
     network_queue_clear(0);
     network_queue_clear(1);
+    network_rx_pause = 0;
 
     network_log("NETWORK: closed.\n");
 }
@@ -438,6 +510,9 @@ network_reset(void)
     if ((network_type==NET_TYPE_NONE) || (network_card==0)) return;
 
     network_mutex = thread_create_mutex();
+#ifdef ENABLE_NETWORK_LOG
+    network_dump_mutex = thread_create_mutex();
+#endif
 
     /* Initialize the platform module. */
     switch(network_type) {
@@ -501,6 +576,7 @@ network_do_tx(void)
 
     network_queue_get(1, &pkt);
     if ((pkt != NULL) && (pkt->len > 0)) {
+	network_dump_packet(pkt);
 	switch(network_type) {
 		case NET_TYPE_PCAP:
 			net_pcap_in(pkt->data, pkt->len);
