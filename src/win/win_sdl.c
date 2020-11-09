@@ -217,7 +217,7 @@ sdl_blit(int x, int y, int y1, int y2, int w, int h)
      * (reportedly) slightly faster.
      */
     SDL_LockTexture(sdl_tex, 0, &pixeldata, &pitch);
-
+	
     for (yy = y1; yy < y2; yy++) {
        	if ((y + yy) >= 0 && (y + yy) < render_buffer->h)
 		memcpy((uint32_t *) &(((uint8_t *)pixeldata)[yy * pitch]), &(render_buffer->line[y + yy][x]), w * 4);
@@ -399,7 +399,7 @@ sdl_init_common(int flags)
     } else {
 	/* Create the SDL window from the render window. */
 	sdl_win = SDL_CreateWindowFrom((void *)hwndRender);
-
+	
 	mouse_capture = old_capture;
 
 	if (mouse_capture) {
@@ -424,6 +424,7 @@ sdl_init_common(int flags)
     if (flags & RENDERER_HARDWARE) {
 	sdl_render = SDL_CreateRenderer(sdl_win, -1, SDL_RENDERER_ACCELERATED);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
     } else
 	sdl_render = SDL_CreateRenderer(sdl_win, -1, SDL_RENDERER_SOFTWARE);
 
