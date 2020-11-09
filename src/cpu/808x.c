@@ -98,7 +98,8 @@ static uint32_t *ovr_seg = NULL;
 static int prefetching = 1, completed = 1;
 static int in_rep = 0, repeating = 0;
 static int oldc, clear_lock = 0;
-static int refresh = 0, cycdiff;
+static int refresh = 0, takeint = 0;
+static int cycdiff;
 
 
 /* Various things needed for 8087. */
@@ -946,6 +947,7 @@ reset_common(int hard)
     cpu_alt_reset = 0;
 
     prefetching = 1;
+    takeint = 0;
 
     cpu_ven_reset();
 
@@ -1129,10 +1131,12 @@ irq_pending(void)
 {
     uint8_t temp;
 
-    if ((cpu_state.flags & I_FLAG) && pic.int_pending && !noint)
+    if (takeint && !noint)
 	temp = 1;
     else
 	temp = (nmi && nmi_enable && nmi_mask) || ((cpu_state.flags & T_FLAG) && !noint);
+
+    takeint = (cpu_state.flags & I_FLAG) && pic.int_pending;
 
     return temp;
 }
@@ -1901,7 +1905,7 @@ execx86(int cycs)
 				cpu_src = 6;
 				cpu_data = cpu_dest + cpu_src;
 				set_of_add(8);
-				cpu_dest += cpu_data;
+				cpu_dest = cpu_data;
 				set_af(1);
 			}
 			if ((cpu_state.flags & C_FLAG) || AL > (old_af ? 0x9f : 0x99)) {

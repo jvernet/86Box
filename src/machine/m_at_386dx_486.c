@@ -629,6 +629,31 @@ machine_at_r418_init(const machine_t *model)
     return ret;
 }
 
+int
+machine_at_m4li_init(const machine_t *model)
+{
+    int ret;
+
+    ret = bios_load_linear(L"roms/machines/m4li/M4LI.04S",
+			   0x000e0000, 131072, 0);
+
+    if (bios_only || !ret)
+	return ret;
+
+    machine_at_common_init_ex(model, 2);
+
+    machine_at_sis_85c496_common_init(model);
+    device_add(&sis_85c496_device);
+    pci_register_slot(0x0B, PCI_CARD_NORMAL, 1, 2, 3, 4);
+    pci_register_slot(0x0D, PCI_CARD_NORMAL, 2, 3, 4, 1);
+    pci_register_slot(0x0F, PCI_CARD_NORMAL, 3, 4, 1, 2);
+    pci_register_slot(0x07, PCI_CARD_NORMAL, 4, 1, 2, 3);
+
+    device_add(&fdc37c665_device);
+    device_add(&keyboard_ps2_pci_device);
+
+    return ret;
+}
 
 int
 machine_at_ls486e_init(const machine_t *model)
@@ -893,26 +918,10 @@ machine_at_itoxstar_init(const machine_t *model)
     device_add(&keyboard_ps2_ami_pci_device);
     device_add(&stpc_client_device);
     device_add(&sst_flash_29ee020_device);
-
-    hwm_values_t machine_hwm = {
-    	{    /* fan speeds (incorrect divisor for some reason) */
-    		3000,	/* Chassis */
-    		3000	/* CPU */
-    	}, { /* temperatures */
-    		30,	/* Chassis */
-    		30	/* CPU */
-    	}, { /* voltages */
-    		0,				   /* unused */
-    		0,				   /* unused */
-    		3300,				   /* Vio */
-    		RESISTOR_DIVIDER(5000,   11,  16), /* +5V  (divider values bruteforced) */
-    		RESISTOR_DIVIDER(12000,  28,  10), /* +12V (28K/10K divider suggested in the W83781D datasheet) */
-    		RESISTOR_DIVIDER(12000, 853, 347), /* -12V (divider values bruteforced) */
-    		RESISTOR_DIVIDER(5000,    1,   2)  /* -5V  (divider values bruteforced) */
-    	}
-    };
-    hwm_set_values(machine_hwm);
-    device_add(&w83781d_device);
+    device_add(&w83781d_device); /* fans: Chassis, CPU, unused; temperatures: Chassis, CPU, unused */
+    hwm_values.fans[2] = 0; /* unused */
+    hwm_values.temperatures[2] = 0; /* unused */
+    hwm_values.voltages[0] = 0; /* Vcore unused */
 
     return ret;
 }
