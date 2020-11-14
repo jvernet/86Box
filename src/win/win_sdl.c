@@ -216,6 +216,7 @@ sdl_blit(int x, int y, int y1, int y2, int w, int h)
      * SDL_UpdateTexture() might be better here, as it is
      * (reportedly) slightly faster.
      */
+#if 1
     SDL_LockTexture(sdl_tex, 0, &pixeldata, &pitch);
 	
     for (yy = y1; yy < y2; yy++) {
@@ -225,7 +226,12 @@ sdl_blit(int x, int y, int y1, int y2, int w, int h)
 
     video_blit_complete();
 
-    SDL_UnlockTexture(sdl_tex);
+	SDL_UnlockTexture(sdl_tex);
+#else
+	SDL_UpdateTexture(sdl_tex, 0, render_buffer->line, w * 4);
+	video_blit_complete();
+
+#endif
 
     if (sdl_fs) {
 	sdl_log("sdl_blit(%i, %i, %i, %i, %i, %i) (%i, %i)\n", x, y, y1, y2, w, h, unscaled_size_x, efscrnsz_y);
@@ -422,11 +428,12 @@ sdl_init_common(int flags)
      * not a fullscreen window?)
      */
     if (flags & RENDERER_HARDWARE) {
-	sdl_render = SDL_CreateRenderer(sdl_win, -1, SDL_RENDERER_ACCELERATED);
+	sdl_render = SDL_CreateRenderer(sdl_win, -1, SDL_RENDERER_ACCELERATED| SDL_RENDERER_PRESENTVSYNC);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
     } else
 	sdl_render = SDL_CreateRenderer(sdl_win, -1, SDL_RENDERER_SOFTWARE);
+
 
     if (sdl_render == NULL) {
 	sdl_log("SDL: unable to create renderer (%s)\n", SDL_GetError());
