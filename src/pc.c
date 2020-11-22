@@ -141,7 +141,8 @@ int	cpu_use_dynarec = 0,			/* (C) cpu uses/needs Dyna */
 	fpu_type = 0;				/* (C) fpu type */
 int	time_sync = 0;				/* (C) enable time sync */
 int	confirm_reset = 1,			/* (C) enable reset confirmation */
-	confirm_exit = 1;			/* (C) enable exit confirmation */
+	confirm_exit = 1,			/* (C) enable exit confirmation */
+	confirm_save = 1;			/* (C) enable save confirmation */
 #ifdef USE_DISCORD
 int	enable_discord = 0;			/* (C) enable Discord integration */
 #endif
@@ -928,7 +929,7 @@ void
 pc_thread(void *param)
 {
     wchar_t temp[200], wcpufamily[2048], wcpu[2048];
-    wchar_t wmachine[2048];
+    wchar_t wmachine[2048], *wcp;
     uint64_t start_time, end_time;
     uint32_t old_time, new_time;
     int done, drawits, frames;
@@ -992,6 +993,9 @@ pc_thread(void *param)
 			mbstowcs(wmachine, machine_getname(), strlen(machine_getname())+1);
 			mbstowcs(wcpufamily, cpu_f->name,
 				 strlen(cpu_f->name)+1);
+			wcp = wcschr(wcpufamily, L'(');
+			if (wcp) /* remove parentheses */
+				*(wcp - 1) = L'\0';
 			mbstowcs(wcpu, cpu_s->name,
 				 strlen(cpu_s->name)+1);
 			swprintf(temp, sizeof_w(temp),
