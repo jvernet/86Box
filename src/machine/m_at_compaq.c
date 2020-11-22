@@ -673,7 +673,7 @@ compaq_plasma_speed_changed(void *p)
 const device_config_t compaq_plasma_config[] =
 {
         {
-                "display_type", "Display type", CONFIG_SELECTION, "", CGA_RGB,
+                "display_type", "Display type", CONFIG_SELECTION, "", CGA_RGB, "", { 0 },
                 {
                         {
                                 "RGB", CGA_RGB
@@ -687,7 +687,7 @@ const device_config_t compaq_plasma_config[] =
                 }
         },
         {
-                "composite_type", "Composite type", CONFIG_SELECTION, "", COMPOSITE_OLD,
+                "composite_type", "Composite type", CONFIG_SELECTION, "", COMPOSITE_OLD, "", { 0 },
                 {
                         {
                                 "Old", COMPOSITE_OLD
@@ -701,7 +701,7 @@ const device_config_t compaq_plasma_config[] =
                 }
         },
         {
-                "rgb_type", "RGB type", CONFIG_SELECTION, "", 0,
+                "rgb_type", "RGB type", CONFIG_SELECTION, "", 0, "", { 0 },
                 {
                         {
                                 "Color", 0
@@ -736,7 +736,7 @@ static const device_t compaq_plasma_device =
         compaq_plasma_init,
         compaq_plasma_close,
         NULL,
-		NULL,
+	{ NULL },
         compaq_plasma_speed_changed,
         NULL,
         compaq_plasma_config
@@ -811,7 +811,7 @@ static void
 machine_at_compaq_init(const machine_t *model, int type)
 {
     machine_at_init(model);
-		
+
     if (type != COMPAQ_DESKPRO386)
 	mem_remap_top(384);
 	
@@ -822,10 +822,8 @@ machine_at_compaq_init(const machine_t *model, int type)
                     read_ram, read_ramw, read_raml,
                     write_ram, write_ramw, write_raml,
                     0xa0000+ram, MEM_MAPPING_INTERNAL, NULL);
-	
-	device_add(&fdc_at_device);
+
     switch(type) {
-	    
 	case COMPAQ_PORTABLEII:
 		break;
 
@@ -900,22 +898,4 @@ machine_at_portableiii386_init(const machine_t *model)
     machine_at_compaq_init(model, COMPAQ_PORTABLEIII386);
 
     return ret;
-}
-
-
-int
-machine_at_deskpro386_init(const machine_t* model)
-{
-	int ret;
-
-	ret = bios_load_interleavedr(L"roms/machines/deskpro386/109592-005.U11.bin",
-		L"roms/machines/deskpro386/109591-005.U13.bin",
-		0x000f8000, 65536, 0);
-
-	if (bios_only || !ret)
-		return ret;
-
-	machine_at_compaq_init(model, COMPAQ_DESKPRO386);
-
-	return ret;
 }

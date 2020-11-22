@@ -22,9 +22,6 @@ jobs:
         shell: msys2 {0}
 
     strategy:
-      matrix:
-        dev-build: ['y', 'n']
-        new-dynarec: ['y', 'n']
 
     steps:
     - uses: msys2/setup-msys2@v2
@@ -34,5 +31,5 @@ jobs:
         install: 'make mingw-w64-i686-toolchain mingw-w64-i686-openal mingw-w64-i686-freetype mingw-w64-i686-SDL2 mingw-w64-i686-zlib mingw-w64-i686-libpng mingw-w64-i686-libvncserver'
     - uses: actions/checkout@v2
     - name: make
-      run: make -fwin/makefile.mingw -j DEV_BUILD=${{ matrix.dev-build }} NEW_DYNAREC=${{ matrix.new-dynarec }} VNC=n
+      run: make -fwin/makefile.mingw DEV_BUILD=y NEW_DYNAREC=y VNC=n
       working-directory: ./src
