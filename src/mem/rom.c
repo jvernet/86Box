@@ -365,7 +365,7 @@ bios_add(void)
     int temp_cpu_type, temp_cpu_16bitbus = 1;
 
     if (AT) {
-	temp_cpu_type = machines[machine].cpu[cpu_manufacturer].cpus[cpu_effective].cpu_type;
+	temp_cpu_type = cpu_s->cpu_type;
 	temp_cpu_16bitbus = (temp_cpu_type == CPU_286 || temp_cpu_type == CPU_386SX || temp_cpu_type == CPU_486SLC || temp_cpu_type == CPU_IBM386SLC || temp_cpu_type == CPU_IBM486SLC );
     }
 
@@ -470,7 +470,8 @@ bios_load_linear_combined2(wchar_t *fn1, wchar_t *fn2, wchar_t *fn3, wchar_t *fn
     ret &= bios_load_aux_linear(fn1, 0x000d0000, 65536, off);
     ret &= bios_load_aux_linear(fn2, 0x000c0000, 65536, off);
     ret &= bios_load_aux_linear(fn4, 0x000e0000, sz - 196608, off);
-    ret &= bios_load_aux_linear(fn5, 0x000ec000, 16384, off);
+    if (fn5 != NULL)
+	ret &= bios_load_aux_linear(fn5, 0x000ec000, 16384, 0);
 
     return ret;
 }

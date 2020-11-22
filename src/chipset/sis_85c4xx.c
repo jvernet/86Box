@@ -260,7 +260,7 @@ sis_85c4xx_init(const device_t *info)
 
     mem_size_mb = mem_size >> 10;
 
-    if (machines[machine].cpu[cpu_manufacturer].cpus[cpu_effective].rspeed < 25000000)
+    if (cpu_s->rspeed < 25000000)
 	dev->regs[0x08] = 0x80;
 
     if (dev->is_471) {
@@ -419,7 +419,7 @@ const device_t sis_85c401_device = {
     0,
     0x060,
     sis_85c4xx_init, sis_85c4xx_close, NULL,
-    NULL, NULL, NULL,
+    { NULL }, NULL, NULL,
     NULL
 };
 
@@ -428,7 +428,7 @@ const device_t sis_85c460_device = {
     0,
     0x050,
     sis_85c4xx_init, sis_85c4xx_close, NULL,
-    NULL, NULL, NULL,
+    { NULL }, NULL, NULL,
     NULL
 };
 
@@ -438,7 +438,7 @@ const device_t sis_85c461_device = {
     0,
     0x050,
     sis_85c4xx_init, sis_85c4xx_close, NULL,
-    NULL, NULL, NULL,
+    { NULL }, NULL, NULL,
     NULL
 };
 
@@ -447,6 +447,6 @@ const device_t sis_85c471_device = {
     0,
     0x150,
     sis_85c4xx_init, sis_85c4xx_close, NULL,
-    NULL, NULL, NULL,
+    { NULL }, NULL, NULL,
     NULL
 };

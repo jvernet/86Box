@@ -332,7 +332,7 @@ sdl_init_common(int flags)
     wchar_t temp[128];
     SDL_version ver;
     int w = 0, h = 0, x = 0, y = 0;
-    RECT rect, oldclip;
+    RECT rect;
 
     sdl_log("SDL: init (fs=%d)\n", fs);
 
@@ -394,8 +394,6 @@ sdl_init_common(int flags)
 
 	/* Now create the SDL window from that. */
 	sdl_win = SDL_CreateWindowFrom((void *)sdl_hwnd);
-
-	GetClipCursor(&oldclip);
 
 	old_capture = mouse_capture;
 

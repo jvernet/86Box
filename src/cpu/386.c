@@ -199,10 +199,10 @@ static inline void fetch_ea_16_long(uint32_t rmdat)
 
 #include "x86_ops.h"
 
+
 void
 exec386(int cycs)
 {
-    // uint8_t opcode;
     int vector, tempi, cycdiff, oldcyc;
     int cycle_period, ins_cycles;
     uint32_t addr;
@@ -259,7 +259,7 @@ exec386(int cycs)
 
 		if (cpu_state.abrt) {
 			flags_rebuild();
-			tempi = cpu_state.abrt;
+			tempi = cpu_state.abrt & ABRT_MASK;
 			cpu_state.abrt = 0;
 			x86_doabrt(tempi);
 			if (cpu_state.abrt) {
@@ -314,7 +314,7 @@ exec386(int cycs)
 				nmi_auto_clear = 0;
 				nmi = 0;
 			}
-		} else if ((cpu_state.flags & I_FLAG) && pic.int_pending) {
+		} else if ((cpu_state.flags & I_FLAG) && pic.int_pending && !cpu_end_block_after_ins) {
 			vector = picinterrupt();
 			if (vector != -1) {
 				flags_rebuild();
@@ -333,6 +333,8 @@ exec386(int cycs)
 				}
 			}
 		}
+
+		cpu_end_block_after_ins = 0;
 
 		if (timetolive) {
 			timetolive--;

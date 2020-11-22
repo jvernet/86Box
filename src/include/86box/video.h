@@ -138,12 +138,10 @@ extern void	(*video_recalctimings)(void);
 
 /* Table functions. */
 extern int	video_card_available(int card);
-extern char	*video_card_getname(int card);
 #ifdef EMU_DEVICE_H
 extern const device_t	*video_card_getdevice(int card);
 #endif
 extern int	video_card_has_config(int card);
-extern int	video_card_getid(char *s);
 extern char	*video_get_internal_name(int card);
 extern int	video_get_video_from_internal_name(char *s);
 extern int 	video_is_mda(void);
@@ -364,6 +362,10 @@ extern const device_t ps1vga_mca_device;
 
 /* 3DFX Voodoo Graphics */
 extern const device_t voodoo_device;
+extern const device_t voodoo_banshee_device;
+extern const device_t creative_voodoo_banshee_device;
+extern const device_t voodoo_3_2000_device;
+extern const device_t voodoo_3_3000_device;
 
 /* Wyse 700 */
 extern const device_t wy700_device;
