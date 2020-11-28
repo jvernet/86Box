@@ -33,6 +33,7 @@
 #include <86box/device.h>
 #include <86box/plat.h>
 #include <86box/video.h>
+#include <86box/i2c.h>
 #include <86box/vid_ddc.h>
 #include <86box/vid_svga.h>
 #include <86box/vid_svga_render.h>
@@ -116,6 +117,8 @@ typedef struct banshee_t
         uint32_t desktop_stride_tiled;
 
         int type;
+
+        void *i2c, *i2c_ddc, *ddc;
 } banshee_t;
 
 enum
@@ -657,7 +660,7 @@ static void banshee_ext_outl(uint16_t addr, uint32_t val, void *p)
 
                 case Video_hwCurPatAddr:
                 banshee->hwCurPatAddr = val;
-                svga->hwcursor.addr = val & 0xfffff0;
+                svga->hwcursor.addr = (val & 0xfffff0) + (svga->hwcursor.yoff * 16);
                 break;
                 case Video_hwCurLoc:
                 banshee->hwCurLoc = val;
@@ -670,6 +673,7 @@ static void banshee_ext_outl(uint16_t addr, uint32_t val, void *p)
                 }
                 else
                         svga->hwcursor.yoff = 0;
+		svga->hwcursor.addr = (banshee->hwCurPatAddr & 0xfffff0) + (svga->hwcursor.yoff * 16);
                 svga->hwcursor.xsize = 64;
                 svga->hwcursor.ysize = 64;
 //                banshee_log("hwCurLoc %08x %i\n", val, svga->hwcursor.y);
@@ -684,7 +688,8 @@ static void banshee_ext_outl(uint16_t addr, uint32_t val, void *p)
                 case Video_vidSerialParallelPort:
                 banshee->vidSerialParallelPort = val;
 //                banshee_log("vidSerialParallelPort: write %08x %08x %04x(%08x):%08x\n", val, val & (VIDSERIAL_DDC_DCK_W | VIDSERIAL_DDC_DDA_W), CS,cs,cpu_state.pc);
-                ddc_i2c_change((val & VIDSERIAL_DDC_DCK_W) ? 1 : 0, (val & VIDSERIAL_DDC_DDA_W) ? 1 : 0);
+                i2c_gpio_set(banshee->i2c_ddc, !!(val & VIDSERIAL_DDC_DCK_W), !!(val & VIDSERIAL_DDC_DDA_W));
+                i2c_gpio_set(banshee->i2c, !!(val & VIDSERIAL_I2C_SCK_W), !!(val & VIDSERIAL_I2C_SDA_W));
                 break;
 
                 case Video_vidScreenSize:
@@ -830,7 +835,7 @@ static uint32_t banshee_ext_inl(uint16_t addr, void *p)
         svga_t *svga = &banshee->svga;
         uint32_t ret = 0xffffffff;
 
-        sub_cycles(voodoo->read_time);
+        cycles -= voodoo->read_time;
         
         switch (addr & 0xff)
         {
@@ -917,14 +922,14 @@ static uint32_t banshee_ext_inl(uint16_t addr, void *p)
 
                 case Video_vidSerialParallelPort:
                 ret = banshee->vidSerialParallelPort & ~(VIDSERIAL_DDC_DCK_R | VIDSERIAL_DDC_DDA_R);
-                if ((banshee->vidSerialParallelPort & VIDSERIAL_DDC_DCK_W) && ddc_read_clock())
+                if (!(banshee->vidSerialParallelPort & VIDSERIAL_DDC_DCK_W) || i2c_gpio_get_scl(banshee->i2c_ddc))
                         ret |= VIDSERIAL_DDC_DCK_R;
-                if ((banshee->vidSerialParallelPort & VIDSERIAL_DDC_DDA_W) && ddc_read_data())
+                if (!(banshee->vidSerialParallelPort & VIDSERIAL_DDC_DDA_W) || i2c_gpio_get_sda(banshee->i2c_ddc))
                         ret |= VIDSERIAL_DDC_DDA_R;
                 ret = ret & ~(VIDSERIAL_I2C_SCK_R | VIDSERIAL_I2C_SDA_R);
-                if (banshee->vidSerialParallelPort & VIDSERIAL_I2C_SCK_W)
+                if (!(banshee->vidSerialParallelPort & VIDSERIAL_I2C_SCK_W) || i2c_gpio_get_scl(banshee->i2c))
                         ret |= VIDSERIAL_I2C_SCK_R;
-                if (banshee->vidSerialParallelPort & VIDSERIAL_I2C_SDA_W)
+                if (!(banshee->vidSerialParallelPort & VIDSERIAL_I2C_SDA_W) || i2c_gpio_get_sda(banshee->i2c))
                         ret |= VIDSERIAL_I2C_SDA_R;
 //                banshee_log("vidSerialParallelPort: read %08x %08x  %04x(%08x):%08x\n", ret, ret & (VIDSERIAL_DDC_DCK_R | VIDSERIAL_DDC_DDA_R), CS,cs,cpu_state.pc);
                 break;
@@ -1021,7 +1026,7 @@ static uint32_t banshee_reg_readl(uint32_t addr, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         uint32_t ret = 0xffffffff;
         
-        sub_cycles(voodoo->read_time);
+        cycles -= voodoo->read_time;
 
         switch (addr & 0x1f00000)
         {
@@ -1152,7 +1157,7 @@ static uint32_t banshee_reg_readl(uint32_t addr, void *p)
                         break;
 
                         default:
-                        fatal("banshee_reg_readl: 3D addr=%08x\n", addr);
+                        banshee_log("banshee_reg_readl: 3D addr=%08x\n", addr);
                         break;
                 }
                 break;
@@ -1173,7 +1178,7 @@ static void banshee_reg_writew(uint32_t addr, uint16_t val, void *p)
         banshee_t *banshee = (banshee_t *)p;
         voodoo_t *voodoo = banshee->voodoo;
 
-        sub_cycles(voodoo->write_time);
+        cycles -= voodoo->write_time;
         
 //        banshee_log("banshee_reg_writew: addr=%08x val=%04x\n", addr, val);
         switch (addr & 0x1f00000)
@@ -1248,9 +1253,9 @@ static void banshee_reg_writel(uint32_t addr, uint32_t val, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         
         if (addr == voodoo->last_write_addr+4)
-                sub_cycles(voodoo->burst_time);
+                cycles -= voodoo->burst_time;
         else
-                sub_cycles(voodoo->write_time);
+                cycles -= voodoo->write_time;
         voodoo->last_write_addr = addr;
 
 //        banshee_log("banshee_reg_writel: addr=%08x val=%08x\n", addr, val);
@@ -1346,7 +1351,7 @@ static uint8_t banshee_read_linear(uint32_t addr, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         svga_t *svga = &banshee->svga;
         
-	sub_cycles(voodoo->read_time);
+	cycles -= voodoo->read_time;
 
         addr &= svga->decode_mask;
         if (addr >= voodoo->tile_base)
@@ -1364,7 +1369,7 @@ static uint8_t banshee_read_linear(uint32_t addr, void *p)
                 return 0xff;
 
         egareads++;
-        sub_cycles(video_timing_read_b);
+        cycles -= video_timing_read_b;
         
 //        banshee_log("read_linear: addr=%08x val=%02x\n", addr, svga->vram[addr & svga->vram_mask]);
 
@@ -1377,8 +1382,10 @@ static uint16_t banshee_read_linear_w(uint32_t addr, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         svga_t *svga = &banshee->svga;
         
-        sub_cycles(voodoo->read_time);
-
+        if (addr & 1)
+                return banshee_read_linear(addr, p) | (banshee_read_linear(addr+1, p) << 8);	
+	
+        cycles -= voodoo->read_time;
         addr &= svga->decode_mask;
         if (addr >= voodoo->tile_base)
         {
@@ -1395,7 +1402,7 @@ static uint16_t banshee_read_linear_w(uint32_t addr, void *p)
                 return 0xff;
 
         egareads++;
-        sub_cycles(video_timing_read_w);
+        cycles -= video_timing_read_w;
 	
 //        banshee_log("read_linear: addr=%08x val=%02x\n", addr, svga->vram[addr & svga->vram_mask]);
 
@@ -1408,7 +1415,10 @@ static uint32_t banshee_read_linear_l(uint32_t addr, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         svga_t *svga = &banshee->svga;
         
-        sub_cycles(voodoo->read_time);
+        if (addr & 3)
+                return banshee_read_linear_w(addr, p) | (banshee_read_linear_w(addr+2, p) << 16);	
+	
+        cycles -= voodoo->read_time;
 
         addr &= svga->decode_mask;
         if (addr >= voodoo->tile_base)
@@ -1426,7 +1436,7 @@ static uint32_t banshee_read_linear_l(uint32_t addr, void *p)
                 return 0xff;
 
         egareads++;
-	sub_cycles(video_timing_read_l);
+	cycles -= video_timing_read_l;
 
 //        banshee_log("read_linear: addr=%08x val=%02x\n", addr, svga->vram[addr & svga->vram_mask]);
 
@@ -1439,7 +1449,7 @@ static void banshee_write_linear(uint32_t addr, uint8_t val, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         svga_t *svga = &banshee->svga;
         
-	sub_cycles(voodoo->write_time);
+	cycles -= voodoo->write_time;
 
 //        banshee_log("write_linear: addr=%08x val=%02x\n", addr, val);
         addr &= svga->decode_mask;
@@ -1459,7 +1469,7 @@ static void banshee_write_linear(uint32_t addr, uint8_t val, void *p)
 
         egawrites++;
 	
-	sub_cycles(video_timing_write_b);
+	cycles -= video_timing_write_b;
 
         svga->changedvram[addr >> 12] = changeframecount;
         svga->vram[addr & svga->vram_mask] = val;
@@ -1471,8 +1481,14 @@ static void banshee_write_linear_w(uint32_t addr, uint16_t val, void *p)
         voodoo_t *voodoo = banshee->voodoo;
         svga_t *svga = &banshee->svga;
         
-        sub_cycles(voodoo->write_time);
-
+        if (addr & 1)
+        {
+                banshee_write_linear(addr, val, p);
+                banshee_write_linear(addr + 1, val >> 8, p);
+                return;
+        }	
+	
+        cycles -= voodoo->write_time;
 //        banshee_log("write_linear: addr=%08x val=%02x\n", addr, val);
         addr &= svga->decode_mask;
         if (addr >= voodoo->tile_base)
@@ -1491,7 +1507,7 @@ static void banshee_write_linear_w(uint32_t addr, uint16_t val, void *p)
 
         egawrites++;
 
-        sub_cycles(video_timing_write_w);
+        cycles -= video_timing_write_w;
 
         svga->changedvram[addr >> 12] = changeframecount;
         *(uint16_t *)&svga->vram[addr & svga->vram_mask] = val;
@@ -1504,11 +1520,18 @@ static void banshee_write_linear_l(uint32_t addr, uint32_t val, void *p)
         svga_t *svga = &banshee->svga;
         int timing;
 
+        if (addr & 3)
+        {
+                banshee_write_linear_w(addr, val, p);
+                banshee_write_linear_w(addr + 2, val >> 16, p);
+                return;
+        }
+
         if (addr == voodoo->last_write_addr+4)
                 timing = voodoo->burst_time;
         else
                 timing = voodoo->write_time;
-	sub_cycles(timing);
+	cycles -= timing;
         voodoo->last_write_addr = addr;
 
 //        /*if (val) */banshee_log("write_linear_l: addr=%08x val=%08x  %08x\n", addr, val, voodoo->tile_base);
@@ -1530,7 +1553,7 @@ static void banshee_write_linear_l(uint32_t addr, uint32_t val, void *p)
 
         egawrites += 4;
 
-        sub_cycles(video_timing_write_l);
+        cycles -= video_timing_write_l;
 
         svga->changedvram[addr >> 12] = changeframecount;
         *(uint32_t *)&svga->vram[addr & svga->vram_mask] = val;
@@ -2640,7 +2663,9 @@ static void *banshee_init_common(const device_t *info, wchar_t *fn, int has_sgra
 
         banshee->vidSerialParallelPort = VIDSERIAL_DDC_DCK_W | VIDSERIAL_DDC_DDA_W;
 
-        ddc_init();
+        banshee->i2c = i2c_gpio_init("i2c_voodoo_banshee");
+        banshee->i2c_ddc = i2c_gpio_init("ddc_voodoo_banshee");
+        banshee->ddc = ddc_init(i2c_gpio_get_bus(banshee->i2c_ddc));
 
 	video_inform(VIDEO_FLAG_TYPE_SPECIAL, &timing_banshee);
 
@@ -2687,6 +2712,9 @@ static void banshee_close(void *p)
 
         voodoo_card_close(banshee->voodoo);
         svga_close(&banshee->svga);
+        ddc_close(banshee->ddc);
+        i2c_gpio_close(banshee->i2c_ddc);
+        i2c_gpio_close(banshee->i2c);
         
         free(banshee);
 }
@@ -2708,7 +2736,7 @@ static void banshee_force_redraw(void *p)
 
 const device_t voodoo_banshee_device =
 {
-        "Voodoo Banshee PCI (reference)",
+        "3dfx Voodoo Banshee",
         DEVICE_PCI,
 	0,
         banshee_init,
@@ -2722,7 +2750,7 @@ const device_t voodoo_banshee_device =
 
 const device_t creative_voodoo_banshee_device =
 {
-        "Creative Labs 3D Blaster Banshee PCI",
+        "Creative 3D Blaster Banshee",
         DEVICE_PCI,
 	0,
         creative_banshee_init,
@@ -2736,7 +2764,7 @@ const device_t creative_voodoo_banshee_device =
 
 const device_t voodoo_3_2000_device =
 {
-        "Voodoo 3 2000 PCI",
+        "3dfx Voodoo3 2000",
         DEVICE_PCI,
         0,
 	v3_2000_init,
@@ -2750,7 +2778,7 @@ const device_t voodoo_3_2000_device =
 
 const device_t voodoo_3_3000_device =
 {
-        "Voodoo 3 3000 PCI",
+        "3dfx Voodoo3 3000",
         DEVICE_PCI,
 	0,
         v3_3000_init,

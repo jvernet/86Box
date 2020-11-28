@@ -84,10 +84,13 @@ typedef struct
     pc_timer_t		timer;
     nvr_t		*nvr;
     apm_t		*apm;
+    void		*i2c;
 } acpi_t;
 
 
 /* Global variables. */
+extern int		acpi_rtc_status;
+
 extern const device_t	acpi_intel_device;
 extern const device_t	acpi_smc_device;
 extern const device_t	acpi_via_device;

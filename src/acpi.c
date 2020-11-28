@@ -36,6 +36,10 @@
 #include <86box/apm.h>
 #include <86box/acpi.h>
 #include <86box/machine.h>
+#include <86box/i2c.h>
+
+
+int acpi_rtc_status = 0;
 
 
 #ifdef ENABLE_ACPI_LOG
@@ -92,7 +96,7 @@ acpi_raise_smi(void *priv)
 		    if ((!dev->regs.smi_lock || !dev->regs.smi_active)) {
 			smi_line = 1;
 			dev->regs.smi_active = 1;
-	    	}
+		}
 	} else if (dev->vendor == VEN_INTEL) {
 		smi_line = 1;
 		/* Clear bit 16 of GLBCTL. */
@@ -118,6 +122,8 @@ acpi_reg_read_common_regs(int size, uint16_t addr, void *p)
 	case 0x00: case 0x01:
 		/* PMSTS - Power Management Status Register (IO) */
 		ret = (dev->regs.pmsts >> shift16) & 0xff;
+		if (addr == 0x01)
+			ret |= (acpi_rtc_status << 2);
 		break;
 	case 0x02: case 0x03:
 		/* PMEN - Power Management Resume Enable Register (IO) */
@@ -126,6 +132,8 @@ acpi_reg_read_common_regs(int size, uint16_t addr, void *p)
 	case 0x04: case 0x05:
 		/* PMCNTRL - Power Management Control Register (IO) */
 		ret = (dev->regs.pmcntrl >> shift16) & 0xff;
+		if (addr == 0x05)
+			ret = (ret & 0xdf) | 0x02;	/* Bit 5 is write-only. */
 		break;
 	case 0x08: case 0x09: case 0x0a: case 0x0b:
 		/* PMTMR - Power Management Timer Register (IO) */
@@ -137,7 +145,10 @@ acpi_reg_read_common_regs(int size, uint16_t addr, void *p)
 		break;
     }
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -210,7 +221,10 @@ acpi_reg_read_intel(int size, uint16_t addr, void *p)
 		break;
     }
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+		acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -284,7 +298,10 @@ acpi_reg_read_via_common(int size, uint16_t addr, void *p)
 		break;
     }
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -311,9 +328,18 @@ acpi_reg_read_via(int size, uint16_t addr, void *p)
 			ret = dev->regs.gpio_val & 0xff;
 		break;
 	case 0x44:
-		/* GPIO port Output Value */
-		if (size == 1)
+		/* GPIO port Input Value */
+		if (size == 1) {
 			ret = dev->regs.extsmi_val & 0xff;
+
+			if (dev->i2c) {
+				ret &= 0xf9;
+				if (!(dev->regs.gpio_dir & 0x02) && i2c_gpio_get_scl(dev->i2c))
+					ret |= 0x02;
+				if (!(dev->regs.gpio_dir & 0x04) && i2c_gpio_get_sda(dev->i2c))
+					ret |= 0x04;
+			}
+		}
 		break;
 	case 0x46: case 0x47:
 		/* GPO Port Output Value */
@@ -328,7 +354,10 @@ acpi_reg_read_via(int size, uint16_t addr, void *p)
 		break;
     }
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -362,7 +391,10 @@ acpi_reg_read_via_596b(int size, uint16_t addr, void *p)
 		break;
     }
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -376,7 +408,10 @@ acpi_reg_read_smc(int size, uint16_t addr, void *p)
 
     ret = acpi_reg_read_common_regs(size, addr, p);
 
-    acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Read  (%i) %02X: %02X\n", in_smm, size, addr, ret);
+#endif
     return ret;
 }
 
@@ -426,13 +461,18 @@ acpi_reg_write_common_regs(int size, uint16_t addr, uint8_t val, void *p)
     int shift16, sus_typ;
 
     addr &= 0x3f;
-    acpi_log("(%i) ACPI Write (%i) %02X: %02X\n", in_smm, size, addr, val);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Write (%i) %02X: %02X\n", in_smm, size, addr, val);
+#endif
     shift16 = (addr & 1) << 3;
 
     switch (addr) {
 	case 0x00: case 0x01:
 		/* PMSTS - Power Management Status Register (IO) */
 		dev->regs.pmsts &= ~((val << shift16) & 0x8d31);
+		if ((addr == 0x01) && (val & 0x04))
+			acpi_rtc_status = 0;
 		acpi_update_irq(dev);
 		break;
 	case 0x02: case 0x03:
@@ -442,8 +482,7 @@ acpi_reg_write_common_regs(int size, uint16_t addr, uint8_t val, void *p)
 		break;
 	case 0x04: case 0x05:
 		/* PMCNTRL - Power Management Control Register (IO) */
-		dev->regs.pmcntrl = ((dev->regs.pmcntrl & ~(0xff << shift16)) | (val << shift16)) & 0x3c07;
-		if (dev->regs.pmcntrl & 0x2000) {
+		if ((addr == 0x05) && (dev->regs.pmcntrl & 0x2000)) {
 			sus_typ = (dev->regs.pmcntrl >> 10) & 7;
 			switch (sus_typ) {
 				case 0:
@@ -469,8 +508,12 @@ acpi_reg_write_common_regs(int size, uint16_t addr, uint8_t val, void *p)
 
 					resetx86();
 					break;
+				default:
+					dev->regs.pmcntrl = ((dev->regs.pmcntrl & ~(0xff << shift16)) | (val << shift16)) & 0x3c07;
+					break;
 			}
-		}
+		} else
+			dev->regs.pmcntrl = ((dev->regs.pmcntrl & ~(0xff << shift16)) | (val << shift16)) & 0x3c07;
 		break;
     }
 }
@@ -483,7 +526,10 @@ acpi_reg_write_intel(int size, uint16_t addr, uint8_t val, void *p)
     int shift16, shift32;
 
     addr &= 0x3f;
-    acpi_log("(%i) ACPI Write (%i) %02X: %02X\n", in_smm, size, addr, val);
+#ifdef ENABLE_ACPI_LOG
+    if (size != 1)
+	acpi_log("(%i) ACPI Write (%i) %02X: %02X\n", in_smm, size, addr, val);
+#endif
     shift16 = (addr & 1) << 3;
     shift32 = (addr & 3) << 3;
 
@@ -640,6 +686,14 @@ acpi_reg_write_via_common(int size, uint16_t addr, uint8_t val, void *p)
 
 
 static void
+acpi_i2c_set(acpi_t *dev)
+{
+    if (dev->i2c)
+	i2c_gpio_set(dev->i2c, !(dev->regs.gpio_dir & 0x02) || (dev->regs.gpio_val & 0x02), !(dev->regs.gpio_dir & 0x04) || (dev->regs.gpio_val & 0x04));
+}
+
+
+static void
 acpi_reg_write_via(int size, uint16_t addr, uint8_t val, void *p)
 {
     acpi_t *dev = (acpi_t *) p;
@@ -652,13 +706,17 @@ acpi_reg_write_via(int size, uint16_t addr, uint8_t val, void *p)
     switch (addr) {
 	case 0x40:
 		/* GPIO Direction Control */
-		if (size == 1)
-			dev->regs.gpio_dir = val & 0xff;
+		if (size == 1) {
+			dev->regs.gpio_dir = val & 0x7f;
+			acpi_i2c_set(dev);
+		}
 		break;
 	case 0x42:
 		/* GPIO port Output Value */
-		if (size == 1)
-			dev->regs.gpio_val = val & 0xff;
+		if (size == 1) {
+			dev->regs.gpio_val = val & 0x1f;
+			acpi_i2c_set(dev);
+		}
 		break;
 	case 0x46: case 0x47:
 		/* GPO Port Output Value */
@@ -854,6 +912,8 @@ acpi_reg_read(uint16_t addr, void *p)
 
     ret = acpi_reg_read_common(1, addr, p);
 
+    acpi_log("ACPI: Read B %02X from %04X\n", ret, addr);
+
     return ret;
 }
 
@@ -902,6 +962,8 @@ acpi_aux_read_read(uint16_t addr, void *p)
 static void
 acpi_reg_writel(uint16_t addr, uint32_t val, void *p)
 {
+    acpi_log("ACPI: Write L %08X to %04X\n", val, addr);
+
     acpi_reg_write_common(4, addr, val & 0xff, p);
     acpi_reg_write_common(4, addr + 1, (val >> 8) & 0xff, p);
     acpi_reg_write_common(4, addr + 2, (val >> 16) & 0xff, p);
@@ -912,6 +974,8 @@ acpi_reg_writel(uint16_t addr, uint32_t val, void *p)
 static void
 acpi_reg_writew(uint16_t addr, uint16_t val, void *p)
 {
+    acpi_log("ACPI: Write W %04X to %04X\n", val, addr);
+
     acpi_reg_write_common(2, addr, val & 0xff, p);
     acpi_reg_write_common(2, addr + 1, (val >> 8) & 0xff, p);
 }
@@ -920,6 +984,8 @@ acpi_reg_writew(uint16_t addr, uint16_t val, void *p)
 static void
 acpi_reg_write(uint16_t addr, uint8_t val, void *p)
 {
+    acpi_log("ACPI: Write B %02X to %04X\n", val, addr);
+
     acpi_reg_write_common(1, addr, val, p);
 }
 
@@ -1166,6 +1232,8 @@ acpi_reset(void *priv)
 	   - Bit  1: 80-conductor cable on primary IDE channel (active low) */
 	dev->regs.gpi_val = !strcmp(machines[machine].internal_name, "wcf681") ? 0xffffffe3 : 0xffffffe5;
     }
+
+    acpi_rtc_status = 0;
 }
 
 
@@ -1183,6 +1251,12 @@ static void
 acpi_close(void *priv)
 {
     acpi_t *dev = (acpi_t *) priv;
+
+    if (dev->i2c) {
+	if (i2c_smbus == i2c_gpio_get_bus(dev->i2c))
+		i2c_smbus = NULL;
+	i2c_gpio_close(dev->i2c);
+    }
 
     timer_disable(&dev->timer);
 
@@ -1206,6 +1280,9 @@ acpi_init(const device_t *info)
     if (dev->vendor == VEN_INTEL) {
 	dev->apm = device_add(&apm_pci_acpi_device);
 	io_sethandler(0x00b2, 0x0002, acpi_apm_in, NULL, NULL, acpi_apm_out, NULL, NULL, dev);
+    } else if (dev->vendor == VEN_VIA) {
+	dev->i2c = i2c_gpio_init("smbus_vt82c586b");
+	i2c_smbus = i2c_gpio_get_bus(dev->i2c);
     }
 
     timer_add(&dev->timer, acpi_timer_count, dev, 0);
