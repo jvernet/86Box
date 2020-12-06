@@ -241,6 +241,14 @@ sdl_blit(int x, int y, int y1, int y2, int w, int h)
 
     SDL_LockMutex(sdl_mutex);
 
+    r_src.x = 0;
+    r_src.y = y1;
+    r_src.w = w;
+    r_src.h = y2 - y1;
+    SDL_UpdateTexture(sdl_tex, &r_src, &(render_buffer->dat)[y1 * w], w * 4);
+    video_blit_complete();
+
+    SDL_RenderClear(sdl_render);
 
     r_src.x = 0;
     r_src.y = 0;
