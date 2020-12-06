@@ -2513,7 +2513,7 @@ machine_amstrad_init(const machine_t *model, int type)
 	mouse_set_poll(ms_poll, ams);
     }
 
-    if (joystick_type != JOYSTICK_TYPE_NONE)
+    if (joystick_type)
 	device_add(&gameport_device);
 }
 
