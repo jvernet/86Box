@@ -325,7 +325,7 @@ machine_xt_iskra3104_init(const machine_t *model)
 
 
 int
-machine_thomson_to16pc(const machine_t* model)
+machine_xt_to16pc_init(const machine_t* model)
 {
     int ret;
 
