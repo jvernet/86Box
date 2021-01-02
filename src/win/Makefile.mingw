@@ -611,7 +611,7 @@ CHIPSETOBJ	:= acc2168.o cs8230.o ali1429.o headland.o intel_82335.o cs4031.o \
 		    via_apollo.o via_pipc.o wd76c10.o vl82c480.o
 
 MCHOBJ		:= machine.o machine_table.o \
-		    m_xt.o m_xt_compaq.o \
+		    m_xt.o m_to16pc.o m_xt_compaq.o \
 		    m_xt_t1000.o m_xt_t1000_vid.o \
 		    m_xt_xi8088.o m_xt_zenith.o \
 		    m_pcjr.o \
