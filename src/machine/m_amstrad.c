@@ -104,29 +104,29 @@ typedef struct {
     int		crtcreg;
     int		cga_enabled;		/* 1640 */
     uint8_t	cgacol,
-			cgamode,
-			stat;
+		cgamode,
+		stat;
     uint8_t	plane_write,		/* 1512/200 */
-			plane_read,		/* 1512/200 */
-			border;			/* 1512/200 */
+		plane_read,		/* 1512/200 */
+		border;			/* 1512/200 */
     int		fontbase;		/* 1512/200 */
     int		linepos,
-			displine;
+		displine;
     int		sc, vc;
     int		cgadispon;
     int		con, coff,
-			cursoron,
-			cgablink;
-    int	vsynctime;
+		cursoron,
+		cgablink;
+    int		vsynctime;
     int		vadj;
     uint16_t	ma, maback;
     int		dispon;
     int		blink;
     uint64_t	dispontime,		/* 1512/1640 */
-			dispofftime;		/* 1512/1640 */
-			pc_timer_t	timer;			/* 1512/1640 */
+		dispofftime;		/* 1512/1640 */
+    pc_timer_t	timer;			/* 1512/1640 */
     int		firstline,
-			lastline;
+		lastline;
     uint8_t	*vram;
     void	*ams;
 } amsvid_t;

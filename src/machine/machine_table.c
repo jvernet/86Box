@@ -77,7 +77,8 @@ const machine_t machines[] = {
     { "[8088] Philips P3120",	                "philips_p3120",	MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   256,  768,  256,   0,		machine_xt_p3120_init, NULL			},
     { "[8088] Phoenix XT clone",		"pxxt",			MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   64,   640,  64,    0,		 machine_xt_pxxt_init, NULL			},
     { "[8088] Schneider EuroPC",		"europc",		MACHINE_TYPE_8088,		CPU_PKG_8088_EUROPC, 0, 0, 0, 0, 0, 0, 0,									MACHINE_PC | MACHINE_XTA | MACHINE_MOUSE,					  512,   640, 128,   15,		  machine_europc_init, NULL			},
-    { "[8088] Thomson TO16PC",			"thomson_to16",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									  512,   768,  128,   0,	       machine_xt_to16pc_init, NULL			},
+    { "[8088] SVI838",				"svi838",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO,							  256,   640, 128,    0,		  machine_xt_svi838_init, NULL			},
+    { "[8088] Thomson TO16PC",			"thomson_to16",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO,							  512,   768,  128,   0,	       machine_xt_to16pc_init, NULL			},
     { "[8088] Tandy 1000",			"tandy",		MACHINE_TYPE_8088,		CPU_PKG_8088_EUROPC, 0, 0, 0, 0, 0, 0, 0,									MACHINE_PC | MACHINE_VIDEO_FIXED,						  128,   640, 128,    0,		   machine_tandy_init, tandy1k_get_device	},
     { "[8088] Tandy 1000 HX",			"tandy1000hx",		MACHINE_TYPE_8088,		CPU_PKG_8088_EUROPC, 0, 0, 0, 0, 0, 0, 0,									MACHINE_PC | MACHINE_VIDEO_FIXED,						  256,   640, 128,    0,	     machine_tandy1000hx_init, tandy1k_hx_get_device	},
     { "[8088] Toshiba T1000",			"t1000",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO,							  512,  1280, 768,   63,		machine_xt_t1000_init, t1000_get_device		},
@@ -90,7 +91,7 @@ const machine_t machines[] = {
     { "[8088] Zenith Data Systems SupersPort (Z-184)", "zdsupers",	MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,					                                        MACHINE_PC | MACHINE_VIDEO_FIXED,					          128,   640,  128,   0,	         machine_xt_z184_init, z184_get_device	        },
     
     /* 8086 Machines */
-    { "[8086] Amstrad PC1512",			"pc1512",		MACHINE_TYPE_8086,		CPU_PKG_8086, 0, 8000000, 8000000, 0, 0, 0, 0,									MACHINE_PC | MACHINE_VIDEO_FIXED | MACHINE_MOUSE,				  512,   640, 128,   63,		  machine_pc1512_init, pc1512_get_device	},
+    { "[8086] Amstrad PC1512",			"pc1512",		MACHINE_TYPE_8086,		CPU_PKG_8086, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO_FIXED | MACHINE_MOUSE,				  512,   640, 128,   63,		  machine_pc1512_init, pc1512_get_device	},
     { "[8086] Amstrad PC1640",			"pc1640",		MACHINE_TYPE_8086,		CPU_PKG_8086, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO | MACHINE_MOUSE,					  640,   640, 640,   63,		  machine_pc1640_init, pc1640_get_device	},
     { "[8086] Amstrad PC2086",			"pc2086",		MACHINE_TYPE_8086,		CPU_PKG_8086, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO_FIXED | MACHINE_MOUSE,				  640,   640, 640,   63,		  machine_pc2086_init, pc2086_get_device	},
     { "[8086] Amstrad PC3086",			"pc3086",		MACHINE_TYPE_8086,		CPU_PKG_8086, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO_FIXED | MACHINE_MOUSE,				  640,   640, 640,   63,		  machine_pc3086_init, pc3086_get_device	},

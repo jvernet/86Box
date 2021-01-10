@@ -325,22 +325,6 @@ machine_xt_iskra3104_init(const machine_t *model)
 
 
 int
-machine_xt_to16pc_init(const machine_t* model)
-{
-    int ret;
-
-    ret = bios_load_linear(L"roms/machines/to16pc/TO16_103.bin",
-        0x000f8000, 32768, 0);
-
-    if (bios_only || !ret)
-        return ret;
-
-    machine_xt_clone_init(model);
-
-    return 1;
-}
-
-int
 machine_xt_ataripc3(const machine_t* model)
 {
     // TODO: need adaptr in keyboard_read ??
@@ -490,4 +474,20 @@ machine_xt_p3120_init(const machine_t *model)
 	    device_add(&gameport_device);
 
     return ret;
+}
+
+int
+machine_xt_svi838_init(const machine_t* model)
+{
+	int ret;
+
+	ret = bios_load_linear(L"roms/machines/svi838/SVI-838_BIOS.ROM",
+		0x000fe000, 8192, 0);
+
+	if (bios_only || !ret)
+		return ret;
+
+	machine_xt_clone_init(model);
+
+	return ret;
 }

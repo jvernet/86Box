@@ -608,6 +608,8 @@ extern int	machine_xt_dtk_init(const machine_t *);
 extern int	machine_xt_jukopc_init(const machine_t *);
 extern int	machine_xt_open_xt_init(const machine_t *);
 extern int	machine_xt_pxxt_init(const machine_t *);
+extern int	machine_xt_svi838_init(const machine_t*);
+
 extern int      machine_xt_to16pc_init(const machine_t*);
 extern int      machine_xt_ataripc3(const machine_t*);
 extern int      machine_xt_hed919_init(const machine_t *);
