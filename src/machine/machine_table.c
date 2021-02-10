@@ -69,6 +69,7 @@ const machine_t machines[] = {
     { "[8088] Eagle PC Spirit",			"eagle_pcspirit",	MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									  128,   640,  64,    0,	machine_xt_eaglepcspirit_init, NULL			},
     { "[8088] Generic XT clone",		"genxt",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   64,   640,  64,    0,		   machine_genxt_init, NULL			},
     { "[8088] Juko XT clone",			"jukopc",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   64,   640,  64,    0,	       machine_xt_jukopc_init, NULL			},
+    { "[8088] Multitech PC-700",		"multitech_pc500",	MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   128,  640,  64,    0,       machine_xt_multitechpc500_init, NULL			},
     { "[8088] Multitech PC-700",		"multitech_pc700",	MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC,									   128,  640,  64,    0,       machine_xt_multitechpc700_init, NULL			},
     { "[8088] NCR PC4i",		        "ncr_pc4i",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,                                                                              MACHINE_PC,                        					           256,  640,  256,   0,	      machine_xt_ncrpc4i_init, NULL			},
     { "[8088] Olivetti M19",			"olivetti_m19",		MACHINE_TYPE_8088,		CPU_PKG_8088, 0, 0, 0, 0, 0, 0, 0,										MACHINE_PC | MACHINE_VIDEO_FIXED,						   256,  640,  256,   0,	       machine_xt_olim19_init, NULL			},
