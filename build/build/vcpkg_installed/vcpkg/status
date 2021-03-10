@@ -1,0 +1,106 @@
+Package: zlib
+Version: 1.2.11
+Port-Version: 9
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 0ca9359b6121966e0974effbe42409609b8366a6
+Description: A compression library
+Type: Port
+Status: install ok installed
+
+Package: libpng
+Version: 1.6.37
+Port-Version: 14
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 1b134c21057c193bc200705f69365ed4c0bc17ef
+Description: libpng is a library implementing an interface for reading and writing PNG (Portable Network Graphics) format files.
+Type: Port
+Status: install ok installed
+
+Package: bzip2
+Version: 1.0.8
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: c15b83d6f9a0e66aa8adb07dd55a7fc60575b241
+Description: bzip2 is a freely available, patent free, high-quality data compressor. It typically compresses files to within 10% to 15% of the best available techniques (the PPM family of statistical compressors), whilst being around twice as fast at compression and six times faster at decompression.
+Type: Port
+Status: install ok installed
+
+Package: brotli
+Version: 1.0.9
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 02256df76a58341751586a71928c9e6a6ef83f37
+Description: a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling.
+Type: Port
+Status: install ok installed
+
+Package: freetype
+Version: 2.10.4
+Architecture: x64-windows
+Multi-Arch: same
+Abi: dc89bcb04ca93fd31660c3b0bdad211278241cc1
+Description: A library to render fonts.
+Type: Port
+Default-Features: brotli, bzip2, png, zlib
+Status: install ok installed
+
+Package: freetype
+Feature: brotli
+Depends: brotli
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support decompression of WOFF2 streams
+Type: Port
+Status: install ok installed
+
+Package: freetype
+Feature: bzip2
+Depends: bzip2
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support bzip2 compressed fonts.
+Type: Port
+Status: install ok installed
+
+Package: freetype
+Feature: png
+Depends: libpng
+Architecture: x64-windows
+Multi-Arch: same
+Description: Support PNG compressed OpenType embedded bitmaps.
+Type: Port
+Status: install ok installed
+
+Package: freetype
+Feature: zlib
+Depends: zlib
+Architecture: x64-windows
+Multi-Arch: same
+Description: Use zlib instead of internal library for DEFLATE
+Type: Port
+Status: install ok installed
+
+Package: openal-soft
+Version: 1.20.1
+Port-Version: 6
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 2da51e382944d5ed363fab7840e9ec152b07ae69
+Description: OpenAL Soft is an LGPL-licensed, cross-platform, software implementation of the OpenAL 3D audio API.
+Type: Port
+Status: install ok installed
+
+Package: sdl2
+Version: 2.0.14
+Port-Version: 1
+Architecture: x64-windows
+Multi-Arch: same
+Abi: 6a76658535e6e1c97707b8b7573687820a685c82
+Description: Simple DirectMedia Layer is a cross-platform development library designed to provide low level access to audio, keyboard, mouse, joystick, and graphics hardware via OpenGL and Direct3D.
+Type: Port
+Status: install ok installed
+

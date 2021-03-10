@@ -1,0 +1,219 @@
+Detecting compiler hash for triplet x64-windows...
+The following packages will be rebuilt:
+    brotli[core]:x64-windows -> 1.0.9
+    bzip2[core]:x64-windows -> 1.0.8#1
+    freetype[brotli,bzip2,core,png,zlib]:x64-windows -> 2.10.4
+    libpng[core]:x64-windows -> 1.6.37#14
+    openal-soft[core]:x64-windows -> 1.20.1#6
+    sdl2[core]:x64-windows -> 2.0.14#1
+    zlib[core]:x64-windows -> 1.2.11#9
+Starting package 1/14: sdl2:x64-windows
+Removing package sdl2:x64-windows...
+Removing package sdl2:x64-windows... done
+Elapsed time for package sdl2:x64-windows: 57.93 ms
+Starting package 2/14: openal-soft:x64-windows
+Removing package openal-soft:x64-windows...
+Removing package openal-soft:x64-windows... done
+Elapsed time for package openal-soft:x64-windows: 21.09 ms
+Starting package 3/14: freetype:x64-windows
+Removing package freetype:x64-windows...
+Removing package freetype:x64-windows... done
+Elapsed time for package freetype:x64-windows: 74.62 ms
+Starting package 4/14: brotli:x64-windows
+Removing package brotli:x64-windows...
+Removing package brotli:x64-windows... done
+Elapsed time for package brotli:x64-windows: 26.98 ms
+Starting package 5/14: bzip2:x64-windows
+Removing package bzip2:x64-windows...
+Removing package bzip2:x64-windows... done
+Elapsed time for package bzip2:x64-windows: 19.88 ms
+Starting package 6/14: libpng:x64-windows
+Removing package libpng:x64-windows...
+Removing package libpng:x64-windows... done
+Elapsed time for package libpng:x64-windows: 705 ms
+Starting package 7/14: zlib:x64-windows
+Removing package zlib:x64-windows...
+Removing package zlib:x64-windows... done
+Elapsed time for package zlib:x64-windows: 22.46 ms
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\c7\c71392debd18ba077ed46419c62c64f69ed4f5ab.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\f7\f789f5225aad6e2623c8290ed4380a80f2176ec0.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\05\0587f19506df926a5198a9a7bcb06f86878ca121.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\4b\4bfcb314d721e02732f308bb3efb464b2529e59b.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\d0\d0566472f2d9676ead38c783783ae6aa110a92b0.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\db\db57907b6bf80e518fde972f5168dd7755028efc.zip
+Could not locate cached archive: C:\Users\Jerome\AppData\Local\vcpkg\archives\62\627fd8065eafd11042d2f179c0e7ddd8c7106e71.zip
+Starting package 8/14: zlib:x64-windows
+Building package zlib[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/zlib1211.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/zlib/src/1.2.11-63309e48e5.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/zlib1211.tar.gz
+-- Applying patch cmake_dont_build_more_than_needed.patch
+-- Applying patch 0001-Prevent-invalid-inclusions-when-HAVE_-is-set-to-0.patch
+-- Applying patch add_debug_postfix_on_mingw.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/zlib/src/1.2.11-63309e48e5.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/zlib_x64-windows/lib/pkgconfig/zlib.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/zlib_x64-windows/debug/lib/pkgconfig/zlib.pc
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/zlib_x64-windows/share/zlib/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\c7\c71392debd18ba077ed46419c62c64f69ed4f5ab.zip
+Building package zlib[core]:x64-windows... done
+Installing package zlib[core]:x64-windows...
+Installing package zlib[core]:x64-windows... done
+Elapsed time for package zlib:x64-windows: 14.62 s
+Starting package 9/14: libpng:x64-windows
+Building package libpng[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/glennrp-libpng-v1.6.37.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/libpng/src/v1.6.37-05658d6f1a.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/glennrp-libpng-v1.6.37.tar.gz
+-- Applying patch use_abort.patch
+-- Applying patch cmake.patch
+-- Applying patch pkgconfig.patch
+-- Applying patch pkgconfig.2.patch
+-- Applying patch fix-export-targets.patch
+-- Applying patch macos-arch-fix.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/libpng/src/v1.6.37-05658d6f1a.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/libpng_x64-windows/lib/pkgconfig/libpng.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/libpng_x64-windows/lib/pkgconfig/libpng16.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/libpng_x64-windows/debug/lib/pkgconfig/libpng.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/libpng_x64-windows/debug/lib/pkgconfig/libpng16.pc
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/libpng_x64-windows/share/libpng/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\f7\f789f5225aad6e2623c8290ed4380a80f2176ec0.zip
+Building package libpng[core]:x64-windows... done
+Installing package libpng[core]:x64-windows...
+Installing package libpng[core]:x64-windows... done
+Elapsed time for package libpng:x64-windows: 18.2 s
+Starting package 10/14: bzip2:x64-windows
+Building package bzip2[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/bzip2-75a94bea3918e612b879d6a11ca64b8689526147.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/bzip2/src/8689526147-1ef169fbaa.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/bzip2-75a94bea3918e612b879d6a11ca64b8689526147.tar.gz
+-- Applying patch fix-import-export-macros.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/bzip2/src/8689526147-1ef169fbaa.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/bzip2_x64-windows/lib/pkgconfig/bzip2.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/bzip2_x64-windows/debug/lib/pkgconfig/bzip2.pc
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/bzip2_x64-windows/share/bzip2/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\05\0587f19506df926a5198a9a7bcb06f86878ca121.zip
+Building package bzip2[core]:x64-windows... done
+Installing package bzip2[core]:x64-windows...
+Installing package bzip2[core]:x64-windows... done
+Elapsed time for package bzip2:x64-windows: 12.44 s
+Starting package 11/14: brotli:x64-windows
+Building package brotli[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/google-brotli-e61745a6b7add50d380cfd7d3883dd6c62fc2c71.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/brotli/src/6c62fc2c71-a8c4ea9278.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/google-brotli-e61745a6b7add50d380cfd7d3883dd6c62fc2c71.tar.gz
+-- Applying patch install.patch
+-- Applying patch fix-arm-uwp.patch
+-- Applying patch pkgconfig.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/brotli/src/6c62fc2c71-a8c4ea9278.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/lib/pkgconfig/libbrotlicommon.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/lib/pkgconfig/libbrotlidec.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/lib/pkgconfig/libbrotlienc.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/debug/lib/pkgconfig/libbrotlicommon.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/debug/lib/pkgconfig/libbrotlidec.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/debug/lib/pkgconfig/libbrotlienc.pc
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/brotli_x64-windows/share/brotli/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\4b\4bfcb314d721e02732f308bb3efb464b2529e59b.zip
+Building package brotli[core]:x64-windows... done
+Installing package brotli[core]:x64-windows...
+Installing package brotli[core]:x64-windows... done
+Elapsed time for package brotli:x64-windows: 33.34 s
+Starting package 12/14: freetype:x64-windows
+Building package freetype[brotli,bzip2,core,png,zlib]:x64-windows...
+-- Trying auto-select mirror...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/freetype-2.10.4.tar.xz
+-- Skipping hash check for C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/freetype-2.10.4.tar.xz.
+-- The default mirror is in Disaster Recovery mode, trying other mirrors...
+-- Trying mirror cfhcable...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/freetype-2.10.4.tar.xz
+-- Skipping hash check for C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/freetype-2.10.4.tar.xz.
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/freetype/src/827cda734a-239082ca76.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/freetype-2.10.4.tar.xz
+-- Applying patch 0001-Fix-install-command.patch
+-- Applying patch 0003-Fix-UWP.patch
+-- Applying patch pkgconfig.patch
+-- Applying patch brotli-static.patch
+-- Applying patch fix-exports.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/freetype/src/827cda734a-239082ca76.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/freetype_x64-windows/lib/pkgconfig/freetype2.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/freetype_x64-windows/debug/lib/pkgconfig/freetype2.pc
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/freetype_x64-windows/share/freetype/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\d0\d0566472f2d9676ead38c783783ae6aa110a92b0.zip
+Building package freetype[brotli,bzip2,core,png,zlib]:x64-windows... done
+Installing package freetype[brotli,bzip2,core,png,zlib]:x64-windows...
+Installing package freetype[brotli,bzip2,core,png,zlib]:x64-windows... done
+Elapsed time for package freetype:x64-windows: 22.72 s
+Starting package 13/14: openal-soft:x64-windows
+Building package openal-soft[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/kcat-openal-soft-f5e0eef34db3a3ab94b61a2f99f84f078ba947e7.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/openal-soft/src/078ba947e7-cca1f22631.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/kcat-openal-soft-f5e0eef34db3a3ab94b61a2f99f84f078ba947e7.tar.gz
+-- Applying patch dont-export-symbols-in-static-build.patch
+-- Applying patch fix-arm-builds.patch
+-- Applying patch fix-mingw-build.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/openal-soft/src/078ba947e7-cca1f22631.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Installing: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/openal-soft_x64-windows/share/openal-soft/copyright
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\db\db57907b6bf80e518fde972f5168dd7755028efc.zip
+Building package openal-soft[core]:x64-windows... done
+Installing package openal-soft[core]:x64-windows...
+Installing package openal-soft[core]:x64-windows... done
+Elapsed time for package openal-soft:x64-windows: 3.015 min
+Starting package 14/14: sdl2:x64-windows
+Building package sdl2[core]:x64-windows...
+-- Using cached C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/SDL2-2.0.14.tar.gz
+-- Cleaning sources at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/sdl2/src/SDL2-2-24b047ff2f.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/SDL2-2.0.14.tar.gz
+-- Applying patch 0001-sdl2-Enable-creation-of-pkg-cfg-file-on-windows.patch
+-- Applying patch 0002-sdl2-skip-ibus-on-linux.patch
+-- Applying patch 0003-sdl2-fix-uwp-build.patch
+-- Using source at C:/Users/Jerome/Documents/GitHub/vcpkg/buildtrees/sdl2/src/SDL2-2-24b047ff2f.clean
+-- Configuring x64-windows
+-- Building x64-windows-dbg
+-- Building x64-windows-rel
+-- Using msys root at C:/Users/Jerome/Documents/GitHub/vcpkg/downloads/tools/msys2/50864d9fae363d6e
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/sdl2_x64-windows/lib/pkgconfig/sdl2.pc
+-- Fixing pkgconfig file: C:/Users/Jerome/Documents/GitHub/vcpkg/packages/sdl2_x64-windows/debug/lib/pkgconfig/sdl2.pc
+-- Performing post-build validation
+-- Performing post-build validation done
+Stored binary cache: C:\Users\Jerome\AppData\Local\vcpkg\archives\62\627fd8065eafd11042d2f179c0e7ddd8c7106e71.zip
+Building package sdl2[core]:x64-windows... done
+Installing package sdl2[core]:x64-windows...
+Installing package sdl2[core]:x64-windows... done
+Elapsed time for package sdl2:x64-windows: 1.142 min
+
+Total elapsed time: 5.86 min
+

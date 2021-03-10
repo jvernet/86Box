@@ -1,0 +1,11 @@
+Detecting compiler hash for triplet arm64-windows...
+Error: Unsupported toolchain combination.
+Target was arm64 but the chosen Visual Studio instance supports:
+    x86, amd64, x86_amd64, amd64_x86
+Vcpkg selected C:\Program Files (x86)\Microsoft Visual Studio\2019\Community as the Visual Studio instance.
+Detected instances:
+    C:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+    C:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+
+See https://github.com/microsoft/vcpkg/blob/master/docs/users/triplets.md#VCPKG_VISUAL_STUDIO_PATH for more information.
+Note: Updating vcpkg by rerunning bootstrap-vcpkg may resolve this failure.

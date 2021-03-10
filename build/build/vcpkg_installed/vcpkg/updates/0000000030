@@ -1,0 +1,9 @@
+Package: freetype
+Version: 2.10.4
+Architecture: x64-windows
+Multi-Arch: same
+Abi: d0566472f2d9676ead38c783783ae6aa110a92b0
+Description: A library to render fonts.
+Type: Port
+Default-Features: brotli, bzip2, png, zlib
+Status: install ok half-installed
